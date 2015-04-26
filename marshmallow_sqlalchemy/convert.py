@@ -48,16 +48,6 @@ class ModelConverter(object):
     }
 
     def fields_for_model(self, model, session=None, include_fk=False, keygetter=None, fields=None):
-        """Generate a dict of field_name: `marshmallow.fields.Field` pairs for the
-        given model.
-
-        :param model: The SQLAlchemy model
-        :param Session session: SQLAlchemy session. Required if the model includes
-            foreign key relationships.
-        :param bool include_fk: Whether to include foreign key fields from the
-            output.
-        :return: dict of field_name: Field instance pairs
-        """
         result = {}
         for prop in model.__mapper__.iterate_properties:
             if fields and prop.key not in fields:
