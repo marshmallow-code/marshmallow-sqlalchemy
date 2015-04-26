@@ -39,15 +39,15 @@ class ModelConverter(object):
         postgresql.UUID: fields.UUID,
         postgresql.MACADDR: fields.String,
         postgresql.INET: fields.String,
-        # TODO: Finish me
     }
+
     DIRECTION_MAPPING = {
         'MANYTOONE': fields.QuerySelect,
         'MANYTOMANY': fields.QuerySelectList,
         'ONETOMANY': fields.QuerySelectList,
     }
 
-    def fields_for_model(self, model, session=None, include_fk=False, keygetter=None):
+    def fields_for_model(self, model, session=None, include_fk=False, keygetter=None, fields=None):
         """Generate a dict of field_name: `marshmallow.Field` pairs for the
         given model.
 
@@ -60,6 +60,8 @@ class ModelConverter(object):
         """
         result = {}
         for prop in model.__mapper__.iterate_properties:
+            if fields and prop.key not in fields:
+                continue
             if hasattr(prop, 'columns'):
                 if not include_fk and prop.columns[0].foreign_keys:
                     continue
@@ -143,4 +145,3 @@ fields_for_model = default_converter.fields_for_model
 """Convert a SQLAlchemy model to a dictionary of
 field_name => `Field <marshmallow.fields.Field>` pairs.
 """
-
