@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 from .exceptions import ModelConversionError
 
 def get_pk_from_identity(obj):
-    """Get primary key for `obj`. If `obj` has a compuound primary key,
+    """Get primary key for `obj`. If `obj` has a compound primary key,
     return a string of keys separated by ``":"``.
     """
     _, key = identity_key(instance=obj)
@@ -208,3 +208,6 @@ class SQLAlchemyModelSchema(with_metaclass(SQLAlchemySchemaMeta, ma.Schema)):
                 sqla_session = session
     """
     OPTIONS_CLASS = SQLAlchemySchemaOpts
+
+    def make_object(self, data):
+        return self.opts.model(**data)

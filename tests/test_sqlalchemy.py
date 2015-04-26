@@ -274,6 +274,15 @@ class TestSQLASchema:
         assert 'current_school_id' not in result.data
         assert result.data['current_school'] == student.current_school.id
 
+    def test_model_schema_loading(self, models, schemas, student, session):
+        session.commit()
+        schema = schemas.StudentSchema()
+        dump_data = schema.dump(student).data
+        result = schema.load(dump_data)
+
+        assert type(result.data) == models.Student
+        assert result.data.id is None
+
     def test_fields_option(self, student, models, session):
         class StudentSchema(SQLAlchemyModelSchema):
             class Meta:
