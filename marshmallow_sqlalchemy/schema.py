@@ -6,6 +6,7 @@ from marshmallow import validate, fields
 from marshmallow.compat import text_type, with_metaclass
 import sqlalchemy as sa
 from sqlalchemy.orm.util import identity_key
+from sqlalchemy.dialects import postgresql
 
 from .exceptions import ModelConversionError
 
@@ -28,7 +29,16 @@ class ModelConverter(object):
     SQLA_TYPE_MAPPING = {
         sa.String: fields.String,
         sa.Unicode: fields.String,
+        sa.Boolean: fields.Boolean,
+        sa.Unicode: fields.String,
+        sa.Binary: fields.String,
         sa.Enum: fields.Field,
+        sa.Numeric: fields.Decimal,
+        sa.Float: fields.Decimal,
+        sa.Date: fields.Date,
+        postgresql.UUID: fields.UUID,
+        postgresql.MACADDR: fields.String,
+        postgresql.INET: fields.String,
         # TODO: Finish me
     }
     DIRECTION_MAPPING = {
@@ -53,12 +63,12 @@ class ModelConverter(object):
             if hasattr(prop, 'columns'):
                 if not include_fk and prop.columns[0].foreign_keys:
                     continue
-            field = self._property2field(prop, session=session, keygetter=keygetter)
+            field = self.property2field(prop, session=session, keygetter=keygetter)
             if field:
                 result[prop.key] = field
         return result
 
-    def _property2field(self, prop, session=None, keygetter=None):
+    def property2field(self, prop, session=None, keygetter=None):
         field_kwargs = self._get_field_kwargs_for_property(
             prop, session=session, keygetter=keygetter
         )
@@ -101,6 +111,9 @@ class ModelConverter(object):
             # Add a length validator if a max length is set on the column
             if hasattr(column.type, 'length'):
                 kwargs['validate'].append(validate.Length(max=column.type.length))
+
+            if hasattr(column.type, 'scale'):
+                kwargs['places'] = getattr(column.type, 'scale', None)
         if hasattr(prop, 'direction'):  # Relationship property
             # Get field class based on python type
             if not session:

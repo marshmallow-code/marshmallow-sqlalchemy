@@ -1,16 +1,18 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import datetime as dt
+import decimal
 
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, backref
+from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
+from sqlalchemy.dialects import postgresql
 
 from marshmallow import fields, validate
 
 import pytest
 
-from marshmallow_sqlalchemy import fields_for_model, SQLAlchemyModelSchema
+from marshmallow_sqlalchemy import fields_for_model, SQLAlchemyModelSchema, ModelConverter
 
 def contains_validator(field, v_type):
     for v in field.validators:
@@ -163,6 +165,87 @@ class TestModelFieldConversion:
 
         student_fields2 = fields_for_model(models.Student, session=session, include_fk=True)
         assert 'current_school_id' in student_fields2
+
+def make_property(*column_args, **column_kwargs):
+    return column_property(sa.Column(*column_args, **column_kwargs))
+
+class TestPropertyFieldConversion:
+
+    @pytest.fixture()
+    def converter(self):
+        return ModelConverter()
+
+    def test_convert_String(self, converter):
+        prop = make_property(sa.String())
+        field = converter.property2field(prop)
+        assert type(field) == fields.Str
+
+    def test_convert_Unicode(self, converter):
+        prop = make_property(sa.Unicode())
+        field = converter.property2field(prop)
+        assert type(field) == fields.Str
+
+    def test_convert_Binary(self, converter):
+        prop = make_property(sa.Binary())
+        field = converter.property2field(prop)
+        assert type(field) == fields.Str
+
+    def test_convert_LargeBinary(self, converter):
+        prop = make_property(sa.LargeBinary())
+        field = converter.property2field(prop)
+        assert type(field) == fields.Str
+
+    def test_convert_Text(self, converter):
+        prop = make_property(sa.types.Text())
+        field = converter.property2field(prop)
+        assert type(field) == fields.Str
+
+    def test_convert_Date(self, converter):
+        prop = make_property(sa.Date())
+        field = converter.property2field(prop)
+        assert type(field) == fields.Date
+
+    def test_convert_DateTime(self, converter):
+        prop = make_property(sa.DateTime())
+        field = converter.property2field(prop)
+        assert type(field) == fields.DateTime
+
+    def test_convert_Boolean(self, converter):
+        prop = make_property(sa.Boolean())
+        field = converter.property2field(prop)
+        assert type(field) == fields.Boolean
+
+    def test_convert_Numeric(self, converter):
+        prop = make_property(sa.Numeric(scale=2))
+        field = converter.property2field(prop)
+        assert type(field) == fields.Decimal
+        assert field.places == decimal.Decimal((0, (1,), -2))
+
+    def test_convert_Float(self, converter):
+        prop = make_property(sa.Float(scale=2))
+        field = converter.property2field(prop)
+        assert type(field) == fields.Decimal
+
+    def test_convert_SmallInteger(self, converter):
+        prop = make_property(sa.SmallInteger())
+        field = converter.property2field(prop)
+        assert type(field) == fields.Int
+
+    def test_convert_UUID(self, converter):
+        prop = make_property(postgresql.UUID())
+        field = converter.property2field(prop)
+        assert type(field) == fields.UUID
+
+    def test_convert_MACADDR(self, converter):
+        prop = make_property(postgresql.MACADDR())
+        field = converter.property2field(prop)
+        assert type(field) == fields.Str
+
+    def test_convert_INET(self, converter):
+        prop = make_property(postgresql.INET())
+        field = converter.property2field(prop)
+        assert type(field) == fields.Str
+
 
 class TestSQLASchema:
 
