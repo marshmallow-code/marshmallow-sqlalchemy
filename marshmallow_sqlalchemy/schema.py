@@ -114,6 +114,10 @@ class ModelConverter(object):
 
             if hasattr(column.type, 'scale'):
                 kwargs['places'] = getattr(column.type, 'scale', None)
+
+            # Primary keys are dump_only ("read-only")
+            if getattr(column, 'primary_key', False):
+                kwargs['dump_only'] = True
         if hasattr(prop, 'direction'):  # Relationship property
             # Get field class based on python type
             if not session:

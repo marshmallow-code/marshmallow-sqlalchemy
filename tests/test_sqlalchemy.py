@@ -215,6 +215,11 @@ class TestPropertyFieldConversion:
         field = converter.property2field(prop)
         assert type(field) == fields.Boolean
 
+    def test_convert_primary_key(self, converter):
+        prop = make_property(sa.Integer, primary_key=True)
+        field = converter.property2field(prop)
+        assert field.dump_only is True
+
     def test_convert_Numeric(self, converter):
         prop = make_property(sa.Numeric(scale=2))
         field = converter.property2field(prop)
