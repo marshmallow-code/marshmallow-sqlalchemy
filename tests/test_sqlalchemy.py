@@ -251,7 +251,7 @@ class TestPropertyFieldConversion:
         assert type(field) == fields.Str
 
 
-class TestSQLASchema:
+class TestModelSchema:
 
     @pytest.fixture()
     def school(self, models, session):

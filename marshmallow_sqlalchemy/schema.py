@@ -47,7 +47,11 @@ class SchemaMeta(ma.schema.SchemaMeta):
                 Converter = opts.model_converter
                 converter = Converter()
                 declared_fields = converter.fields_for_model(
-                    opts.model, opts.sqla_session, keygetter=opts.keygetter)
+                    opts.model,
+                    opts.sqla_session,
+                    keygetter=opts.keygetter,
+                    fields=klass.opts.fields,
+                )
                 break
         base_fields = super(SchemaMeta, mcs).get_declared_fields(
             klass, *args, **kwargs
