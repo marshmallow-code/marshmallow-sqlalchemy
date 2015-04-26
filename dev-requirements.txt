@@ -1,6 +1,5 @@
 invoke
 flake8
-sqlalchemy>=1.0.0
 
 # testing
 pytest

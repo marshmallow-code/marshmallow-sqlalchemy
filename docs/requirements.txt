@@ -1,3 +1,2 @@
-sqlalchemy>=1.0.0
 sphinx
 git+https://github.com/sloria/alabaster.git@sloria
