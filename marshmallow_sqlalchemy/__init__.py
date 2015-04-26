@@ -10,6 +10,7 @@ from .convert import (
     ModelConverter,
     fields_for_model,
     get_pk_from_identity,
+    property2field,
 )
 from .exceptions import ModelConversionError
 
@@ -21,6 +22,7 @@ __all__ = [
     'SchemaOpts',
     'ModelConverter',
     'fields_for_model',
+    'property2field',
     'get_pk_from_identity',
     'ModelConversionError',
 ]

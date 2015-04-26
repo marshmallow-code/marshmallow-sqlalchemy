@@ -11,7 +11,7 @@ from sqlalchemy.dialects import postgresql
 from marshmallow import fields, validate
 
 import pytest
-from marshmallow_sqlalchemy import fields_for_model, ModelSchema, ModelConverter
+from marshmallow_sqlalchemy import fields_for_model, ModelSchema, ModelConverter, property2field
 
 def contains_validator(field, v_type):
     for v in field.validators:
@@ -249,6 +249,17 @@ class TestPropertyFieldConversion:
         prop = make_property(postgresql.INET())
         field = converter.property2field(prop)
         assert type(field) == fields.Str
+
+class TestPropToFieldClass:
+
+    def test_property2field(self):
+        prop = make_property(sa.Integer())
+        field = property2field(prop, instance=True)
+
+        assert isinstance(field, fields.Int)
+
+        field_cls = property2field(prop, instance=False)
+        assert field_cls == fields.Int
 
 
 class TestModelSchema:

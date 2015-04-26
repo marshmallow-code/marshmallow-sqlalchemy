@@ -48,7 +48,7 @@ class ModelConverter(object):
     }
 
     def fields_for_model(self, model, session=None, include_fk=False, keygetter=None, fields=None):
-        """Generate a dict of field_name: `marshmallow.Field` pairs for the
+        """Generate a dict of field_name: `marshmallow.fields.Field` pairs for the
         given model.
 
         :param model: The SQLAlchemy model
@@ -70,11 +70,13 @@ class ModelConverter(object):
                 result[prop.key] = field
         return result
 
-    def property2field(self, prop, session=None, keygetter=None):
+    def property2field(self, prop, session=None, keygetter=None, instance=True):
+        field_class = self._get_field_class_for_property(prop)
+        if not instance:
+            return field_class
         field_kwargs = self._get_field_kwargs_for_property(
             prop, session=session, keygetter=keygetter
         )
-        field_class = self._get_field_class_for_property(prop)
         return field_class(**field_kwargs)
 
     def _get_field_class_for_property(self, prop):
@@ -142,6 +144,25 @@ class ModelConverter(object):
 default_converter = ModelConverter()
 
 fields_for_model = default_converter.fields_for_model
-"""Convert a SQLAlchemy model to a dictionary of
-field_name => `Field <marshmallow.fields.Field>` pairs.
+"""Generate a dict of field_name: `marshmallow.fields.Field` pairs for the
+given model.
+
+:param model: The SQLAlchemy model
+:param Session session: SQLAlchemy session. Required if the model includes
+    foreign key relationships.
+:param bool include_fk: Whether to include foreign key fields from the
+    output.
+:return: dict of field_name: Field instance pairs
+"""
+
+property2field = default_converter.property2field
+"""Convert a SQLAlchemy `Property` to a field instance or class.
+
+:param Property prop: SQLAlchemy Property.
+:param Session session: SQLALchemy session.
+:param keygetter: See `marshmallow.fields.QuerySelect` for documenation on the
+    keygetter parameter.
+:param bool instance: If `True`, return  `Field` instance, computing relevant kwargs
+    from the given property. If `False`, return the `Field` class.
+:return: A `marshmallow.fields.Field` class or instance.
 """
