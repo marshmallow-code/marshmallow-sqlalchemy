@@ -129,7 +129,18 @@ field_name => `Field <marshmallow.fields.Field>` pairs.
 
 
 class SQLAlchemySchemaOpts(ma.SchemaOpts):
-    """Options class for `SQLAlchemySchemaOpts`."""
+    """Options class for `SQLAlchemySchemaOpts`.
+    Adds the following options:
+
+    - ``model``: The SQLAlchemy model to generate the `Schema` from (required).
+    - ``sqla_session``: SQLAlchemy session (required).
+    - ``keygetter``: A `str` or function. Can be a callable or a string.
+        In the former case, it must be a one-argument callable which returns a unique comparable
+        key. In the latter case, the string specifies the name of
+        an attribute of the ORM-mapped object.
+    - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
+        marshmallow fields.
+    """
 
     def __init__(self, meta):
         super(SQLAlchemySchemaOpts, self).__init__(meta)
@@ -167,5 +178,16 @@ class SQLAlchemySchemaMeta(ma.schema.SchemaMeta):
 
 
 class SQLAlchemyModelSchema(with_metaclass(SQLAlchemySchemaMeta, ma.Schema)):
-    """Base class for SQLAlchemy model-based Schemas."""
+    """Base class for SQLAlchemy model-based Schemas.
+
+    Example: ::
+
+        from marshmallow_sqlalchemy import SQLAlchemyModelSchema
+        from mymodels import User, session
+
+        class UserSchema(SQLAlchemyModelSchema):
+            class Meta:
+                model = User
+                sqla_session = session
+    """
     OPTIONS_CLASS = SQLAlchemySchemaOpts

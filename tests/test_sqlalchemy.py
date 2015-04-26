@@ -185,3 +185,67 @@ class TestSQLASchema:
         # fk excluded by default
         assert 'current_school_id' not in result.data
         assert result.data['current_school'] == student.current_school.id
+
+    def test_fields_option(self, student, models, session):
+        class StudentSchema(SQLAlchemyModelSchema):
+            class Meta:
+                model = models.Student
+                sqla_session = session
+                fields = ('full_name', 'date_created')
+
+        session.commit()
+        schema = StudentSchema()
+        data, errors = schema.dump(student)
+
+        assert 'full_name' in data
+        assert 'date_created' in data
+        assert 'dob' not in data
+        assert len(data.keys()) == 2
+
+    def test_exclude_option(self, student, models, session):
+        class StudentSchema(SQLAlchemyModelSchema):
+            class Meta:
+                model = models.Student
+                sqla_session = session
+                exclude = ('date_created', )
+
+        session.commit()
+        schema = StudentSchema()
+        data, errors = schema.dump(student)
+
+        assert 'full_name' in data
+        assert 'date_created' not in data
+
+    def test_additional_option(self, student, models, session):
+        class StudentSchema(SQLAlchemyModelSchema):
+            uppername = fields.Function(lambda x: x.full_name.upper())
+
+            class Meta:
+                model = models.Student
+                sqla_session = session
+                additional = ('date_created', )
+
+        session.commit()
+        schema = StudentSchema()
+        data, errors = schema.dump(student)
+        assert 'full_name' in data
+        assert 'uppername' in data
+        assert data['uppername'] == student.full_name.upper()
+
+    def test_field_override(self, student, models, session):
+        class MyString(fields.Str):
+            def _serialize(self, val, attr, obj):
+                return val.upper()
+
+        class StudentSchema(SQLAlchemyModelSchema):
+            full_name = MyString()
+
+            class Meta:
+                model = models.Student
+                sqla_session = session
+
+        session.commit()
+        schema = StudentSchema()
+        data, errors = schema.dump(student)
+        assert 'full_name' in data
+        assert data['full_name'] == student.full_name.upper()
