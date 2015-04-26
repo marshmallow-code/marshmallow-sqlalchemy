@@ -27,6 +27,9 @@ Declare your models
         id = sa.Column(sa.Integer, primary_key=True)
         name = sa.Column(sa.String)
 
+    def __repr__(self):
+        return '<Author(name={self.name!r})>'.format(self=self)
+
     class Book(Base):
         __tablename__ = 'books'
         id = sa.Column(sa.Integer, primary_key=True)
@@ -68,6 +71,9 @@ Generate marshmallow schemas
 
     author_schema.dump(author).data
     # {'books': [123], 'id': 321, 'name': 'Chuck Paluhniuk'}
+
+    author_schema.load(dump_data).data
+    # <Author(name='Chuck Paluhniuk')>
 
 .. TODO: uncomment when this is released
 .. Get it now
