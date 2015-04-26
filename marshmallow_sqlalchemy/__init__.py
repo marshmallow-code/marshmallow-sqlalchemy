@@ -2,11 +2,14 @@
 from __future__ import absolute_import
 
 from .schema import (
-    fields_for_model,
     SQLAlchemySchemaOpts,
     SQLAlchemyModelSchema,
+)
+
+from .convert import (
+    ModelConverter,
+    fields_for_model,
     get_pk_from_identity,
-    ModelConverter
 )
 from .exceptions import ModelConversionError
 
