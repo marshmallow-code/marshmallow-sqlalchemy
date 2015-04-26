@@ -7,8 +7,8 @@ from marshmallow.compat import with_metaclass
 from .convert import get_pk_from_identity, ModelConverter
 
 
-class SQLAlchemySchemaOpts(ma.SchemaOpts):
-    """Options class for `SQLAlchemySchemaOpts`.
+class SchemaOpts(ma.SchemaOpts):
+    """Options class for `ModelSchema`.
     Adds the following options:
 
     - ``model``: The SQLAlchemy model to generate the `Schema` from (required).
@@ -22,7 +22,7 @@ class SQLAlchemySchemaOpts(ma.SchemaOpts):
     """
 
     def __init__(self, meta):
-        super(SQLAlchemySchemaOpts, self).__init__(meta)
+        super(SchemaOpts, self).__init__(meta)
         self.model = getattr(meta, 'model', None)
         self.sqla_session = getattr(meta, 'sqla_session', None)
         if self.model and not self.sqla_session:
@@ -30,8 +30,8 @@ class SQLAlchemySchemaOpts(ma.SchemaOpts):
         self.keygetter = getattr(meta, 'keygetter', get_pk_from_identity)
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)
 
-class SQLAlchemySchemaMeta(ma.schema.SchemaMeta):
-    """Metaclass for `SQLAlchemySchemaMeta`."""
+class SchemaMeta(ma.schema.SchemaMeta):
+    """Metaclass for `ModelSchema`."""
 
     # override SchemaMeta
     @classmethod
@@ -49,27 +49,27 @@ class SQLAlchemySchemaMeta(ma.schema.SchemaMeta):
                 declared_fields = converter.fields_for_model(
                     opts.model, opts.sqla_session, keygetter=opts.keygetter)
                 break
-        base_fields = super(SQLAlchemySchemaMeta, mcs).get_declared_fields(
+        base_fields = super(SchemaMeta, mcs).get_declared_fields(
             klass, *args, **kwargs
         )
         declared_fields.update(base_fields)
         return declared_fields
 
 
-class SQLAlchemyModelSchema(with_metaclass(SQLAlchemySchemaMeta, ma.Schema)):
+class ModelSchema(with_metaclass(SchemaMeta, ma.Schema)):
     """Base class for SQLAlchemy model-based Schemas.
 
     Example: ::
 
-        from marshmallow_sqlalchemy import SQLAlchemyModelSchema
+        from marshmallow_sqlalchemy import ModelSchema
         from mymodels import User, session
 
-        class UserSchema(SQLAlchemyModelSchema):
+        class UserSchema(ModelSchema):
             class Meta:
                 model = User
                 sqla_session = session
     """
-    OPTIONS_CLASS = SQLAlchemySchemaOpts
+    OPTIONS_CLASS = SchemaOpts
 
     def make_object(self, data):
         return self.opts.model(**data)

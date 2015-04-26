@@ -40,7 +40,7 @@ Generate marshmallow schemas
 
 .. code-block:: python
 
-    from marshmallow_sqlalchemy import SQLAlchemyModelSchema as ModelSchema
+    from marshmallow_sqlalchemy import ModelSchema
 
     class AuthorSchema(ModelSchema):
         class Meta:

@@ -11,8 +11,7 @@ from sqlalchemy.dialects import postgresql
 from marshmallow import fields, validate
 
 import pytest
-
-from marshmallow_sqlalchemy import fields_for_model, SQLAlchemyModelSchema, ModelConverter
+from marshmallow_sqlalchemy import fields_for_model, ModelSchema, ModelConverter
 
 def contains_validator(field, v_type):
     for v in field.validators:
@@ -91,17 +90,17 @@ def models(Base):
 
 @pytest.fixture()
 def schemas(models, session):
-    class CourseSchema(SQLAlchemyModelSchema):
+    class CourseSchema(ModelSchema):
         class Meta:
             model = models.Course
             sqla_session = session
 
-    class SchoolSchema(SQLAlchemyModelSchema):
+    class SchoolSchema(ModelSchema):
         class Meta:
             model = models.School
             sqla_session = session
 
-    class StudentSchema(SQLAlchemyModelSchema):
+    class StudentSchema(ModelSchema):
         class Meta:
             model = models.Student
             sqla_session = session
@@ -284,7 +283,7 @@ class TestSQLASchema:
         assert result.data.id is None
 
     def test_fields_option(self, student, models, session):
-        class StudentSchema(SQLAlchemyModelSchema):
+        class StudentSchema(ModelSchema):
             class Meta:
                 model = models.Student
                 sqla_session = session
@@ -300,7 +299,7 @@ class TestSQLASchema:
         assert len(data.keys()) == 2
 
     def test_exclude_option(self, student, models, session):
-        class StudentSchema(SQLAlchemyModelSchema):
+        class StudentSchema(ModelSchema):
             class Meta:
                 model = models.Student
                 sqla_session = session
@@ -314,7 +313,7 @@ class TestSQLASchema:
         assert 'date_created' not in data
 
     def test_additional_option(self, student, models, session):
-        class StudentSchema(SQLAlchemyModelSchema):
+        class StudentSchema(ModelSchema):
             uppername = fields.Function(lambda x: x.full_name.upper())
 
             class Meta:
@@ -334,7 +333,7 @@ class TestSQLASchema:
             def _serialize(self, val, attr, obj):
                 return val.upper()
 
-        class StudentSchema(SQLAlchemyModelSchema):
+        class StudentSchema(ModelSchema):
             full_name = MyString()
 
             class Meta:
