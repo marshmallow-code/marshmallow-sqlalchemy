@@ -1,0 +1,21 @@
+# Config file for automatic testing at travis-ci.org
+
+# Containerized builds
+sudo: false
+
+language: python
+
+python:
+  - "3.4"
+  - "3.3"
+  - "2.7"
+  - "pypy"
+
+install:
+  - pip install -r dev-requirements.txt
+  - pip install -U .
+
+before_script:
+  - flake8 .
+
+script: py.test
