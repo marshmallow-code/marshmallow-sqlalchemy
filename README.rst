@@ -69,12 +69,20 @@ Generate marshmallow schemas
     # {'books': [123], 'id': 321, 'name': 'Chuck Paluhniuk'}
 
 
-.. Documentation
-.. -------------
+Documentation
+=============
 
-.. Documentation is available at http://marshmallow-sqlalchemy.readthedocs.org/ .
+Documentation is available at http://marshmallow-sqlalchemy.readthedocs.org/ .
+
+Project Links
+=============
+
+- Docs: http://marshmallow-sqlalchemy.rtfd.org/
+- Changelog: http://marshmallow-sqlalchemy.readthedocs.org/en/latest/changelog.html
+- PyPI: https://pypi.python.org/pypi/marshmallow-sqlalchemy
+- Issues: https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues
 
 License
--------
+=======
 
 MIT licensed. See the bundled `LICENSE <https://github.com/marshmallow-code/marshmallow-sqlalchemy/blob/dev/LICENSE>`_ file for more details.
