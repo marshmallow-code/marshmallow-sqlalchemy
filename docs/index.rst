@@ -4,10 +4,11 @@ marshmallow-sqlalchemy
 
 Release v\ |version| (:ref:`Changelog <changelog>`)
 
+`SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.org/en/latest/>`_ (de)serialization library.
+
 .. warning::
     This project is not yet released. Follow its progress on `GitHub <https://github.com/marshmallow-code/marshmallow-sqlalchemy>`_.
 
-`SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.org/en/latest/>`_ (de)serialization library.
 
 Declare your models
 ===================
@@ -82,11 +83,20 @@ Generate marshmallow schemas
 
 ..    pip install -U marshmallow-sqlalchemy
 
+Learn
+=====
+
+.. toctree::
+    :maxdepth: 2
+
+    recipes
+
 API
 ===
 
 .. toctree::
     :maxdepth: 2
+
 
     api_reference
 

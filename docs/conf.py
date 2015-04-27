@@ -52,9 +52,12 @@ html_theme_options = {
     'warn_border': '#EEE',
     # Used to populate the useful-links.html template
     'extra_nav_links': OrderedDict([
-        ('marshmallow-sqlalchemy @ PyPI', 'http://pypi.python.org/pypi/marshmallow-sqlalchemy'),
-        ('marshmallow @ GitHub', 'http://github.com/marshmallow-code/marshmallow-sqlalchemy'),
-        ('Issue Tracker', 'http://github.com/marshmallow-code/marshmallow-sqlalchemy/issues'),
+        ('marshmallow-sqlalchemy @ PyPI',
+            'http://pypi.python.org/pypi/marshmallow-sqlalchemy'),
+        ('marshmallow-sqlalchemy @ GitHub',
+            'http://github.com/marshmallow-code/marshmallow-sqlalchemy'),
+        ('Issue Tracker',
+            'http://github.com/marshmallow-code/marshmallow-sqlalchemy/issues'),
     ])
 }
 
