@@ -2,15 +2,15 @@
 marshmallow-sqlalchemy
 **********************
 
-.. image:: https://badge.fury.io/py/marshmallow.png
-    :target: http://badge.fury.io/py/marshmallow
+.. image:: https://badge.fury.io/py/marshmallow-sqlalchemy.png
+    :target: http://badge.fury.io/py/marshmallow-sqlalchemy
     :alt: Latest version
 
 .. image:: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy.svg?branch=dev
     :target: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy
     :alt: Travis-CI
 
-Homepage: http://marshmallow.rtfd.org/
+Homepage: http://marshmallow-sqlalchemy.rtfd.org/
 
 `SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.org/en/latest/>`_ (de)serialization library.
 
@@ -32,8 +32,8 @@ Declare your models
         id = sa.Column(sa.Integer, primary_key=True)
         name = sa.Column(sa.String)
 
-    def __repr__(self):
-        return '<Author(name={self.name!r})>'.format(self=self)
+        def __repr__(self):
+            return '<Author(name={self.name!r})>'.format(self=self)
 
     class Book(Base):
         __tablename__ = 'books'
