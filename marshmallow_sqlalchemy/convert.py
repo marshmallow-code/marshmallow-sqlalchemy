@@ -60,22 +60,24 @@ class ModelConverter(object):
                 result[prop.key] = field
         return result
 
-    def property2field(self, prop, session=None, keygetter=None, instance=True):
+    def property2field(self, prop, session=None, keygetter=None, instance=True, **kwargs):
         field_class = self._get_field_class_for_property(prop)
         if not instance:
             return field_class
         field_kwargs = self._get_field_kwargs_for_property(
             prop, session=session, keygetter=keygetter
         )
+        field_kwargs.update(kwargs)
         return field_class(**field_kwargs)
 
-    def column2field(self, column, instance=True):
+    def column2field(self, column, instance=True, **kwargs):
         field_class = self._get_field_class_for_column(column)
         if not instance:
             return field_class
-        kwargs = self.get_base_kwargs()
-        self._add_column_kwargs(kwargs, column)
-        return field_class(**kwargs)
+        field_kwargs = self.get_base_kwargs()
+        self._add_column_kwargs(field_kwargs, column)
+        field_kwargs.update(kwargs)
+        return field_class(**field_kwargs)
 
     def _get_field_class_for_column(self, column):
         field_cls = None

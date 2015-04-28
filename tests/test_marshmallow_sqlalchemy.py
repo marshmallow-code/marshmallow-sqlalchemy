@@ -11,7 +11,9 @@ from sqlalchemy.dialects import postgresql
 from marshmallow import fields, validate
 
 import pytest
-from marshmallow_sqlalchemy import fields_for_model, ModelSchema, ModelConverter, property2field
+from marshmallow_sqlalchemy import (
+    fields_for_model, ModelSchema, ModelConverter, property2field, column2field
+)
 
 def contains_validator(field, v_type):
     for v in field.validators:
@@ -256,10 +258,31 @@ class TestPropToFieldClass:
         prop = make_property(sa.Integer())
         field = property2field(prop, instance=True)
 
-        assert isinstance(field, fields.Int)
+        assert type(field) == fields.Int
 
         field_cls = property2field(prop, instance=False)
         assert field_cls == fields.Int
+
+    def test_can_pass_extra_kwargs(self):
+        prop = make_property(sa.String())
+        field = property2field(prop, instance=True, description='just a string')
+        assert field.metadata['description'] == 'just a string'
+
+class TestColumnToFieldClass:
+
+    def test_column2field(self):
+        column = sa.Column(sa.String(255))
+        field = column2field(column, instance=True)
+
+        assert type(field) == fields.String
+
+        field_cls = column2field(column, instance=False)
+        assert field_cls == fields.String
+
+    def test_can_pass_extra_kwargs(self):
+        column = sa.Column(sa.String(255))
+        field = column2field(column, instance=True, description='just a string')
+        assert field.metadata['description'] == 'just a string'
 
 
 class TestModelSchema:
