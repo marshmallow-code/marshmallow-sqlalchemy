@@ -11,6 +11,7 @@ from .convert import (
     fields_for_model,
     get_pk_from_identity,
     property2field,
+    column2field,
 )
 from .exceptions import ModelConversionError
 
@@ -23,6 +24,7 @@ __all__ = [
     'ModelConverter',
     'fields_for_model',
     'property2field',
+    'column2field',
     'get_pk_from_identity',
     'ModelConversionError',
 ]
