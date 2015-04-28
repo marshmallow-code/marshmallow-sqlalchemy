@@ -47,6 +47,7 @@ html_theme_options = {
     'github_user': 'marshmallow-code',
     'github_repo': 'marshmallow-sqlalchemy',
     'github_banner': True,
+    'github_button': False,
     'gratipay_user': 'sloria',
     'code_font_size': '0.85em',
     'warn_bg': '#FFC',

@@ -112,6 +112,8 @@ class ModelConverter(object):
             self._add_column_kwargs(kwargs, column)
         if hasattr(prop, 'direction'):  # Relationship property
             self._add_relationship_kwargs(kwargs, prop, session=session)
+        if getattr(prop, 'doc', None):  # Useful for documentation generation
+            kwargs['description'] = prop.doc
         return kwargs
 
     def _add_column_kwargs(self, kwargs, column):

@@ -70,7 +70,8 @@ def models(Base):
         id = sa.Column(sa.Integer, primary_key=True)
         full_name = sa.Column(sa.String(255), nullable=False, unique=True, default='noname')
         dob = sa.Column(sa.Date(), nullable=True)
-        date_created = sa.Column(sa.DateTime, default=dt.datetime.utcnow)
+        date_created = sa.Column(sa.DateTime, default=dt.datetime.utcnow,
+                doc='date the student was created')
 
         current_school_id = sa.Column(sa.Integer, sa.ForeignKey(School.id), nullable=False)
         current_school = relationship(School, backref=backref('students'))
@@ -129,6 +130,10 @@ class TestModelFieldConversion:
     def test_fields_for_model_handles_custom_types(self, models, session):
         fields_ = fields_for_model(models.Course, session=session, include_fk=True)
         assert type(fields_['grade']) is fields.Int
+
+    def test_fields_for_model_saves_doc(self, models, session):
+        fields_ = fields_for_model(models.Student, session=session, include_fk=True)
+        assert fields_['date_created'].metadata['description'] == 'date the student was created'
 
     def test_length_validator_set(self, models, session):
         fields_ = fields_for_model(models.Student, session=session)
