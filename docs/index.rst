@@ -6,10 +6,6 @@ Release v\ |version| (:ref:`Changelog <changelog>`)
 
 `SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.org/en/latest/>`_ (de)serialization library.
 
-.. warning::
-    This project is not yet released. Follow its progress on `GitHub <https://github.com/marshmallow-code/marshmallow-sqlalchemy>`_.
-
-
 Declare your models
 ===================
 
@@ -76,12 +72,11 @@ Generate marshmallow schemas
     author_schema.load(dump_data).data
     # <Author(name='Chuck Paluhniuk')>
 
-.. TODO: uncomment when this is released
-.. Get it now
-.. ==========
-.. ::
+Get it now
+==========
+::
 
-..    pip install -U marshmallow-sqlalchemy
+   pip install -U marshmallow-sqlalchemy
 
 Learn
 =====

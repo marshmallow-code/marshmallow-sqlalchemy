@@ -2,9 +2,15 @@
 marshmallow-sqlalchemy
 **********************
 
+.. image:: https://badge.fury.io/py/marshmallow.png
+    :target: http://badge.fury.io/py/marshmallow
+    :alt: Latest version
+
 .. image:: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy.svg?branch=dev
     :target: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy
+    :alt: Travis-CI
 
+Homepage: http://marshmallow.rtfd.org/
 
 `SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.org/en/latest/>`_ (de)serialization library.
 
@@ -74,12 +80,11 @@ Generate marshmallow schemas
     author_schema.load(dump_data).data
     # <Author(name='Chuck Paluhniuk')>
 
-.. TODO: uncomment when this is released
-.. Get it now
-.. ==========
-.. ::
+Get it now
+==========
+::
 
-..    pip install -U marshmallow-sqlalchemy
+   pip install -U marshmallow-sqlalchemy
 
 
 Documentation

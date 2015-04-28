@@ -41,13 +41,14 @@ templates_path = ['_templates']
 html_show_sourcelink = False
 
 html_theme_options = {
+    'logo': 'marshmallow-sqlalchemy-logo.png',
     'description': 'SQLAlchemy integration with the marshmallow (de)serialization library',
     'description_font_style': 'italic',
     'github_user': 'marshmallow-code',
     'github_repo': 'marshmallow-sqlalchemy',
     'github_banner': True,
     'gratipay_user': 'sloria',
-    'code_font_size': '0.8em',
+    'code_font_size': '0.85em',
     'warn_bg': '#FFC',
     'warn_border': '#EEE',
     # Used to populate the useful-links.html template
