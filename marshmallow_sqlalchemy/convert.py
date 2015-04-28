@@ -12,7 +12,8 @@ from .exceptions import ModelConversionError
 
 def get_pk_from_identity(obj):
     """Get primary key for `obj`. If `obj` has a compound primary key,
-    return a string of keys separated by ``":"``.
+    return a string of keys separated by ``":"``. This is the default keygetter for
+    used by `ModelSchema <marshmallow_sqlalchemy.ModelSchema>`.
     """
     _, key = identity_key(instance=obj)
     if len(key) == 1:

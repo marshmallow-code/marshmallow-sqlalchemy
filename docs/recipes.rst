@@ -128,7 +128,7 @@ First, we require that models implement an ``absolute_url`` property.
 Then we define a base ``HyperlinkModelSchema`` that uses a custom ``keygetter``.
 
 .. code-block:: python
-    :emphasize-lines: 5,15,16
+    :emphasize-lines: 5-9,15,16
 
     # myapp/base.py
     from marshmallow_sqlalchemy import ModelSchema, SchemaOpts, get_pk_from_identity
@@ -198,3 +198,28 @@ We define our `Schemas <marshmallow.Schema>` as usual...
         #    'user': 'http://localhost/users/42',
         #    'title': 'Something completely different'}
         return jsonify(blog_schema.dump(blog).data)
+
+Introspecting Generated Fields
+==============================
+
+It is often useful to introspect what fields are generated for a `ModelSchema <marshmallow_sqlalchemy.ModelSchema>`.
+
+Generated fields are added to a `Schema's` ``_declared_fields`` attribute.
+
+.. code-block:: python
+
+    AuthorSchema._declared_fields['books']
+    # <fields.QuerySelectList(default=<marshmallow.missing>, ...>
+
+
+You can also use `marshmallow_sqlalchemy's` conversion functions directly.
+
+
+.. code-block:: python
+
+    from marshmallow_sqlalchemy import property2field
+
+    id_prop = Author.__mapper__.get_property('id')
+
+    property2field(id_prop)
+    # <fields.Integer(default=<marshmallow.missing>, ...>
