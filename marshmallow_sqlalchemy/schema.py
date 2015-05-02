@@ -2,7 +2,7 @@
 import inspect
 
 import marshmallow as ma
-from marshmallow.compat import with_metaclass
+from marshmallow.compat import with_metaclass, PY2
 
 from .convert import get_pk_from_identity, ModelConverter
 
@@ -43,14 +43,20 @@ class SchemaMeta(ma.schema.SchemaMeta):
         # inheriting from base classes
         for base in inspect.getmro(klass):
             opts = klass.opts
+            # In Python 2, Meta.keygetter will be an unbound method,
+            # so we need to get the unbound function
+            if PY2 and inspect.ismethod(opts.keygetter):
+                keygetter = opts.keygetter.im_func
+            else:
+                keygetter = opts.keygetter
             if opts.model:
                 Converter = opts.model_converter
                 converter = Converter()
                 declared_fields = converter.fields_for_model(
                     opts.model,
                     opts.sqla_session,
-                    keygetter=opts.keygetter,
-                    fields=klass.opts.fields,
+                    keygetter=keygetter,
+                    fields=opts.fields,
                 )
                 break
         base_fields = super(SchemaMeta, mcs).get_declared_fields(
