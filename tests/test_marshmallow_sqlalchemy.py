@@ -60,10 +60,18 @@ def models(Base):
         started = sa.Column(sa.DateTime, nullable=False)
         grade = sa.Column(AnotherInteger, nullable=False)
 
+        @property
+        def url(self):
+            return '/courses/{}'.format(self.id)
+
     class School(Base):
         __tablename__ = 'school'
         id = sa.Column(sa.Integer, primary_key=True)
         name = sa.Column(sa.String(255), nullable=False)
+
+        @property
+        def url(self):
+            return '/schools/{}'.format(self.id)
 
     class Student(Base):
         __tablename__ = 'student'
@@ -82,6 +90,10 @@ def models(Base):
             backref=backref("students", lazy='dynamic')
         )
 
+        @property
+        def url(self):
+            return '/students/{}'.format(self.id)
+
     # So that we can access models with dot-notation, e.g. models.Course
     class _models(object):
         def __init__(self):
@@ -90,6 +102,8 @@ def models(Base):
             self.Student = Student
     return _models()
 
+def hyperlink_keygetter(obj):
+    return obj.url
 
 @pytest.fixture()
 def schemas(models, session):
@@ -108,12 +122,20 @@ def schemas(models, session):
             model = models.Student
             sqla_session = session
 
+
+    class HyperlinkStudentSchema(ModelSchema):
+        class Meta:
+            model = models.Student
+            sqla_session = session
+            keygetter = hyperlink_keygetter
+
     # Again, so we can use dot-notation
     class _schemas(object):
         def __init__(self):
             self.CourseSchema = CourseSchema
             self.SchoolSchema = SchoolSchema
             self.StudentSchema = StudentSchema
+            self.HyperlinkStudentSchema = HyperlinkStudentSchema
     return _schemas()
 
 
@@ -164,6 +186,13 @@ class TestModelFieldConversion:
 
         school_fields = fields_for_model(models.School, session=session)
         assert type(school_fields['students']) is fields.QuerySelectList
+
+    def test_custom_keygetter(self, models, session):
+        student_fields = fields_for_model(models.Student,
+            session=session,
+            keygetter=hyperlink_keygetter
+        )
+        assert student_fields['current_school'].keygetter == hyperlink_keygetter
 
     def test_include_fk(self, models, session):
         student_fields = fields_for_model(models.Student, session=session, include_fk=False)
@@ -310,7 +339,14 @@ class TestModelSchema:
         result = schema.dump(student)
         # fk excluded by default
         assert 'current_school_id' not in result.data
+        # related field dumps to pk
         assert result.data['current_school'] == student.current_school.id
+
+    def test_model_schema_overridden_keygeter(self, schemas, student, session):
+        session.commit()
+        schema = schemas.HyperlinkStudentSchema()
+        result = schema.dump(student)
+        assert result.data['current_school'] == student.current_school.url
 
     def test_model_schema_loading(self, models, schemas, student, session):
         session.commit()
