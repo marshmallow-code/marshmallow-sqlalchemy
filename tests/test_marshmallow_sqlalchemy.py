@@ -12,7 +12,8 @@ from marshmallow import fields, validate
 
 import pytest
 from marshmallow_sqlalchemy import (
-    fields_for_model, ModelSchema, ModelConverter, property2field, column2field
+    fields_for_model, ModelSchema, ModelConverter, property2field, column2field,
+    field_for,
 )
 
 def contains_validator(field, v_type):
@@ -122,7 +123,6 @@ def schemas(models, session):
             model = models.Student
             sqla_session = session
 
-
     class HyperlinkStudentSchema(ModelSchema):
         class Meta:
             model = models.Student
@@ -188,7 +188,8 @@ class TestModelFieldConversion:
         assert type(school_fields['students']) is fields.QuerySelectList
 
     def test_custom_keygetter(self, models, session):
-        student_fields = fields_for_model(models.Student,
+        student_fields = fields_for_model(
+            models.Student,
             session=session,
             keygetter=hyperlink_keygetter
         )
@@ -318,6 +319,14 @@ class TestColumnToFieldClass:
         field = column2field(column, instance=True, description='just a string')
         assert field.metadata['description'] == 'just a string'
 
+class TestFieldFor:
+
+    def test_field_for(self, models, session):
+        field = field_for(models.Student, 'full_name')
+        assert type(field) == fields.Str
+
+        field = field_for(models.Student, 'current_school', session=session)
+        assert type(field) == fields.QuerySelect
 
 class TestModelSchema:
 

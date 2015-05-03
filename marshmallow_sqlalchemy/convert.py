@@ -80,6 +80,10 @@ class ModelConverter(object):
         field_kwargs.update(kwargs)
         return field_class(**field_kwargs)
 
+    def field_for(self, model, property_name, **kwargs):
+        prop = model.__mapper__.get_property(property_name)
+        return self.property2field(prop, **kwargs)
+
     def _get_field_class_for_column(self, column):
         field_cls = None
         types = inspect.getmro(type(column.type))
@@ -193,5 +197,18 @@ column2field = default_converter.column2field
 :param sqlalchemy.schema.Column column: SQLAlchemy Column.
 :param bool instance: If `True`, return  `Field` instance, computing relevant kwargs
     from the given property. If `False`, return the `Field` class.
+:return: A `marshmallow.fields.Field` class or instance.
+"""
+
+field_for = default_converter.field_for
+"""Convert a property for a mapped SQLAlchemy class to a marshmallow `Field`.
+Example: ::
+
+    field_for(Author, 'name')
+    field_for(Book, 'author', session=session)
+
+:param type model: A SQLAlchemy mapped class.
+:param str property_name: The name of the property to convert.
+:param kwargs: Extra keyword arguments to pass to `property2field`
 :return: A `marshmallow.fields.Field` class or instance.
 """

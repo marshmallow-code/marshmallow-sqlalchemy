@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.2.0 (unreleased)
+++++++++++++++++++
+
+- Add ``field_for`` function for generating marshmallow Fields from SQLAlchemy mapped class properties.
+
 0.1.1 (2015-05-02)
 ++++++++++++++++++
 

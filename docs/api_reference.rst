@@ -15,3 +15,6 @@ API Reference
 
     .. autodata:: marshmallow_sqlalchemy.column2field
         :annotation: =func(...)
+
+    .. autodata:: marshmallow_sqlalchemy.field_for
+        :annotation: =func(...)

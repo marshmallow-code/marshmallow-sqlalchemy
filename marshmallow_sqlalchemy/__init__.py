@@ -12,10 +12,11 @@ from .convert import (
     get_pk_from_identity,
     property2field,
     column2field,
+    field_for,
 )
 from .exceptions import ModelConversionError
 
-__version__ = '0.1.1'
+__version__ = '0.2.0.dev'
 __license__ = 'MIT'
 
 __all__ = [
@@ -27,4 +28,5 @@ __all__ = [
     'column2field',
     'get_pk_from_identity',
     'ModelConversionError',
+    'field_for',
 ]
