@@ -245,6 +245,8 @@ You can use the `field_for <marshmallow_sqlalchemy.field_for>` function to gener
 
 .. code-block:: python
 
+    from marshmallow_sqlalchemy import ModelSchema, field_for
+
     class AuthorSchema(ModelSchema):
         # Generate a field, passing in an additional dump_only argument
         date_created = field_for(Author, 'date_created', dump_only=True)
