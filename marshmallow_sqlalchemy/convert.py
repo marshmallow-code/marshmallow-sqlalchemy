@@ -188,6 +188,7 @@ property2field = default_converter.property2field
     keygetter parameter.
 :param bool instance: If `True`, return  `Field` instance, computing relevant kwargs
     from the given property. If `False`, return the `Field` class.
+:param kwargs: Additional keyword arguments to pass to the field constructor.
 :return: A `marshmallow.fields.Field` class or instance.
 """
 
@@ -204,8 +205,8 @@ field_for = default_converter.field_for
 """Convert a property for a mapped SQLAlchemy class to a marshmallow `Field`.
 Example: ::
 
-    field_for(Author, 'name')
-    field_for(Book, 'author', session=session)
+    date_created = field_for(Author, 'date_created', dump_only=True)
+    author = field_for(Book, 'author', session=session)
 
 :param type model: A SQLAlchemy mapped class.
 :param str property_name: The name of the property to convert.
