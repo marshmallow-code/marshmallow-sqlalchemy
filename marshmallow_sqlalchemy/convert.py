@@ -42,32 +42,32 @@ class ModelConverter(object):
         postgresql.MACADDR: fields.String,
         postgresql.INET: fields.String,
 
-	mysql.BIT: fields.Integer,
-	mysql.TINYINT: fields.Integer,
-	mysql.SMALLINT: fields.Integer,
-	mysql.INTEGER: fields.Integer,
-	mysql.BIGINT: fields.Integer,
+        mysql.BIT: fields.Integer,
+        mysql.TINYINT: fields.Integer,
+        mysql.SMALLINT: fields.Integer,
+        mysql.INTEGER: fields.Integer,
+        mysql.BIGINT: fields.Integer,
 
-	mysql.NUMERIC: fields.Decimal,
-	mysql.DECIMAL: fields.Decimal,
+        mysql.NUMERIC: fields.Decimal,
+        mysql.DECIMAL: fields.Decimal,
 
-	mysql.DATETIME: fields.DateTime,
-	mysql.DATE: fields.Date,
-	mysql.TIME: fields.Time,
-	mysql.YEAR: fields.Integer,
+        mysql.DATETIME: fields.DateTime,
+        mysql.DATE: fields.Date,
+        mysql.TIME: fields.Time,
+        mysql.YEAR: fields.Integer,
 
-	mysql.TEXT: fields.String,
-	mysql.TINYTEXT: fields.String,
-	mysql.MEDIUMTEXT: fields.String,
-	mysql.LONGTEXT: fields.String,
+        mysql.TEXT: fields.String,
+        mysql.TINYTEXT: fields.String,
+        mysql.MEDIUMTEXT: fields.String,
+        mysql.LONGTEXT: fields.String,
 
-	mysql.BLOB: fields.String,
-	mysql.TINYBLOB: fields.String,
-	mysql.MEDIUMBLOB: fields.String,
-	mysql.LONGBLOB: fields.String,
+        mysql.BLOB: fields.String,
+        mysql.TINYBLOB: fields.String,
+        mysql.MEDIUMBLOB: fields.String,
+        mysql.LONGBLOB: fields.String,
 
-	mysql.SET: fields.List,
-	mysql.ENUM: fields.Enum
+        mysql.SET: fields.List,
+        mysql.ENUM: fields.Enum
 
     }
 
