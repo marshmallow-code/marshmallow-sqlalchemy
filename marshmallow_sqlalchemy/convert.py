@@ -67,8 +67,7 @@ class ModelConverter(object):
         mysql.LONGBLOB: fields.String,
 
         mysql.SET: fields.List,
-        mysql.ENUM: fields.Enum
-
+        mysql.ENUM: fields.Field,
     }
 
     DIRECTION_MAPPING = {
