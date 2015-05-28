@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.3.0 (unreleased)
+++++++++++++++++++
+
+- Improve support for MySQL types (:issue:`1`). Thanks :user:`rmackinnon`.
+
 0.2.0 (2015-05-03)
 ++++++++++++++++++
 
