@@ -1,2 +1,3 @@
 sphinx
 git+https://github.com/sloria/alabaster.git@sloria
+sphinx-issues==0.2.0

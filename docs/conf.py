@@ -14,6 +14,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
+    'sphinx_issues',
 ]
 
 primary_domain = 'py'
@@ -24,6 +25,8 @@ intersphinx_mapping = {
     'marshmallow': ('http://marshmallow.readthedocs.org/en/latest/', None),
     'sqlalchemy': ('http://www.sqlalchemy.org/docs/', None),
 }
+
+issues_github_path = 'marshmallow-code/marshmallow-sqlalchemy'
 
 source_suffix = '.rst'
 master_doc = 'index'
