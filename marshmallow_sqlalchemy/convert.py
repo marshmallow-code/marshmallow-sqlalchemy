@@ -28,44 +28,14 @@ class ModelConverter(object):
     """
 
     SQLA_TYPE_MAPPING = {
-        sa.String: fields.String,
-        sa.Unicode: fields.String,
-        sa.Boolean: fields.Boolean,
-        sa.Unicode: fields.String,
-        sa.Binary: fields.String,
         sa.Enum: fields.Field,
-        sa.Numeric: fields.Decimal,
-        sa.Float: fields.Decimal,
-        sa.Date: fields.Date,
 
         postgresql.UUID: fields.UUID,
         postgresql.MACADDR: fields.String,
         postgresql.INET: fields.String,
 
         mysql.BIT: fields.Integer,
-        mysql.TINYINT: fields.Integer,
-        mysql.SMALLINT: fields.Integer,
-        mysql.INTEGER: fields.Integer,
-        mysql.BIGINT: fields.Integer,
-
-        mysql.NUMERIC: fields.Decimal,
-        mysql.DECIMAL: fields.Decimal,
-
-        mysql.DATETIME: fields.DateTime,
-        mysql.DATE: fields.Date,
-        mysql.TIME: fields.Time,
         mysql.YEAR: fields.Integer,
-
-        mysql.TEXT: fields.String,
-        mysql.TINYTEXT: fields.String,
-        mysql.MEDIUMTEXT: fields.String,
-        mysql.LONGTEXT: fields.String,
-
-        mysql.BLOB: fields.String,
-        mysql.TINYBLOB: fields.String,
-        mysql.MEDIUMBLOB: fields.String,
-        mysql.LONGBLOB: fields.String,
-
         mysql.SET: fields.List,
         mysql.ENUM: fields.Field,
     }

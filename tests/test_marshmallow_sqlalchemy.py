@@ -265,7 +265,7 @@ class TestPropertyFieldConversion:
     def test_convert_Float(self, converter):
         prop = make_property(sa.Float(scale=2))
         field = converter.property2field(prop)
-        assert type(field) == fields.Decimal
+        assert type(field) == fields.Float
 
     def test_convert_SmallInteger(self, converter):
         prop = make_property(sa.SmallInteger())
