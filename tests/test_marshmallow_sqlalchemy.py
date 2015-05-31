@@ -287,6 +287,18 @@ class TestPropertyFieldConversion:
         field = converter.property2field(prop)
         assert type(field) == fields.Str
 
+    def test_convert_ARRAY_String(self, converter):
+        prop = make_property(postgresql.ARRAY(sa.String()))
+        field = converter.property2field(prop)
+        assert type(field) == fields.List
+        assert type(field.container) == fields.Str
+
+    def test_convert_ARRAY_Integer(self, converter):
+        prop = make_property(postgresql.ARRAY(sa.Integer))
+        field = converter.property2field(prop)
+        assert type(field) == fields.List
+        assert type(field.container) == fields.Int
+
 class TestPropToFieldClass:
 
     def test_property2field(self):
