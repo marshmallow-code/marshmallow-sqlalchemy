@@ -25,12 +25,12 @@ def get_pk_from_identity(obj):
 def _is_field(value):
     return (
         isinstance(value, type) and
-        issubclass(value, ma.fields.Field)
+        issubclass(value, fields.Field)
     )
 
 def _postgres_array_factory(converter, data_type):
     return functools.partial(
-        ma.fields.List,
+        fields.List,
         converter._get_field_class_for_data_type(data_type.item_type),
     )
 
@@ -42,9 +42,13 @@ class ModelConverter(object):
     SQLA_TYPE_MAPPING = {
         sa.Enum: fields.Field,
 
+        postgresql.BIT: fields.Integer,
         postgresql.UUID: fields.UUID,
         postgresql.MACADDR: fields.String,
         postgresql.INET: fields.String,
+        postgresql.JSON: fields.Raw,
+        postgresql.JSONB: fields.Raw,
+        postgresql.HSTORE: fields.Raw,
         postgresql.ARRAY: _postgres_array_factory,
 
         mysql.BIT: fields.Integer,
