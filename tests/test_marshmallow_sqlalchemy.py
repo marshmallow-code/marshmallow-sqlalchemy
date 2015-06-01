@@ -265,7 +265,7 @@ class TestPropertyFieldConversion:
     def test_convert_Float(self, converter):
         prop = make_property(sa.Float(scale=2))
         field = converter.property2field(prop)
-        assert type(field) == fields.Decimal
+        assert type(field) == fields.Float
 
     def test_convert_SmallInteger(self, converter):
         prop = make_property(sa.SmallInteger())
@@ -286,6 +286,18 @@ class TestPropertyFieldConversion:
         prop = make_property(postgresql.INET())
         field = converter.property2field(prop)
         assert type(field) == fields.Str
+
+    def test_convert_ARRAY_String(self, converter):
+        prop = make_property(postgresql.ARRAY(sa.String()))
+        field = converter.property2field(prop)
+        assert type(field) == fields.List
+        assert type(field.container) == fields.Str
+
+    def test_convert_ARRAY_Integer(self, converter):
+        prop = make_property(postgresql.ARRAY(sa.Integer))
+        field = converter.property2field(prop)
+        assert type(field) == fields.List
+        assert type(field.container) == fields.Int
 
 class TestPropToFieldClass:
 

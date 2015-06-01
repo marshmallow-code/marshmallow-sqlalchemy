@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import inspect
+import functools
 
 import marshmallow as ma
 from marshmallow import validate, fields
@@ -21,6 +22,17 @@ def get_pk_from_identity(obj):
     else:  # Compund primary key
         return ':'.join(text_type(x) for x in key)
 
+def _is_field(value):
+    return (
+        isinstance(value, type) and
+        issubclass(value, fields.Field)
+    )
+
+def _postgres_array_factory(converter, data_type):
+    return functools.partial(
+        fields.List,
+        converter._get_field_class_for_data_type(data_type.item_type),
+    )
 
 class ModelConverter(object):
     """Class that converts a SQLAlchemy model into a dictionary of corresponding
@@ -28,44 +40,19 @@ class ModelConverter(object):
     """
 
     SQLA_TYPE_MAPPING = {
-        sa.String: fields.String,
-        sa.Unicode: fields.String,
-        sa.Boolean: fields.Boolean,
-        sa.Unicode: fields.String,
-        sa.Binary: fields.String,
         sa.Enum: fields.Field,
-        sa.Numeric: fields.Decimal,
-        sa.Float: fields.Decimal,
-        sa.Date: fields.Date,
 
+        postgresql.BIT: fields.Integer,
         postgresql.UUID: fields.UUID,
         postgresql.MACADDR: fields.String,
         postgresql.INET: fields.String,
+        postgresql.JSON: fields.Raw,
+        postgresql.JSONB: fields.Raw,
+        postgresql.HSTORE: fields.Raw,
+        postgresql.ARRAY: _postgres_array_factory,
 
         mysql.BIT: fields.Integer,
-        mysql.TINYINT: fields.Integer,
-        mysql.SMALLINT: fields.Integer,
-        mysql.INTEGER: fields.Integer,
-        mysql.BIGINT: fields.Integer,
-
-        mysql.NUMERIC: fields.Decimal,
-        mysql.DECIMAL: fields.Decimal,
-
-        mysql.DATETIME: fields.DateTime,
-        mysql.DATE: fields.Date,
-        mysql.TIME: fields.Time,
         mysql.YEAR: fields.Integer,
-
-        mysql.TEXT: fields.String,
-        mysql.TINYTEXT: fields.String,
-        mysql.MEDIUMTEXT: fields.String,
-        mysql.LONGTEXT: fields.String,
-
-        mysql.BLOB: fields.String,
-        mysql.TINYBLOB: fields.String,
-        mysql.MEDIUMBLOB: fields.String,
-        mysql.LONGBLOB: fields.String,
-
         mysql.SET: fields.List,
         mysql.ENUM: fields.Field,
     }
@@ -113,17 +100,22 @@ class ModelConverter(object):
         return self.property2field(prop, **kwargs)
 
     def _get_field_class_for_column(self, column):
+        return self._get_field_class_for_data_type(column.type)
+
+    def _get_field_class_for_data_type(self, data_type):
         field_cls = None
-        types = inspect.getmro(type(column.type))
+        types = inspect.getmro(type(data_type))
         # First search for a field class from self.SQLA_TYPE_MAPPING
         for col_type in types:
             if col_type in self.SQLA_TYPE_MAPPING:
                 field_cls = self.SQLA_TYPE_MAPPING[col_type]
+                if callable(field_cls) and not _is_field(field_cls):
+                    field_cls = field_cls(self, data_type)
                 break
         else:
             # Try to find a field class based on the column's python_type
-            if column.type.python_type in ma.Schema.TYPE_MAPPING:
-                field_cls = ma.Schema.TYPE_MAPPING[column.type.python_type]
+            if data_type.python_type in ma.Schema.TYPE_MAPPING:
+                field_cls = ma.Schema.TYPE_MAPPING[data_type.python_type]
             else:
                 raise ModelConversionError(
                     'Could not find field column of type {0}.'.format(types[0]))
