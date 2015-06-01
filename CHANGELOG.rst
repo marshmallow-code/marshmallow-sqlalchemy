@@ -5,6 +5,7 @@ Changelog
 ++++++++++++++++++
 
 - Improve support for MySQL types (:issue:`1`). Thanks :user:`rmackinnon`.
+- Improve support for Postgres ARRAY types (:issue:`6`). Thanks :user:`jmcarp`.
 
 0.2.0 (2015-05-03)
 ++++++++++++++++++
