@@ -4,24 +4,11 @@ import functools
 
 import marshmallow as ma
 from marshmallow import validate, fields
-from marshmallow.compat import text_type
 from sqlalchemy.dialects import postgresql, mysql
-from sqlalchemy.orm.util import identity_key
 import sqlalchemy as sa
 
 from .exceptions import ModelConversionError
 from .fields import Related
-
-def get_pk_from_identity(obj):
-    """Get primary key for `obj`. If `obj` has a compound primary key,
-    return a string of keys separated by ``":"``. This is the default keygetter for
-    used by `ModelSchema <marshmallow_sqlalchemy.ModelSchema>`.
-    """
-    _, key = identity_key(instance=obj)
-    if len(key) == 1:
-        return key[0]
-    else:  # Compund primary key
-        return ':'.join(text_type(x) for x in key)
 
 def _is_field(value):
     return (
@@ -64,7 +51,7 @@ class ModelConverter(object):
         'ONETOMANY': True,
     }
 
-    def fields_for_model(self, model, session=None, include_fk=False, keygetter=None, fields=None):
+    def fields_for_model(self, model, session=None, include_fk=False, fields=None):
         result = {}
         for prop in model.__mapper__.iterate_properties:
             if fields and prop.key not in fields:
@@ -72,18 +59,16 @@ class ModelConverter(object):
             if hasattr(prop, 'columns'):
                 if not include_fk and prop.columns[0].foreign_keys:
                     continue
-            field = self.property2field(prop, session=session, keygetter=keygetter)
+            field = self.property2field(prop, session=session)
             if field:
                 result[prop.key] = field
         return result
 
-    def property2field(self, prop, session=None, keygetter=None, instance=True, **kwargs):
+    def property2field(self, prop, session=None, instance=True, **kwargs):
         field_class = self._get_field_class_for_property(prop)
         if not instance:
             return field_class
-        field_kwargs = self._get_field_kwargs_for_property(
-            prop, session=session, keygetter=keygetter
-        )
+        field_kwargs = self._get_field_kwargs_for_property(prop, session=session)
         field_kwargs.update(kwargs)
         ret = field_class(**field_kwargs)
         if hasattr(prop, 'direction') and self.DIRECTION_MAPPING[prop.direction.name]:
@@ -133,13 +118,13 @@ class ModelConverter(object):
             field_cls = self._get_field_class_for_column(column)
         return field_cls
 
-    def _get_field_kwargs_for_property(self, prop, session=None, keygetter=None):
+    def _get_field_kwargs_for_property(self, prop, session=None):
         kwargs = self.get_base_kwargs()
         if hasattr(prop, 'columns'):
             column = prop.columns[0]
             self._add_column_kwargs(kwargs, column)
         if hasattr(prop, 'direction'):  # Relationship property
-            self._add_relationship_kwargs(kwargs, prop, session=session, keygetter=keygetter)
+            self._add_relationship_kwargs(kwargs, prop, session=session)
         if getattr(prop, 'doc', None):  # Useful for documentation generation
             kwargs['description'] = prop.doc
         return kwargs
@@ -165,7 +150,7 @@ class ModelConverter(object):
         if getattr(column, 'primary_key', False):
             kwargs['dump_only'] = True
 
-    def _add_relationship_kwargs(self, kwargs, prop, session, keygetter=None):
+    def _add_relationship_kwargs(self, kwargs, prop, session):
         """Add keyword arguments to kwargs (in-place) based on the passed in
         relationship `Property`.
         """
@@ -201,8 +186,6 @@ property2field = default_converter.property2field
 
 :param Property prop: SQLAlchemy Property.
 :param Session session: SQLALchemy session.
-:param keygetter: See `marshmallow.fields.QuerySelect` for documenation on the
-    keygetter parameter.
 :param bool instance: If `True`, return  `Field` instance, computing relevant kwargs
     from the given property. If `False`, return the `Field` class.
 :param kwargs: Additional keyword arguments to pass to the field constructor.

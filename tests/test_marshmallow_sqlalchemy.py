@@ -104,9 +104,6 @@ def models(Base):
             self.Student = Student
     return _models()
 
-def hyperlink_keygetter(obj):
-    return obj.url
-
 @pytest.fixture()
 def schemas(models, session):
     class CourseSchema(ModelSchema):
@@ -128,7 +125,6 @@ def schemas(models, session):
         class Meta:
             model = models.Student
             sqla_session = session
-            keygetter = hyperlink_keygetter
 
     # Again, so we can use dot-notation
     class _schemas(object):
