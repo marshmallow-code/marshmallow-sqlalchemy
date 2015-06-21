@@ -10,6 +10,7 @@ from sqlalchemy.orm.util import identity_key
 import sqlalchemy as sa
 
 from .exceptions import ModelConversionError
+from .fields import Related
 
 def get_pk_from_identity(obj):
     """Get primary key for `obj`. If `obj` has a compound primary key,
@@ -58,9 +59,9 @@ class ModelConverter(object):
     }
 
     DIRECTION_MAPPING = {
-        'MANYTOONE': fields.QuerySelect,
-        'MANYTOMANY': fields.QuerySelectList,
-        'ONETOMANY': fields.QuerySelectList,
+        'MANYTOONE': False,
+        'MANYTOMANY': True,
+        'ONETOMANY': True,
     }
 
     def fields_for_model(self, model, session=None, include_fk=False, keygetter=None, fields=None):
@@ -84,7 +85,10 @@ class ModelConverter(object):
             prop, session=session, keygetter=keygetter
         )
         field_kwargs.update(kwargs)
-        return field_class(**field_kwargs)
+        ret = field_class(**field_kwargs)
+        if hasattr(prop, 'direction') and self.DIRECTION_MAPPING[prop.direction.name]:
+            ret = fields.List(ret)
+        return ret
 
     def column2field(self, column, instance=True, **kwargs):
         field_class = self._get_field_class_for_column(column)
@@ -123,7 +127,7 @@ class ModelConverter(object):
 
     def _get_field_class_for_property(self, prop):
         if hasattr(prop, 'direction'):
-            field_cls = self.DIRECTION_MAPPING[prop.direction.name]
+            field_cls = Related
         else:
             column = prop.columns[0]
             field_cls = self._get_field_class_for_column(column)
@@ -165,20 +169,13 @@ class ModelConverter(object):
         """Add keyword arguments to kwargs (in-place) based on the passed in
         relationship `Property`.
         """
-        # Get field class based on python type
-        if not session:
-            raise ModelConversionError(
-                'Cannot convert field {0}, need DB session.'.format(prop.key)
-            )
-        foreign_model = prop.mapper.class_
         nullable = True
         for pair in prop.local_remote_pairs:
             if not pair[0].nullable:
                 nullable = False
+                break
         kwargs.update({
             'allow_none': nullable,
-            'query': lambda: session.query(foreign_model).all(),
-            'keygetter': keygetter or get_pk_from_identity,
         })
 
     def get_base_kwargs(self):

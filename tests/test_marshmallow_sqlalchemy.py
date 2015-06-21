@@ -15,6 +15,7 @@ from marshmallow_sqlalchemy import (
     fields_for_model, ModelSchema, ModelConverter, property2field, column2field,
     field_for,
 )
+from marshmallow_sqlalchemy.fields import Related
 
 def contains_validator(field, v_type):
     for v in field.validators:
@@ -175,25 +176,17 @@ class TestModelFieldConversion:
 
     def test_many_to_many_relationship(self, models, session):
         student_fields = fields_for_model(models.Student, session=session)
-        assert type(student_fields['courses']) is fields.QuerySelectList
+        assert type(student_fields['courses']) is fields.List
 
         course_fields = fields_for_model(models.Course, session=session)
-        assert type(course_fields['students']) is fields.QuerySelectList
+        assert type(course_fields['students']) is fields.List
 
     def test_many_to_one_relationship(self, models, session):
         student_fields = fields_for_model(models.Student, session=session)
-        assert type(student_fields['current_school']) is fields.QuerySelect
+        assert type(student_fields['current_school']) is Related
 
         school_fields = fields_for_model(models.School, session=session)
-        assert type(school_fields['students']) is fields.QuerySelectList
-
-    def test_custom_keygetter(self, models, session):
-        student_fields = fields_for_model(
-            models.Student,
-            session=session,
-            keygetter=hyperlink_keygetter
-        )
-        assert student_fields['current_school'].keygetter == hyperlink_keygetter
+        assert type(school_fields['students']) is fields.List
 
     def test_include_fk(self, models, session):
         student_fields = fields_for_model(models.Student, session=session, include_fk=False)
@@ -338,7 +331,7 @@ class TestFieldFor:
         assert type(field) == fields.Str
 
         field = field_for(models.Student, 'current_school', session=session)
-        assert type(field) == fields.QuerySelect
+        assert type(field) == Related
 
 class TestModelSchema:
 
@@ -355,7 +348,6 @@ class TestModelSchema:
         return student_
 
     def test_model_schema_dumping(self, schemas, student, session):
-        session.commit()
         schema = schemas.StudentSchema()
         result = schema.dump(student)
         # fk excluded by default
@@ -363,14 +355,7 @@ class TestModelSchema:
         # related field dumps to pk
         assert result.data['current_school'] == student.current_school.id
 
-    def test_model_schema_overridden_keygeter(self, schemas, student, session):
-        session.commit()
-        schema = schemas.HyperlinkStudentSchema()
-        result = schema.dump(student)
-        assert result.data['current_school'] == student.current_school.url
-
     def test_model_schema_loading(self, models, schemas, student, session):
-        session.commit()
         schema = schemas.StudentSchema()
         dump_data = schema.dump(student).data
         result = schema.load(dump_data)
