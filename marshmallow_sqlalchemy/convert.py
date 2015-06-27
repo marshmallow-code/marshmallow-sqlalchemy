@@ -16,6 +16,9 @@ def get_pk_from_identity(obj):
     return a string of keys separated by ``":"``. This is the default keygetter for
     used by `ModelSchema <marshmallow_sqlalchemy.ModelSchema>`.
     """
+    if obj is None:
+        return None
+
     _, key = identity_key(instance=obj)
     if len(key) == 1:
         return key[0]
