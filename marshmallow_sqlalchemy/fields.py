@@ -29,7 +29,7 @@ class Related(fields.Field):
         return self.parent.opts.sqla_session
 
     def _serialize(self, value, attr, obj):
-        return getattr(value, self.related_column.key)
+        return getattr(value, self.related_column.key, None)
 
     def _deserialize(self, value):
         return self.session.query(
