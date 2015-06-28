@@ -21,6 +21,10 @@ class Related(fields.Field):
     as :class:`ModelSchema`.
     """
 
+    def __init__(self, column=None, **kwargs):
+        super(Related, self).__init__(**kwargs)
+        self.column = column
+
     @property
     def model(self):
         return self.parent.opts.model
@@ -31,6 +35,10 @@ class Related(fields.Field):
 
     @property
     def related_column(self):
+        if self.column:
+            if isinstance(self.column, sa.Column):
+                return self.column
+            return self.model.__mapper__.columns[self.column]
         return get_primary_column(self.related_model)
 
     @property
