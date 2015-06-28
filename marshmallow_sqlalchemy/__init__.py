@@ -9,7 +9,6 @@ from .schema import (
 from .convert import (
     ModelConverter,
     fields_for_model,
-    get_pk_from_identity,
     property2field,
     column2field,
     field_for,

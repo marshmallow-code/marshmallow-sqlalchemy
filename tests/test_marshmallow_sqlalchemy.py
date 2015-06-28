@@ -15,6 +15,7 @@ from marshmallow_sqlalchemy import (
     fields_for_model, ModelSchema, ModelConverter, property2field, column2field,
     field_for,
 )
+from marshmallow_sqlalchemy.fields import Related
 
 def contains_validator(field, v_type):
     for v in field.validators:
@@ -95,16 +96,24 @@ def models(Base):
         def url(self):
             return '/students/{}'.format(self.id)
 
+    class Teacher(Base):
+        __tablename__ = 'teacher'
+        id = sa.Column(sa.Integer, primary_key=True)
+
+        full_name = sa.Column(sa.String(255), nullable=False, unique=True, default='Mr. Noname')
+
+        current_school_id = sa.Column(sa.Integer, sa.ForeignKey(School.id), nullable=True)
+        current_school = relationship(School, backref=backref('teachers'))
+
+
     # So that we can access models with dot-notation, e.g. models.Course
     class _models(object):
         def __init__(self):
             self.Course = Course
             self.School = School
             self.Student = Student
+            self.Teacher = Teacher
     return _models()
-
-def hyperlink_keygetter(obj):
-    return obj.url
 
 @pytest.fixture()
 def schemas(models, session):
@@ -123,11 +132,15 @@ def schemas(models, session):
             model = models.Student
             sqla_session = session
 
+    class TeacherSchema(ModelSchema):
+        class Meta:
+            model = models.Teacher
+            sqla_session = session
+
     class HyperlinkStudentSchema(ModelSchema):
         class Meta:
             model = models.Student
             sqla_session = session
-            keygetter = hyperlink_keygetter
 
     # Again, so we can use dot-notation
     class _schemas(object):
@@ -135,6 +148,7 @@ def schemas(models, session):
             self.CourseSchema = CourseSchema
             self.SchoolSchema = SchoolSchema
             self.StudentSchema = StudentSchema
+            self.TeacherSchema = TeacherSchema
             self.HyperlinkStudentSchema = HyperlinkStudentSchema
     return _schemas()
 
@@ -175,25 +189,17 @@ class TestModelFieldConversion:
 
     def test_many_to_many_relationship(self, models, session):
         student_fields = fields_for_model(models.Student, session=session)
-        assert type(student_fields['courses']) is fields.QuerySelectList
+        assert type(student_fields['courses']) is fields.List
 
         course_fields = fields_for_model(models.Course, session=session)
-        assert type(course_fields['students']) is fields.QuerySelectList
+        assert type(course_fields['students']) is fields.List
 
     def test_many_to_one_relationship(self, models, session):
         student_fields = fields_for_model(models.Student, session=session)
-        assert type(student_fields['current_school']) is fields.QuerySelect
+        assert type(student_fields['current_school']) is Related
 
         school_fields = fields_for_model(models.School, session=session)
-        assert type(school_fields['students']) is fields.QuerySelectList
-
-    def test_custom_keygetter(self, models, session):
-        student_fields = fields_for_model(
-            models.Student,
-            session=session,
-            keygetter=hyperlink_keygetter
-        )
-        assert student_fields['current_school'].keygetter == hyperlink_keygetter
+        assert type(school_fields['students']) is fields.List
 
     def test_include_fk(self, models, session):
         student_fields = fields_for_model(models.Student, session=session, include_fk=False)
@@ -338,7 +344,7 @@ class TestFieldFor:
         assert type(field) == fields.Str
 
         field = field_for(models.Student, 'current_school', session=session)
-        assert type(field) == fields.QuerySelect
+        assert type(field) == Related
 
 class TestModelSchema:
 
@@ -355,7 +361,6 @@ class TestModelSchema:
         return student_
 
     def test_model_schema_dumping(self, schemas, student, session):
-        session.commit()
         schema = schemas.StudentSchema()
         result = schema.dump(student)
         # fk excluded by default
@@ -363,14 +368,7 @@ class TestModelSchema:
         # related field dumps to pk
         assert result.data['current_school'] == student.current_school.id
 
-    def test_model_schema_overridden_keygeter(self, schemas, student, session):
-        session.commit()
-        schema = schemas.HyperlinkStudentSchema()
-        result = schema.dump(student)
-        assert result.data['current_school'] == student.current_school.url
-
     def test_model_schema_loading(self, models, schemas, student, session):
-        session.commit()
         schema = schemas.StudentSchema()
         dump_data = schema.dump(student).data
         result = schema.load(dump_data)
@@ -441,3 +439,25 @@ class TestModelSchema:
         data, errors = schema.dump(student)
         assert 'full_name' in data
         assert data['full_name'] == student.full_name.upper()
+
+class TestNullForeignKey:
+    @pytest.fixture()
+    def school(self, models, session):
+        school_ = models.School(name='The Teacherless School')
+        session.add(school_)
+        return school_
+
+    @pytest.fixture()
+    def teacher(self, models, school, session):
+        teacher_ = models.Teacher(full_name='The Schoolless Teacher')
+        session.add(teacher_)
+        return teacher_
+
+    def test_a_teacher_with_no_school(self, models, schemas, teacher, session):
+        session.commit()
+        schema = schemas.TeacherSchema()
+        dump_data = schema.dump(teacher).data
+        result = schema.load(dump_data)
+
+        assert type(result.data) == models.Teacher
+        assert result.data.current_school is None
