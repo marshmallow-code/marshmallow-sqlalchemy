@@ -19,6 +19,9 @@ class Related(fields.Field):
     """Related data represented by a SQLAlchemy `relationship`. Must be attached
     to a :class:`Schema` class whose options includes a SQLAlchemy `model`, such
     as :class:`ModelSchema`.
+
+    :param str column: Optional column name on related model. If not provided,
+        the primary key of the related model will be used.
     """
 
     def __init__(self, column=None, **kwargs):
@@ -36,9 +39,7 @@ class Related(fields.Field):
     @property
     def related_column(self):
         if self.column:
-            if isinstance(self.column, sa.Column):
-                return self.column
-            return self.model.__mapper__.columns[self.column]
+            return self.related_model.__mapper__.columns[self.column]
         return get_primary_column(self.related_model)
 
     @property

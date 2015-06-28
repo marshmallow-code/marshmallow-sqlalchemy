@@ -379,6 +379,21 @@ class TestModelSchema:
         assert result.data.id is None
         assert result.data.current_school == student.current_school
 
+    def test_model_schema_custom_related_column(self, models, schemas, student, session):
+        class StudentSchema(ModelSchema):
+            class Meta:
+                model = models.Student
+                sqla_session = session
+            current_school = Related(column='name')
+
+        schema = StudentSchema()
+        dump_data = schema.dump(student).data
+        result = schema.load(dump_data)
+
+        assert type(result.data) == models.Student
+        assert result.data.id is None
+        assert result.data.current_school == student.current_school
+
     def test_fields_option(self, student, models, session):
         class StudentSchema(ModelSchema):
             class Meta:
