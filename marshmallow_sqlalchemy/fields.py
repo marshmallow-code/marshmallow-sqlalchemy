@@ -4,6 +4,11 @@ from marshmallow import fields
 
 
 def get_primary_column(model):
+    """Get primary key column for a SQLAlchemy model.
+
+    :param model: SQLAlchemy model class
+    :raise: RuntimeError if model has multiple primary key columns
+    """
     columns = model.__mapper__.primary_key
     if len(columns) == 1:
         return columns[0]
@@ -11,6 +16,10 @@ def get_primary_column(model):
 
 
 class Related(fields.Field):
+    """Related data represented by a SQLAlchemy `relationship`. Must be attached
+    to a :class:`Schema` class whose options includes a SQLAlchemy `model`, such
+    as :class:`ModelSchema`.
+    """
 
     @property
     def model(self):
