@@ -352,12 +352,14 @@ class TestModelSchema:
     def school(self, models, session):
         school_ = models.School(name='Univ. Of Whales')
         session.add(school_)
+        session.flush()
         return school_
 
     @pytest.fixture()
     def student(self, models, school, session):
         student_ = models.Student(full_name='Monty Python', current_school=school)
         session.add(student_)
+        session.flush()
         return student_
 
     def test_model_schema_dumping(self, schemas, student, session):
@@ -375,6 +377,7 @@ class TestModelSchema:
 
         assert type(result.data) == models.Student
         assert result.data.id is None
+        assert result.data.current_school == student.current_school
 
     def test_fields_option(self, student, models, session):
         class StudentSchema(ModelSchema):
@@ -445,12 +448,14 @@ class TestNullForeignKey:
     def school(self, models, session):
         school_ = models.School(name='The Teacherless School')
         session.add(school_)
+        session.flush()
         return school_
 
     @pytest.fixture()
     def teacher(self, models, school, session):
         teacher_ = models.Teacher(full_name='The Schoolless Teacher')
         session.add(teacher_)
+        session.flush()
         return teacher_
 
     def test_a_teacher_with_no_school(self, models, schemas, teacher, session):

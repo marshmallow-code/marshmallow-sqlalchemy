@@ -27,7 +27,7 @@ class Related(fields.Field):
 
     @property
     def related_model(self):
-        return getattr(self.model, self.attribute or self.name).class_
+        return getattr(self.model, self.attribute or self.name).property.mapper.class_
 
     @property
     def related_column(self):
