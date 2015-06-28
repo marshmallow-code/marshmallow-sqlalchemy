@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+import abc
+
+import six
+import sqlalchemy as sa
 from marshmallow import fields
 
 
@@ -54,3 +58,50 @@ class Related(fields.Field):
         ).filter(
             self.related_column == value
         ).one()
+
+
+class HyperlinkRelated(six.with_metaclass(abc.ABCMeta, Related)):
+
+    def _serialize(self, value, attr, obj):
+        key = super(HyperlinkRelated, self)._serialize(value, attr, obj)
+        return self._serialize_url(key, attr, obj)
+
+    def _deserialize(self, value):
+        key = self._deserialize_url(value)
+        return super(HyperlinkRelated, self)._deserialize(key)
+
+    @abc.abstractmethod
+    def _serialize_url(self, value, attr, obj):
+        pass
+
+    @abc.abstractmethod
+    def _deserialize_url(self, value):
+        pass
+
+
+class FlaskHyperlinkRelated(HyperlinkRelated):
+
+    def __init__(self, app, endpoint, url_key='id', **kwargs):
+        super(HyperlinkRelated, self).__init__(**kwargs)
+        self.app = app
+        self.endpoint = endpoint
+        self.url_key = url_key
+
+    @abc.abstractmethod
+    def _serialize_url(self, value, attr, obj):
+        from flask import url_for
+        kwargs = {self.url_key: value}
+        return url_for(self.endpoint, **kwargs)
+
+    @abc.abstractmethod
+    def _deserialize_url(self, value):
+        endpoint, kwargs = self.adapter.match(value)
+        if endpoint != self.endpoint:
+            raise
+        if self.url_key not in kwargs:
+            raise
+        return kwargs[self.url_key]
+
+    @property
+    def adapter(self):
+        return self.app.url_map.bind('')
