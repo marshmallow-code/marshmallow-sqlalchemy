@@ -15,6 +15,7 @@ from marshmallow_sqlalchemy import (
     fields_for_model, ModelSchema, ModelConverter, property2field, column2field,
     field_for,
 )
+from marshmallow_sqlalchemy.fields import Related
 
 def contains_validator(field, v_type):
     for v in field.validators:
@@ -95,16 +96,24 @@ def models(Base):
         def url(self):
             return '/students/{}'.format(self.id)
 
+    class Teacher(Base):
+        __tablename__ = 'teacher'
+        id = sa.Column(sa.Integer, primary_key=True)
+
+        full_name = sa.Column(sa.String(255), nullable=False, unique=True, default='Mr. Noname')
+
+        current_school_id = sa.Column(sa.Integer, sa.ForeignKey(School.id), nullable=True)
+        current_school = relationship(School, backref=backref('teachers'))
+
+
     # So that we can access models with dot-notation, e.g. models.Course
     class _models(object):
         def __init__(self):
             self.Course = Course
             self.School = School
             self.Student = Student
+            self.Teacher = Teacher
     return _models()
-
-def hyperlink_keygetter(obj):
-    return obj.url
 
 @pytest.fixture()
 def schemas(models, session):
@@ -123,11 +132,15 @@ def schemas(models, session):
             model = models.Student
             sqla_session = session
 
+    class TeacherSchema(ModelSchema):
+        class Meta:
+            model = models.Teacher
+            sqla_session = session
+
     class HyperlinkStudentSchema(ModelSchema):
         class Meta:
             model = models.Student
             sqla_session = session
-            keygetter = hyperlink_keygetter
 
     # Again, so we can use dot-notation
     class _schemas(object):
@@ -135,71 +148,64 @@ def schemas(models, session):
             self.CourseSchema = CourseSchema
             self.SchoolSchema = SchoolSchema
             self.StudentSchema = StudentSchema
+            self.TeacherSchema = TeacherSchema
             self.HyperlinkStudentSchema = HyperlinkStudentSchema
     return _schemas()
 
 
 class TestModelFieldConversion:
 
-    def test_fields_for_model_types(self, models, session):
-        fields_ = fields_for_model(models.Student, session=session, include_fk=True)
+    def test_fields_for_model_types(self, models):
+        fields_ = fields_for_model(models.Student, include_fk=True)
         assert type(fields_['id']) is fields.Int
         assert type(fields_['full_name']) is fields.Str
         assert type(fields_['dob']) is fields.Date
         assert type(fields_['current_school_id']) is fields.Int
         assert type(fields_['date_created']) is fields.DateTime
 
-    def test_fields_for_model_handles_custom_types(self, models, session):
-        fields_ = fields_for_model(models.Course, session=session, include_fk=True)
+    def test_fields_for_model_handles_custom_types(self, models):
+        fields_ = fields_for_model(models.Course, include_fk=True)
         assert type(fields_['grade']) is fields.Int
 
-    def test_fields_for_model_saves_doc(self, models, session):
-        fields_ = fields_for_model(models.Student, session=session, include_fk=True)
+    def test_fields_for_model_saves_doc(self, models):
+        fields_ = fields_for_model(models.Student, include_fk=True)
         assert fields_['date_created'].metadata['description'] == 'date the student was created'
 
-    def test_length_validator_set(self, models, session):
-        fields_ = fields_for_model(models.Student, session=session)
+    def test_length_validator_set(self, models):
+        fields_ = fields_for_model(models.Student)
         validator = contains_validator(fields_['full_name'], validate.Length)
         assert validator
         assert validator.max == 255
 
-    def test_sets_allow_none_for_nullable_fields(self, models, session):
-        fields_ = fields_for_model(models.Student, session)
+    def test_sets_allow_none_for_nullable_fields(self, models):
+        fields_ = fields_for_model(models.Student)
         assert fields_['dob'].allow_none is True
 
-    def test_sets_enum_choices(self, models, session):
-        fields_ = fields_for_model(models.Course, session=session)
+    def test_sets_enum_choices(self, models):
+        fields_ = fields_for_model(models.Course)
         validator = contains_validator(fields_['level'], validate.OneOf)
         assert validator
         assert validator.choices == ('Primary', 'Secondary')
 
-    def test_many_to_many_relationship(self, models, session):
-        student_fields = fields_for_model(models.Student, session=session)
-        assert type(student_fields['courses']) is fields.QuerySelectList
+    def test_many_to_many_relationship(self, models):
+        student_fields = fields_for_model(models.Student)
+        assert type(student_fields['courses']) is fields.List
 
-        course_fields = fields_for_model(models.Course, session=session)
-        assert type(course_fields['students']) is fields.QuerySelectList
+        course_fields = fields_for_model(models.Course)
+        assert type(course_fields['students']) is fields.List
 
-    def test_many_to_one_relationship(self, models, session):
-        student_fields = fields_for_model(models.Student, session=session)
-        assert type(student_fields['current_school']) is fields.QuerySelect
+    def test_many_to_one_relationship(self, models):
+        student_fields = fields_for_model(models.Student)
+        assert type(student_fields['current_school']) is Related
 
-        school_fields = fields_for_model(models.School, session=session)
-        assert type(school_fields['students']) is fields.QuerySelectList
+        school_fields = fields_for_model(models.School)
+        assert type(school_fields['students']) is fields.List
 
-    def test_custom_keygetter(self, models, session):
-        student_fields = fields_for_model(
-            models.Student,
-            session=session,
-            keygetter=hyperlink_keygetter
-        )
-        assert student_fields['current_school'].keygetter == hyperlink_keygetter
-
-    def test_include_fk(self, models, session):
-        student_fields = fields_for_model(models.Student, session=session, include_fk=False)
+    def test_include_fk(self, models):
+        student_fields = fields_for_model(models.Student, include_fk=False)
         assert 'current_school_id' not in student_fields
 
-        student_fields2 = fields_for_model(models.Student, session=session, include_fk=True)
+        student_fields2 = fields_for_model(models.Student, include_fk=True)
         assert 'current_school_id' in student_fields2
 
 def make_property(*column_args, **column_kwargs):
@@ -265,7 +271,7 @@ class TestPropertyFieldConversion:
     def test_convert_Float(self, converter):
         prop = make_property(sa.Float(scale=2))
         field = converter.property2field(prop)
-        assert type(field) == fields.Decimal
+        assert type(field) == fields.Float
 
     def test_convert_SmallInteger(self, converter):
         prop = make_property(sa.SmallInteger())
@@ -286,6 +292,18 @@ class TestPropertyFieldConversion:
         prop = make_property(postgresql.INET())
         field = converter.property2field(prop)
         assert type(field) == fields.Str
+
+    def test_convert_ARRAY_String(self, converter):
+        prop = make_property(postgresql.ARRAY(sa.String()))
+        field = converter.property2field(prop)
+        assert type(field) == fields.List
+        assert type(field.container) == fields.Str
+
+    def test_convert_ARRAY_Integer(self, converter):
+        prop = make_property(postgresql.ARRAY(sa.Integer))
+        field = converter.property2field(prop)
+        assert type(field) == fields.List
+        assert type(field.container) == fields.Int
 
 class TestPropToFieldClass:
 
@@ -326,7 +344,7 @@ class TestFieldFor:
         assert type(field) == fields.Str
 
         field = field_for(models.Student, 'current_school', session=session)
-        assert type(field) == fields.QuerySelect
+        assert type(field) == Related
 
 class TestModelSchema:
 
@@ -334,16 +352,17 @@ class TestModelSchema:
     def school(self, models, session):
         school_ = models.School(name='Univ. Of Whales')
         session.add(school_)
+        session.flush()
         return school_
 
     @pytest.fixture()
     def student(self, models, school, session):
         student_ = models.Student(full_name='Monty Python', current_school=school)
         session.add(student_)
+        session.flush()
         return student_
 
-    def test_model_schema_dumping(self, schemas, student, session):
-        session.commit()
+    def test_model_schema_dumping(self, schemas, student):
         schema = schemas.StudentSchema()
         result = schema.dump(student)
         # fk excluded by default
@@ -351,20 +370,41 @@ class TestModelSchema:
         # related field dumps to pk
         assert result.data['current_school'] == student.current_school.id
 
-    def test_model_schema_overridden_keygeter(self, schemas, student, session):
-        session.commit()
-        schema = schemas.HyperlinkStudentSchema()
-        result = schema.dump(student)
-        assert result.data['current_school'] == student.current_school.url
-
     def test_model_schema_loading(self, models, schemas, student, session):
-        session.commit()
         schema = schemas.StudentSchema()
         dump_data = schema.dump(student).data
         result = schema.load(dump_data)
 
         assert type(result.data) == models.Student
         assert result.data.id is None
+        assert result.data.current_school == student.current_school
+
+    def test_model_schema_custom_related_column(self, models, schemas, student, session):
+        class StudentSchema(ModelSchema):
+            class Meta:
+                model = models.Student
+                sqla_session = session
+            current_school = Related(column='name')
+
+        schema = StudentSchema()
+        dump_data = schema.dump(student).data
+        result = schema.load(dump_data)
+
+        assert type(result.data) == models.Student
+        assert result.data.id is None
+        assert result.data.current_school == student.current_school
+
+    def test_dump_many_to_one_relationship(self, models, schemas, school, student):
+        schema = schemas.SchoolSchema()
+        dump_data = schema.dump(school).data
+
+        assert dump_data['students'] == [student.id]
+
+    def test_load_many_to_one_relationship(self, models, schemas, school, student):
+        schema = schemas.SchoolSchema()
+        load_data = schema.load({'students': [1]}).data
+        assert type(load_data.students[0]) is models.Student
+        assert load_data.students[0] == student
 
     def test_fields_option(self, student, models, session):
         class StudentSchema(ModelSchema):
@@ -429,3 +469,27 @@ class TestModelSchema:
         data, errors = schema.dump(student)
         assert 'full_name' in data
         assert data['full_name'] == student.full_name.upper()
+
+class TestNullForeignKey:
+    @pytest.fixture()
+    def school(self, models, session):
+        school_ = models.School(name='The Teacherless School')
+        session.add(school_)
+        session.flush()
+        return school_
+
+    @pytest.fixture()
+    def teacher(self, models, school, session):
+        teacher_ = models.Teacher(full_name='The Schoolless Teacher')
+        session.add(teacher_)
+        session.flush()
+        return teacher_
+
+    def test_a_teacher_with_no_school(self, models, schemas, teacher, session):
+        session.commit()
+        schema = schemas.TeacherSchema()
+        dump_data = schema.dump(teacher).data
+        result = schema.load(dump_data)
+
+        assert type(result.data) == models.Teacher
+        assert result.data.current_school is None
