@@ -51,7 +51,7 @@ class ModelConverter(object):
         'ONETOMANY': True,
     }
 
-    def fields_for_model(self, model, session=None, include_fk=False, fields=None):
+    def fields_for_model(self, model, include_fk=False, fields=None):
         result = {}
         for prop in model.__mapper__.iterate_properties:
             if fields and prop.key not in fields:
@@ -59,16 +59,16 @@ class ModelConverter(object):
             if hasattr(prop, 'columns'):
                 if not include_fk and prop.columns[0].foreign_keys:
                     continue
-            field = self.property2field(prop, session=session)
+            field = self.property2field(prop)
             if field:
                 result[prop.key] = field
         return result
 
-    def property2field(self, prop, session=None, instance=True, **kwargs):
+    def property2field(self, prop, instance=True, **kwargs):
         field_class = self._get_field_class_for_property(prop)
         if not instance:
             return field_class
-        field_kwargs = self._get_field_kwargs_for_property(prop, session=session)
+        field_kwargs = self._get_field_kwargs_for_property(prop)
         field_kwargs.update(kwargs)
         ret = field_class(**field_kwargs)
         if hasattr(prop, 'direction') and self.DIRECTION_MAPPING[prop.direction.name]:
@@ -118,13 +118,13 @@ class ModelConverter(object):
             field_cls = self._get_field_class_for_column(column)
         return field_cls
 
-    def _get_field_kwargs_for_property(self, prop, session=None):
+    def _get_field_kwargs_for_property(self, prop):
         kwargs = self.get_base_kwargs()
         if hasattr(prop, 'columns'):
             column = prop.columns[0]
             self._add_column_kwargs(kwargs, column)
         if hasattr(prop, 'direction'):  # Relationship property
-            self._add_relationship_kwargs(kwargs, prop, session=session)
+            self._add_relationship_kwargs(kwargs, prop)
         if getattr(prop, 'doc', None):  # Useful for documentation generation
             kwargs['description'] = prop.doc
         return kwargs
@@ -150,7 +150,7 @@ class ModelConverter(object):
         if getattr(column, 'primary_key', False):
             kwargs['dump_only'] = True
 
-    def _add_relationship_kwargs(self, kwargs, prop, session):
+    def _add_relationship_kwargs(self, kwargs, prop):
         """Add keyword arguments to kwargs (in-place) based on the passed in
         relationship `Property`.
         """
@@ -175,8 +175,6 @@ fields_for_model = default_converter.fields_for_model
 given model.
 
 :param model: The SQLAlchemy model
-:param Session session: SQLAlchemy session. Required if the model includes
-    foreign key relationships.
 :param bool include_fk: Whether to include foreign key fields in the output.
 :return: dict of field_name: Field instance pairs
 """
@@ -185,7 +183,6 @@ property2field = default_converter.property2field
 """Convert a SQLAlchemy `Property` to a field instance or class.
 
 :param Property prop: SQLAlchemy Property.
-:param Session session: SQLALchemy session.
 :param bool instance: If `True`, return  `Field` instance, computing relevant kwargs
     from the given property. If `False`, return the `Field` class.
 :param kwargs: Additional keyword arguments to pass to the field constructor.
@@ -206,7 +203,7 @@ field_for = default_converter.field_for
 Example: ::
 
     date_created = field_for(Author, 'date_created', dump_only=True)
-    author = field_for(Book, 'author', session=session)
+    author = field_for(Book, 'author')
 
 :param type model: A SQLAlchemy mapped class.
 :param str property_name: The name of the property to convert.

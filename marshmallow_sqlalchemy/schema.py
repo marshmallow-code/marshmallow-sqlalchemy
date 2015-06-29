@@ -43,7 +43,6 @@ class SchemaMeta(ma.schema.SchemaMeta):
                 converter = Converter()
                 declared_fields = converter.fields_for_model(
                     opts.model,
-                    opts.sqla_session,
                     fields=opts.fields,
                 )
                 break

@@ -155,57 +155,57 @@ def schemas(models, session):
 
 class TestModelFieldConversion:
 
-    def test_fields_for_model_types(self, models, session):
-        fields_ = fields_for_model(models.Student, session=session, include_fk=True)
+    def test_fields_for_model_types(self, models):
+        fields_ = fields_for_model(models.Student, include_fk=True)
         assert type(fields_['id']) is fields.Int
         assert type(fields_['full_name']) is fields.Str
         assert type(fields_['dob']) is fields.Date
         assert type(fields_['current_school_id']) is fields.Int
         assert type(fields_['date_created']) is fields.DateTime
 
-    def test_fields_for_model_handles_custom_types(self, models, session):
-        fields_ = fields_for_model(models.Course, session=session, include_fk=True)
+    def test_fields_for_model_handles_custom_types(self, models):
+        fields_ = fields_for_model(models.Course, include_fk=True)
         assert type(fields_['grade']) is fields.Int
 
-    def test_fields_for_model_saves_doc(self, models, session):
-        fields_ = fields_for_model(models.Student, session=session, include_fk=True)
+    def test_fields_for_model_saves_doc(self, models):
+        fields_ = fields_for_model(models.Student, include_fk=True)
         assert fields_['date_created'].metadata['description'] == 'date the student was created'
 
-    def test_length_validator_set(self, models, session):
-        fields_ = fields_for_model(models.Student, session=session)
+    def test_length_validator_set(self, models):
+        fields_ = fields_for_model(models.Student)
         validator = contains_validator(fields_['full_name'], validate.Length)
         assert validator
         assert validator.max == 255
 
-    def test_sets_allow_none_for_nullable_fields(self, models, session):
-        fields_ = fields_for_model(models.Student, session)
+    def test_sets_allow_none_for_nullable_fields(self, models):
+        fields_ = fields_for_model(models.Student)
         assert fields_['dob'].allow_none is True
 
-    def test_sets_enum_choices(self, models, session):
-        fields_ = fields_for_model(models.Course, session=session)
+    def test_sets_enum_choices(self, models):
+        fields_ = fields_for_model(models.Course)
         validator = contains_validator(fields_['level'], validate.OneOf)
         assert validator
         assert validator.choices == ('Primary', 'Secondary')
 
-    def test_many_to_many_relationship(self, models, session):
-        student_fields = fields_for_model(models.Student, session=session)
+    def test_many_to_many_relationship(self, models):
+        student_fields = fields_for_model(models.Student)
         assert type(student_fields['courses']) is fields.List
 
-        course_fields = fields_for_model(models.Course, session=session)
+        course_fields = fields_for_model(models.Course)
         assert type(course_fields['students']) is fields.List
 
-    def test_many_to_one_relationship(self, models, session):
-        student_fields = fields_for_model(models.Student, session=session)
+    def test_many_to_one_relationship(self, models):
+        student_fields = fields_for_model(models.Student)
         assert type(student_fields['current_school']) is Related
 
-        school_fields = fields_for_model(models.School, session=session)
+        school_fields = fields_for_model(models.School)
         assert type(school_fields['students']) is fields.List
 
-    def test_include_fk(self, models, session):
-        student_fields = fields_for_model(models.Student, session=session, include_fk=False)
+    def test_include_fk(self, models):
+        student_fields = fields_for_model(models.Student, include_fk=False)
         assert 'current_school_id' not in student_fields
 
-        student_fields2 = fields_for_model(models.Student, session=session, include_fk=True)
+        student_fields2 = fields_for_model(models.Student, include_fk=True)
         assert 'current_school_id' in student_fields2
 
 def make_property(*column_args, **column_kwargs):
@@ -362,7 +362,7 @@ class TestModelSchema:
         session.flush()
         return student_
 
-    def test_model_schema_dumping(self, schemas, student, session):
+    def test_model_schema_dumping(self, schemas, student):
         schema = schemas.StudentSchema()
         result = schema.dump(student)
         # fk excluded by default
