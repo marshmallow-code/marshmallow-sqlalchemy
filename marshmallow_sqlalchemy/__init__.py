@@ -15,7 +15,7 @@ from .convert import (
 )
 from .exceptions import ModelConversionError
 
-__version__ = '0.2.0'
+__version__ = '0.3.0.dev'
 __license__ = 'MIT'
 
 __all__ = [
@@ -25,7 +25,6 @@ __all__ = [
     'fields_for_model',
     'property2field',
     'column2field',
-    'get_pk_from_identity',
     'ModelConversionError',
     'field_for',
 ]
