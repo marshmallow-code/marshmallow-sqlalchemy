@@ -394,6 +394,18 @@ class TestModelSchema:
         assert result.data.id is None
         assert result.data.current_school == student.current_school
 
+    def test_dump_many_to_one_relationship(self, models, schemas, school, student):
+        schema = schemas.SchoolSchema()
+        dump_data = schema.dump(school).data
+
+        assert dump_data['students'] == [student.id]
+
+    def test_load_many_to_one_relationship(self, models, schemas, school, student):
+        schema = schemas.SchoolSchema()
+        load_data = schema.load({'students': [1]}).data
+        assert type(load_data.students[0]) is models.Student
+        assert load_data.students[0] == student
+
     def test_fields_option(self, student, models, session):
         class StudentSchema(ModelSchema):
             class Meta:
