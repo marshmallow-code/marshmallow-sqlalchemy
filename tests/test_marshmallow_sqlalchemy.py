@@ -105,7 +105,6 @@ def models(Base):
         current_school_id = sa.Column(sa.Integer, sa.ForeignKey(School.id), nullable=True)
         current_school = relationship(School, backref=backref('teachers'))
 
-
     # So that we can access models with dot-notation, e.g. models.Course
     class _models(object):
         def __init__(self):
@@ -361,6 +360,35 @@ class TestModelSchema:
         session.add(student_)
         session.flush()
         return student_
+
+    def test_model_schema_field_inheritance(self, schemas):
+        class CourseSchemaSub(schemas.CourseSchema):
+            additional = fields.Int()
+
+        parent_schema = schemas.CourseSchema()
+        child_schema = CourseSchemaSub()
+
+        parent_schema_fields = set(parent_schema.declared_fields)
+        child_schema_fields = set(child_schema.declared_fields)
+
+        assert parent_schema_fields.issubset(child_schema_fields)
+        assert 'additional' in child_schema_fields
+
+    def test_model_schema_class_meta_inheritance(self, models, session):
+
+        class BaseCourseSchema(ModelSchema):
+            class Meta:
+                model = models.Course
+                sqla_session = session
+
+        class CourseSchema(BaseCourseSchema):
+            pass
+
+        schema = CourseSchema()
+        field_names = schema.declared_fields
+        assert 'id' in field_names
+        assert 'name' in field_names
+        assert 'cost' in field_names
 
     def test_model_schema_dumping(self, schemas, student):
         schema = schemas.StudentSchema()

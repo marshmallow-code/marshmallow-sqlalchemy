@@ -35,17 +35,14 @@ class SchemaMeta(ma.schema.SchemaMeta):
         passed as the `model` class Meta option.
         """
         declared_fields = kwargs.get('dict_class', dict)()
-        # inheriting from base classes
-        for base in inspect.getmro(klass):
-            opts = klass.opts
-            if opts.model:
-                Converter = opts.model_converter
-                converter = Converter()
-                declared_fields = converter.fields_for_model(
-                    opts.model,
-                    fields=opts.fields,
-                )
-                break
+        opts = klass.opts
+        if opts.model:
+            Converter = opts.model_converter
+            converter = Converter()
+            declared_fields = converter.fields_for_model(
+                opts.model,
+                fields=opts.fields,
+            )
         base_fields = super(SchemaMeta, mcs).get_declared_fields(
             klass, *args, **kwargs
         )
