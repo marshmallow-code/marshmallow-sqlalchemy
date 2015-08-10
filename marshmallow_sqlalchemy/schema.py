@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-import inspect
-
 import marshmallow as ma
 from marshmallow.compat import with_metaclass
 
