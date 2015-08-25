@@ -111,7 +111,7 @@ def setup_schema(Base, session):
             if hasattr(class_, '__tablename__'):
                 if class_.__name__.endswith('Schema'):
                     raise ModelConversionError(
-                        "For safety, setup_schema can not be used when a"\
+                        "For safety, setup_schema can not be used when a"
                         "Model class ends with 'Schema'"
                     )
 
