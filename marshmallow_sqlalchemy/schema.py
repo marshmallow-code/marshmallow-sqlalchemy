@@ -70,7 +70,7 @@ class ModelSchema(with_metaclass(SchemaMeta, ma.Schema)):
 
 def setup_schema(Base, session):
     """Automatically setup Marshmallow schemas. Designed to trigger from
-    SQLAlchemy's 'mapper_configured' event.
+    SQLAlchemy's 'after_configured' event.
 
     Example: ::
 
