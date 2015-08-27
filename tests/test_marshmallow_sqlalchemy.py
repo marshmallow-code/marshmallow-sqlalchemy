@@ -105,6 +105,14 @@ def models(Base):
         current_school_id = sa.Column(sa.Integer, sa.ForeignKey(School.id), nullable=True)
         current_school = relationship(School, backref=backref('teachers'))
 
+        substitute = relationship('SubstituteTeacher', uselist=False,
+                                  backref='teacher')
+
+    class SubstituteTeacher(Base):
+        __tablename__ = 'substituteteacher'
+        id = sa.Column(sa.Integer, sa.ForeignKey('teacher.id'),
+                       primary_key=True)
+
     # So that we can access models with dot-notation, e.g. models.Course
     class _models(object):
         def __init__(self):
@@ -112,6 +120,7 @@ def models(Base):
             self.School = School
             self.Student = Student
             self.Teacher = Teacher
+            self.SubstituteTeacher = SubstituteTeacher
     return _models()
 
 @pytest.fixture()
@@ -136,6 +145,11 @@ def schemas(models, session):
             model = models.Teacher
             sqla_session = session
 
+    class SubstituteTeacherSchema(ModelSchema):
+        class Meta:
+            model = models.SubstituteTeacher
+            sqla_session = session
+
     class HyperlinkStudentSchema(ModelSchema):
         class Meta:
             model = models.Student
@@ -148,6 +162,7 @@ def schemas(models, session):
             self.SchoolSchema = SchoolSchema
             self.StudentSchema = StudentSchema
             self.TeacherSchema = TeacherSchema
+            self.SubstituteTeacherSchema = SubstituteTeacherSchema
             self.HyperlinkStudentSchema = HyperlinkStudentSchema
     return _schemas()
 
@@ -361,6 +376,20 @@ class TestModelSchema:
         session.flush()
         return student_
 
+    @pytest.fixture()
+    def teacher(self, models, school, session):
+        teacher_ = models.Teacher(full_name='The Substitute Teacher')
+        session.add(teacher_)
+        session.flush()
+        return teacher_
+
+    @pytest.fixture()
+    def subteacher(self, models, school, teacher, session):
+        sub_ = models.SubstituteTeacher(teacher=teacher)
+        session.add(sub_)
+        session.flush()
+        return sub_
+
     def test_model_schema_field_inheritance(self, schemas):
         class CourseSchemaSub(schemas.CourseSchema):
             additional = fields.Int()
@@ -498,6 +527,16 @@ class TestModelSchema:
         assert 'full_name' in data
         assert data['full_name'] == student.full_name.upper()
 
+    def test_a_teacher_who_is_a_substitute(self, models, schemas, teacher,
+                                           subteacher, session):
+        session.commit()
+        schema = schemas.TeacherSchema()
+        data, errors = schema.dump(teacher)
+        result = schema.load(data)
+
+        assert 'substitute' in data
+        assert data['substitute'] == subteacher.id
+
 class TestNullForeignKey:
     @pytest.fixture()
     def school(self, models, session):
@@ -521,3 +560,13 @@ class TestNullForeignKey:
 
         assert type(result.data) == models.Teacher
         assert result.data.current_school is None
+
+    def test_a_teacher_who_is_not_a_substitute(self, models, schemas, teacher,
+                                               session):
+        session.commit()
+        schema = schemas.TeacherSchema()
+        data, errors = schema.dump(teacher)
+        result = schema.load(data)
+
+        assert 'substitute' in data
+        assert data['substitute'] == None

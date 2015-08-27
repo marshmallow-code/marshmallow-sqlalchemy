@@ -71,8 +71,10 @@ class ModelConverter(object):
         field_kwargs = self._get_field_kwargs_for_property(prop)
         field_kwargs.update(kwargs)
         ret = field_class(**field_kwargs)
-        if hasattr(prop, 'direction') and self.DIRECTION_MAPPING[prop.direction.name]:
-            ret = fields.List(ret)
+        if (hasattr(prop, 'direction') and
+            self.DIRECTION_MAPPING[prop.direction.name] and
+            prop.uselist is True):
+                ret = fields.List(ret)
         return ret
 
     def column2field(self, column, instance=True, **kwargs):
@@ -157,7 +159,8 @@ class ModelConverter(object):
         nullable = True
         for pair in prop.local_remote_pairs:
             if not pair[0].nullable:
-                nullable = False
+                if prop.uselist is True:
+                    nullable = False
                 break
         kwargs.update({
             'allow_none': nullable,
