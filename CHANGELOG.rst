@@ -13,6 +13,7 @@ Features:
 Bug fixes:
 
 - Null foreign keys are serialized correctly as ``None`` (:issue:`8`). Thanks :user:`mitchej123`.
+- Properly handle a relationship specifies ``uselist=False`` (:issue:`#17`). Thanks :user:`dpwrussell`.
 
 0.2.0 (2015-05-03)
 ++++++++++++++++++
