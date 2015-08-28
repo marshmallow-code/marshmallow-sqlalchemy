@@ -10,7 +10,8 @@ class SchemaOpts(ma.SchemaOpts):
     Adds the following options:
 
     - ``model``: The SQLAlchemy model to generate the `Schema` from (required).
-    - ``sqla_session``: SQLAlchemy session.
+    - ``sqla_session``: SQLAlchemy session to be used for deserialization. This is optional; you
+        can also pass a session to the Schema's `load` method.
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
         marshmallow fields.
     """
