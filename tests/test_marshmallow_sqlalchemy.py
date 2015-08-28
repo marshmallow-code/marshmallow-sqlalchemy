@@ -534,6 +534,8 @@ class TestModelSchema:
         data, errors = schema.dump(teacher)
         result = schema.load(data)
 
+        assert not result.errors
+        assert type(result.data) is models.Teacher
         assert 'substitute' in data
         assert data['substitute'] == subteacher.id
 
@@ -568,5 +570,8 @@ class TestNullForeignKey:
         data, errors = schema.dump(teacher)
         result = schema.load(data)
 
+        assert not result.errors
+
+        assert type(result.data) is models.Teacher
         assert 'substitute' in data
         assert data['substitute'] == None

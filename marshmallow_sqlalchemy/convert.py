@@ -71,10 +71,12 @@ class ModelConverter(object):
         field_kwargs = self._get_field_kwargs_for_property(prop)
         field_kwargs.update(kwargs)
         ret = field_class(**field_kwargs)
-        if hasattr(prop, 'direction') and \
-           self.DIRECTION_MAPPING[prop.direction.name] and \
-           prop.uselist is True:
-                ret = fields.List(ret)
+        if (
+            hasattr(prop, 'direction') and
+            self.DIRECTION_MAPPING[prop.direction.name] and
+            prop.uselist is True
+        ):
+            ret = fields.List(ret)
         return ret
 
     def column2field(self, column, instance=True, **kwargs):
