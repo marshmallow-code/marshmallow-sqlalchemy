@@ -46,11 +46,12 @@ Generate marshmallow schemas
     class AuthorSchema(ModelSchema):
         class Meta:
             model = Author
-            sqla_session = session
 
     class BookSchema(ModelSchema):
         class Meta:
             model = Book
+            # optionally attach a Session
+            # to use for deserialization
             sqla_session = session
 
     author_schema = AuthorSchema()
@@ -66,10 +67,10 @@ Generate marshmallow schemas
     session.add(book)
     session.commit()
 
-    dump_data = author_schema.dump(author).data
+    author_schema.dump(author).data
     # {'books': [123], 'id': 321, 'name': 'Chuck Paluhniuk'}
 
-    author_schema.load(dump_data).data
+    author_schema.load(dump_data, session=session).data
     # <Author(name='Chuck Paluhniuk')>
 
 Get it now

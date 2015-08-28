@@ -10,7 +10,7 @@ class SchemaOpts(ma.SchemaOpts):
     Adds the following options:
 
     - ``model``: The SQLAlchemy model to generate the `Schema` from (required).
-    - ``sqla_session``: SQLAlchemy session (required).
+    - ``sqla_session``: SQLAlchemy session.
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
         marshmallow fields.
     """
@@ -19,8 +19,6 @@ class SchemaOpts(ma.SchemaOpts):
         super(SchemaOpts, self).__init__(meta)
         self.model = getattr(meta, 'model', None)
         self.sqla_session = getattr(meta, 'sqla_session', None)
-        if self.model and not self.sqla_session:
-            raise ValueError('SQLAlchemyModelSchema requires the "sqla_session" class Meta option')
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)
 
 class SchemaMeta(ma.schema.SchemaMeta):
@@ -59,9 +57,23 @@ class ModelSchema(with_metaclass(SchemaMeta, ma.Schema)):
         class UserSchema(ModelSchema):
             class Meta:
                 model = User
-                sqla_session = session
+
+        schema = UserSchema()
+
+        user = schema.load({'name': 'Bill'}, session=session)
     """
     OPTIONS_CLASS = SchemaOpts
 
+    def __init__(self, *args, **kwargs):
+        session = kwargs.pop('session', None)
+        super(ModelSchema, self).__init__(*args, **kwargs)
+        self.session = session or self.opts.sqla_session
+
     def make_object(self, data):
         return self.opts.model(**data)
+
+    def load(self, data, session=None, *args, **kwargs):
+        self.session = session or self.session
+        if not self.session:
+            raise ValueError('Deserialization requires a session')
+        return super(ModelSchema, self).load(data, *args, **kwargs)

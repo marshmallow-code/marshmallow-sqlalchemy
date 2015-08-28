@@ -9,6 +9,7 @@ Features:
 - *Backwards-incompatible*: Relationships are (de)serialized by a new, more efficient ``Related`` column (:issue:`7`). Thanks :user:`jmcarp`.
 - Improve support for MySQL types (:issue:`1`). Thanks :user:`rmackinnon`.
 - Improve support for Postgres ARRAY types (:issue:`6`). Thanks :user:`jmcarp`.
+- ``ModelSchema`` no longer requires the ``sqla_session`` class Meta option. A ``Session`` can be passed to the constructor or to the ``ModelSchema.load`` method (:issue:`11`). Thanks :user:`dtheodor` for the suggestion.
 
 Bug fixes:
 

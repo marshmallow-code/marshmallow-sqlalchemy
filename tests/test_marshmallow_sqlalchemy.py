@@ -33,7 +33,12 @@ def Base():
 
 
 @pytest.fixture()
-def session(Base, models):
+def engine():
+    return sa.create_engine('sqlite:///:memory:', echo=False)
+
+
+@pytest.fixture()
+def session(Base, models, engine):
     engine = sa.create_engine('sqlite:///:memory:', echo=False)
     Session = sessionmaker(bind=engine)
     Base.metadata.create_all(bind=engine)
@@ -435,6 +440,42 @@ class TestModelSchema:
         assert type(result.data) == models.Student
         assert result.data.id is None
         assert result.data.current_school == student.current_school
+
+    def test_model_schema_loading_passing_session_to_load(self, models, schemas, student, session):
+        class StudentSchemaNoSession(ModelSchema):
+            class Meta:
+                model = models.Student
+
+        schema = StudentSchemaNoSession()
+        dump_data = schema.dump(student).data
+        result = schema.load(dump_data, session=session)
+        assert type(result.data) == models.Student
+        assert result.data.id is None
+        assert result.data.current_school == student.current_school
+
+    def test_model_schema_loading_passing_session_to_constructor(self,
+            models, schemas, student, session):
+        class StudentSchemaNoSession(ModelSchema):
+            class Meta:
+                model = models.Student
+
+        schema = StudentSchemaNoSession(session=session)
+        dump_data = schema.dump(student).data
+        result = schema.load(dump_data)
+        assert type(result.data) == models.Student
+        assert result.data.current_school == student.current_school
+
+    def test_model_schema_loading_with_no_session_raises_error(self,
+            models, schemas, student, session):
+        class StudentSchemaNoSession(ModelSchema):
+            class Meta:
+                model = models.Student
+
+        schema = StudentSchemaNoSession()
+        dump_data = schema.dump(student).data
+        with pytest.raises(ValueError) as excinfo:
+            schema.load(dump_data)
+        assert excinfo.value.args[0] == 'Deserialization requires a session'
 
     def test_model_schema_custom_related_column(self, models, schemas, student, session):
         class StudentSchema(ModelSchema):

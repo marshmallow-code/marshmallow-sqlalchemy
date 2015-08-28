@@ -44,7 +44,7 @@ class Related(fields.Field):
 
     @property
     def session(self):
-        return self.parent.opts.sqla_session
+        return self.parent.session
 
     def _serialize(self, value, attr, obj):
         return getattr(value, self.related_column.key, None)
