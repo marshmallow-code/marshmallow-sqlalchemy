@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from .schema import (
     SchemaOpts,
     ModelSchema,
+    setup_schema,
 )
 
 from .convert import (
@@ -27,4 +28,5 @@ __all__ = [
     'column2field',
     'ModelConversionError',
     'field_for',
+    'setup_schema',
 ]
