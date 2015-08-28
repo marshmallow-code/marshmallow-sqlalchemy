@@ -141,3 +141,81 @@ You can use the `field_for <marshmallow_sqlalchemy.field_for>` function to gener
         class Meta:
             model = Author
             sqla_session = Session
+
+Automatically Generating Schemas For SQLAlchemy Models
+======================================================
+
+It can be tedious to implement a large number of schemas if not overriding any of the generated fields as detailed above. SQLAlchemy has a hook that can be used to trigger the creation of the schemas, assigning them to the SQLAlchemy model property `<Model.__marshmallow__>`.
+
+.. code-block:: python
+
+    from marshmallow_sqlalchemy import ModelConversionError, ModelSchema
+
+    def setup_schema(Base, session):
+        # Create a function which incorporates the Base and session information
+        def setup_schema_fn():
+            for class_ in Base._decl_class_registry.values():
+                if hasattr(class_, '__tablename__'):
+                    if class_.__name__.endswith('Schema'):
+                        raise ModelConversionError(
+                            "For safety, setup_schema can not be used when a"
+                            "Model class ends with 'Schema'"
+                        )
+
+                    class Meta(object):
+                        model = class_
+                        sqla_session = session
+
+                    schema_class_name = '%sSchema' % class_.__name__
+
+                    schema_class = type(
+                        schema_class_name,
+                        (ModelSchema,),
+                        {'Meta': Meta}
+                    )
+
+                    setattr(class_, '__marshmallow__', schema_class)
+
+        return setup_schema_fn
+
+An example of then using this:
+
+.. code-block:: python
+
+    import sqlalchemy as sa
+    from sqlalchemy.ext.declarative import declarative_base
+    from sqlalchemy.orm import scoped_session, sessionmaker
+    from sqlalchemy import event
+    from sqlalchemy.orm import mapper
+
+    # Either import or declare setup_schema here
+
+    engine = sa.create_engine('sqlite:///:memory:')
+    session = scoped_session(sessionmaker(bind=engine))
+    Base = declarative_base()
+
+    class Author(Base):
+        __tablename__ = 'authors'
+        id = sa.Column(sa.Integer, primary_key=True)
+        name = sa.Column(sa.String)
+
+        def __repr__(self):
+            return '<Author(name={self.name!r})>'.format(self=self)
+
+    # Listen for the SQLAlchemy event and run setup_schema.
+    # Note: This has to be done after Base and session are setup
+    event.listen(mapper, 'after_configured', setup_schema(Base, session))
+
+    Base.metadata.create_all(engine)
+
+    author = Author(name='Chuck Paluhniuk')
+    session.add(author)
+    session.commit()
+
+    # Model.__marshmallow__ returns the Class not an instance of the schema
+    # so remember to instantiate it
+    author_schema = Author.__marshmallow__()
+
+    print author_schema.dump(author).data
+
+This is inspired by functionality from ColanderAlchemy.
