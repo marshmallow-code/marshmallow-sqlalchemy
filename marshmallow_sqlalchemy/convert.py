@@ -60,12 +60,11 @@ class ModelConverter(object):
                 if not include_fk:
                     # Only skip a column if there is no overriden column
                     # which does not have a Foreign Key.
-                    all_fk = True
                     for column in prop.columns:
                         if not column.foreign_keys:
                             all_fk = False
                             break
-                    if all_fk is True:
+                    else:
                         continue
             field = self.property2field(prop)
             if field:
