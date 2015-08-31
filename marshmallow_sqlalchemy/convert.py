@@ -62,7 +62,6 @@ class ModelConverter(object):
                     # which does not have a Foreign Key.
                     for column in prop.columns:
                         if not column.foreign_keys:
-                            all_fk = False
                             break
                     else:
                         continue
