@@ -265,7 +265,8 @@ class TestModelFieldConversion:
         assert 'current_school_id' in student_fields2
 
     def test_overridden_with_fk(self, models):
-        graded_paper_fields = fields_for_model(models.GradedPaper)
+        graded_paper_fields = fields_for_model(models.GradedPaper,
+                                               include_fk=False)
         assert 'id' in graded_paper_fields
 
 def make_property(*column_args, **column_kwargs):
