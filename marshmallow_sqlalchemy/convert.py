@@ -57,8 +57,14 @@ class ModelConverter(object):
             if fields and prop.key not in fields:
                 continue
             if hasattr(prop, 'columns'):
-                if not include_fk and prop.columns[0].foreign_keys:
-                    continue
+                if not include_fk:
+                    # Only skip a column if there is no overriden column
+                    # which does not have a Foreign Key.
+                    for column in prop.columns:
+                        if not column.foreign_keys:
+                            break
+                    else:
+                        continue
             field = self.property2field(prop)
             if field:
                 result[prop.key] = field

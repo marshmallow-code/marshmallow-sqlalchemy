@@ -118,6 +118,30 @@ def models(Base):
         id = sa.Column(sa.Integer, sa.ForeignKey('teacher.id'),
                        primary_key=True)
 
+    class Paper(Base):
+        __tablename__ = 'paper'
+
+        satype = sa.Column(sa.String(50))
+        __mapper_args__ = {
+            'polymorphic_identity': 'paper',
+            'polymorphic_on': satype
+        }
+
+        id = sa.Column(sa.Integer, primary_key=True)
+        name = sa.Column(sa.String, nullable=False, unique=True)
+
+    class GradedPaper(Paper):
+        __tablename__ = 'gradedpaper'
+
+        __mapper_args__ = {
+            'polymorphic_identity': 'gradedpaper'
+        }
+
+        id = sa.Column(sa.Integer, sa.ForeignKey('paper.id'),
+                       primary_key=True)
+
+        marks_available = sa.Column(sa.Integer)
+
     # So that we can access models with dot-notation, e.g. models.Course
     class _models(object):
         def __init__(self):
@@ -126,6 +150,8 @@ def models(Base):
             self.Student = Student
             self.Teacher = Teacher
             self.SubstituteTeacher = SubstituteTeacher
+            self.Paper = Paper
+            self.GradedPaper = GradedPaper
     return _models()
 
 @pytest.fixture()
@@ -153,6 +179,15 @@ def schemas(models, session):
     class SubstituteTeacherSchema(ModelSchema):
         class Meta:
             model = models.SubstituteTeacher
+
+    class PaperSchema(ModelSchema):
+        class Meta:
+            model = models.Paper
+            sqla_session = session
+
+    class GradedPaperSchema(ModelSchema):
+        class Meta:
+            model = models.GradedPaper
             sqla_session = session
 
     class HyperlinkStudentSchema(ModelSchema):
@@ -168,6 +203,8 @@ def schemas(models, session):
             self.StudentSchema = StudentSchema
             self.TeacherSchema = TeacherSchema
             self.SubstituteTeacherSchema = SubstituteTeacherSchema
+            self.PaperSchema = PaperSchema
+            self.GradedPaperSchema = GradedPaperSchema
             self.HyperlinkStudentSchema = HyperlinkStudentSchema
     return _schemas()
 
@@ -226,6 +263,11 @@ class TestModelFieldConversion:
 
         student_fields2 = fields_for_model(models.Student, include_fk=True)
         assert 'current_school_id' in student_fields2
+
+    def test_overridden_with_fk(self, models):
+        graded_paper_fields = fields_for_model(models.GradedPaper,
+                                               include_fk=False)
+        assert 'id' in graded_paper_fields
 
 def make_property(*column_args, **column_kwargs):
     return column_property(sa.Column(*column_args, **column_kwargs))
