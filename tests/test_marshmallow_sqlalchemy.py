@@ -140,6 +140,17 @@ def models(Base):
                  }
             })
 
+        course_id = sa.Column(sa.Integer, sa.ForeignKey('course.id'))
+        # Course relationship, not to be serialized
+        course = relationship(
+            Course,
+            info={
+                'marshmallow_sqlalchemy': {
+                    'load_only': True
+                 }
+            }
+        )
+
     class GradedPaper(Paper):
         __tablename__ = 'gradedpaper'
 
@@ -334,13 +345,21 @@ class TestModelFieldConversion:
                                                include_fk=False)
         assert 'id' in graded_paper_fields
 
-    def test_info_customization(self, models):
+    def test_property_info_customization(self, models):
         paper_fields = fields_for_model(models.Paper)
         assert paper_fields['description'].load_only is True
 
-    def test_info_customization_super(self, models):
+    def test_property_info_customization_super(self, models):
         graded_paper_fields = fields_for_model(models.GradedPaper)
         assert graded_paper_fields['description'].load_only is True
+
+    def test_relationship_info_customization(self, models):
+        paper_fields = fields_for_model(models.Paper)
+        assert paper_fields['course'].load_only is True
+
+    def test_relationship_info_customization_super(self, models):
+        graded_paper_fields = fields_for_model(models.GradedPaper)
+        assert graded_paper_fields['course'].load_only is True
 
 def make_property(*column_args, **column_kwargs):
     return column_property(sa.Column(*column_args, **column_kwargs))

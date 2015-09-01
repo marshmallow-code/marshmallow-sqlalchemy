@@ -185,6 +185,7 @@ class ModelConverter(object):
             self._add_column_info_kwargs(kwargs, prop.columns)
         if hasattr(prop, 'direction'):  # Relationship property
             self._add_relationship_kwargs(kwargs, prop)
+            self._add_relationship_info_kwargs(kwargs, prop)
         if getattr(prop, 'doc', None):  # Useful for documentation generation
             kwargs['description'] = prop.doc
         return kwargs
@@ -231,6 +232,16 @@ class ModelConverter(object):
         for column in reversed(columns):
             if 'marshmallow_sqlalchemy' in column.info:
                 kwargs.update(column.info['marshmallow_sqlalchemy'])
+
+    def _add_relationship_info_kwargs(self, kwargs, prop):
+        """Add keyword arguments to kwargs (in-place) based on the passed in
+        `marshmallow_sqlalchemy` dictionary.
+        """
+        # Process any passed in settings in reverse order as the columns are
+        # in sub to super class order
+
+        if 'marshmallow_sqlalchemy' in prop.info:
+            kwargs.update(prop.info['marshmallow_sqlalchemy'])
 
     def get_base_kwargs(self):
         return {
