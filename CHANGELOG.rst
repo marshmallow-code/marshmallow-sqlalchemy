@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.3.1 (unreleased)
+++++++++++++++++++
+
+Bug fixes:
+
+- When serializing, don't skip overriden fields that are part of a polymorphic hierarchy (:issue:`18`). Thanks :user:`dpwrussell`.
+
+Support:
+
+- Docs: Add new recipe for automatic generation of schemas. Thanks :user:`dpwrussell`.
+
 0.3.0 (2015-08-27)
 ++++++++++++++++++
 
