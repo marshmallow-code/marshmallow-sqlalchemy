@@ -4,9 +4,14 @@ Changelog
 0.3.1 (unreleased)
 ++++++++++++++++++
 
+Features:
+
+- Add ``TableSchema`` for generating ``Schemas`` from tables.
+
 Bug fixes:
 
-- When serializing, don't skip overriden fields that are part of a polymorphic hierarchy (:issue:`18`). Thanks :user:`dpwrussell`.
+- Allow ``session`` to be passed to ``ModelSchema.validate``, since it requires it. Thanks :user:`dpwrussell`.
+- When serializing, don't skip overriden fields that are part of a polymorphic hierarchy (:issue:`18`). Thanks again :user:`dpwrussell`.
 
 Support:
 

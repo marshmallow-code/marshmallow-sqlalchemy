@@ -514,6 +514,16 @@ class TestModelSchema:
         assert result.data.id is None
         assert result.data.current_school == student.current_school
 
+    def test_model_schema_validation_passing_session_to_validate(self, models,
+            schemas, student, session):
+        class StudentSchemaNoSession(ModelSchema):
+            class Meta:
+                model = models.Student
+
+        schema = StudentSchemaNoSession()
+        dump_data = schema.dump(student).data
+        assert type(schema.validate(dump_data, session=session)) is dict
+
     def test_model_schema_loading_passing_session_to_constructor(self,
             models, schemas, student, session):
         class StudentSchemaNoSession(ModelSchema):
@@ -526,7 +536,17 @@ class TestModelSchema:
         assert type(result.data) == models.Student
         assert result.data.current_school == student.current_school
 
-    def test_model_schema_loading_with_no_session_raises_error(self,
+    def test_model_schema_validation_passing_session_to_constructor(self,
+            models, schemas, student, session):
+        class StudentSchemaNoSession(ModelSchema):
+            class Meta:
+                model = models.Student
+
+        schema = StudentSchemaNoSession(session=session)
+        dump_data = schema.dump(student).data
+        assert type(schema.validate(dump_data)) is dict
+
+    def test_model_schema_loading_and_validation_with_no_session_raises_error(self,
             models, schemas, student, session):
         class StudentSchemaNoSession(ModelSchema):
             class Meta:
@@ -537,6 +557,10 @@ class TestModelSchema:
         with pytest.raises(ValueError) as excinfo:
             schema.load(dump_data)
         assert excinfo.value.args[0] == 'Deserialization requires a session'
+
+        with pytest.raises(ValueError) as excinfo:
+            schema.validate(dump_data)
+        assert excinfo.value.args[0] == 'Validation requires a session'
 
     def test_model_schema_custom_related_column(self, models, schemas, student, session):
         class StudentSchema(ModelSchema):
