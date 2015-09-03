@@ -115,18 +115,20 @@ class ModelConverter(object):
         return result
 
     def property2field(self, prop, instance=True, **kwargs):
-        field_class = self._get_field_class_for_property(prop)
-        if not instance:
-            return field_class
-        field_kwargs = self._get_field_kwargs_for_property(prop)
-        field_kwargs.update(kwargs)
-        ret = field_class(**field_kwargs)
-        if (
-            hasattr(prop, 'direction') and
-            self.DIRECTION_MAPPING[prop.direction.name] and
-            prop.uselist is True
-        ):
-            ret = fields.List(ret, **kwargs)
+        ret = self._get_field_for_info(prop, instance=instance)
+        if not ret:
+            field_class = self._get_field_class_for_property(prop)
+            if not instance:
+                return field_class
+            field_kwargs = self._get_field_kwargs_for_property(prop)
+            field_kwargs.update(kwargs)
+            ret = field_class(**field_kwargs)
+            if (
+                hasattr(prop, 'direction') and
+                self.DIRECTION_MAPPING[prop.direction.name] and
+                prop.uselist is True
+            ):
+                ret = fields.List(ret, **kwargs)
         return ret
 
     def column2field(self, column, instance=True, **kwargs):
@@ -141,6 +143,28 @@ class ModelConverter(object):
     def field_for(self, model, property_name, **kwargs):
         prop = model.__mapper__.get_property(property_name)
         return self.property2field(prop, **kwargs)
+
+    def _get_field_for_info(self, prop, instance=True):
+        """Get the field for the property/relationship based on the `field`
+        attribute of info.
+        """
+        field = None
+        if hasattr(prop, 'direction'):
+
+            if 'marshmallow_sqlalchemy' in prop.info:
+                if 'field' in prop.info['marshmallow_sqlalchemy']:
+                    field = prop.info['marshmallow_sqlalchemy']['field']
+        else:
+            # Process any passed in field type in reverse order as the columns
+            # are in sub to super class order
+            for column in reversed(prop.columns):
+                if 'marshmallow_sqlalchemy' in column.info:
+                    if 'field' in column.info['marshmallow_sqlalchemy']:
+                        field = column.info['marshmallow_sqlalchemy']['field']
+
+        if field and not instance:
+            return type(field)
+        return field
 
     def _get_field_class_for_column(self, column):
         return self._get_field_class_for_data_type(column.type)

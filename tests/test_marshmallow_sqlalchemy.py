@@ -278,6 +278,45 @@ def schemas(models, session):
             self.LectureSchema = LectureSchema
     return _schemas()
 
+@pytest.fixture()
+def models_schemas_inter(Base, models, schemas, session):
+
+    class Locker(Base):
+        __tablename__ = 'locker'
+
+        id = sa.Column(sa.Integer, primary_key=True)
+
+        capacity = sa.Column(
+            sa.Integer,
+            info={
+                'marshmallow_sqlalchemy': {
+                    'field': fields.Decimal()
+                 }
+            }
+        )
+
+        student_id = sa.Column(sa.Integer, sa.ForeignKey('student.id'),
+                               nullable=False, unique=True)
+        student = relationship(
+            models.Student,
+            info={
+                'marshmallow_sqlalchemy': {
+                    'field': fields.Nested(schemas.StudentSchema)
+                 }
+            }
+        )
+
+    class LockerSchema(ModelSchema):
+        class Meta:
+            model = Locker
+            sqla_session = session
+
+    # Again, so we can use dot-notation
+    class _models_and_schemas(object):
+        def __init__(self):
+            self.Locker = Locker
+            self.LockerSchema = LockerSchema
+    return _models_and_schemas()
 
 class TestModelFieldConversion:
 
@@ -360,6 +399,14 @@ class TestModelFieldConversion:
     def test_relationship_info_customization_super(self, models):
         graded_paper_fields = fields_for_model(models.GradedPaper)
         assert graded_paper_fields['course'].load_only is True
+
+    def test_property_info_field_customization(self, models_schemas_inter):
+        locker_fields = fields_for_model(models_schemas_inter.Locker)
+        assert type(locker_fields['capacity']) is fields.Decimal
+
+    def test_relationship_info_field_customization(self, models_schemas_inter):
+        locker_fields = fields_for_model(models_schemas_inter.Locker)
+        assert type(locker_fields['student']) is fields.Nested
 
 def make_property(*column_args, **column_kwargs):
     return column_property(sa.Column(*column_args, **column_kwargs))
