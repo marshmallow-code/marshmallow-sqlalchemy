@@ -1,12 +1,12 @@
 Changelog
 ---------
 
-0.3.1 (unreleased)
+0.4.0 (2015-09-03)
 ++++++++++++++++++
 
 Features:
 
-- Add ``TableSchema`` for generating ``Schemas`` from tables.
+- Add ``TableSchema`` for generating ``Schemas`` from tables (:issue:`4`). Thanks :user:`jmcarp`.
 
 Bug fixes:
 
