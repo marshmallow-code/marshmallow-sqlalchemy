@@ -2,7 +2,9 @@
 from __future__ import absolute_import
 
 from .schema import (
-    SchemaOpts,
+    TableSchemaOpts,
+    ModelSchemaOpts,
+    TableSchema,
     ModelSchema,
 )
 
@@ -19,8 +21,10 @@ __version__ = '0.3.1dev0'
 __license__ = 'MIT'
 
 __all__ = [
+    'TableSchema',
     'ModelSchema',
-    'SchemaOpts',
+    'TableSchemaOpts',
+    'ModelSchemaOpts',
     'ModelConverter',
     'fields_for_model',
     'property2field',

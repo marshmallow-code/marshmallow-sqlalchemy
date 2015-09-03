@@ -12,7 +12,7 @@ from marshmallow import fields, validate
 
 import pytest
 from marshmallow_sqlalchemy import (
-    fields_for_model, ModelSchema, ModelConverter, property2field, column2field,
+    fields_for_model, TableSchema, ModelSchema, ModelConverter, property2field, column2field,
     field_for,
 )
 from marshmallow_sqlalchemy.fields import Related
@@ -406,6 +406,25 @@ class TestFieldFor:
 
         field = field_for(models.Student, 'current_school', session=session)
         assert type(field) == Related
+
+class TestTableSchema:
+
+    @pytest.fixture
+    def school(self, models, session):
+        table = models.School.__table__
+        insert = table.insert().values(name='Univ. of Whales')
+        with session.connection() as conn:
+            conn.execute(insert)
+            select = table.select().limit(1)
+            return conn.execute(select).fetchone()
+
+    def test_dump_row(self, models, school):
+        class SchoolSchema(TableSchema):
+            class Meta:
+                table = models.School.__table__
+        schema = SchoolSchema()
+        dump = schema.dump(school).data
+        assert dump == {'name': 'Univ. of Whales', 'id': 1}
 
 class TestModelSchema:
 

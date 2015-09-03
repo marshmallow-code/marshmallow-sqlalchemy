@@ -70,6 +70,18 @@ class ModelConverter(object):
                 result[prop.key] = field
         return result
 
+    def fields_for_table(self, table, include_fk=False, fields=None):
+        result = {}
+        for column in table.columns:
+            if fields and column.key not in fields:
+                continue
+            if not include_fk and column.foreign_keys:
+                continue
+            field = self.column2field(column)
+            if field:
+                result[column.key] = field
+        return result
+
     def property2field(self, prop, instance=True, **kwargs):
         field_class = self._get_field_class_for_property(prop)
         if not instance:
