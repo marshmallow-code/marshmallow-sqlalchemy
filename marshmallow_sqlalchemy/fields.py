@@ -49,7 +49,7 @@ class Related(fields.Field):
     def _serialize(self, value, attr, obj):
         return getattr(value, self.related_column.key, None)
 
-    def _deserialize(self, value):
+    def _deserialize(self, value, *args, **kwargs):
         return self.session.query(
             self.related_model
         ).filter(
