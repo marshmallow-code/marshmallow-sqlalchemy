@@ -665,6 +665,23 @@ class TestModelSchema:
         assert 'substitute' in data
         assert data['substitute'] == subteacher.id
 
+    def test_dump_only_relationship(self, models, session, school, student):
+        class SchoolSchema2(ModelSchema):
+            class Meta:
+                model = models.School
+            students = field_for(models.School, 'students', dump_only=True)
+
+            def make_object(self, data):
+                return data
+
+        sch = SchoolSchema2()
+        students_field = sch.fields['students']
+
+        assert students_field.dump_only is True
+        dump_data = sch.dump(school).data
+        result = sch.load(dump_data, session=session)
+        assert 'students' not in result.data
+
 class TestNullForeignKey:
     @pytest.fixture()
     def school(self, models, session):

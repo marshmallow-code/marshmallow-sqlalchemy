@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.4.1 (unreleased)
+++++++++++++++++++
+
+Bug fixes:
+
+- Now compatible with marshmallow>=2.0.0rc1.
+- Correctly pass keyword arguments from ``field_for`` to generated ``List`` fields (:issue:`25`). Thanks :user:`sssilver` for reporting.
+
+
 0.4.0 (2015-09-03)
 ++++++++++++++++++
 

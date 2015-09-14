@@ -94,7 +94,7 @@ class ModelConverter(object):
             self.DIRECTION_MAPPING[prop.direction.name] and
             prop.uselist is True
         ):
-            ret = fields.List(ret)
+            ret = fields.List(ret, **kwargs)
         return ret
 
     def column2field(self, column, instance=True, **kwargs):
