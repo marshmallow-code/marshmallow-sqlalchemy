@@ -119,7 +119,9 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         super(ModelSchema, self).__init__(*args, **kwargs)
         self.session = session or self.opts.sqla_session
 
-    def make_object(self, data):
+    @ma.post_load
+    def make_instance(self, data):
+        """Deserialize to an instance of the model."""
         return self.opts.model(**data)
 
     def load(self, data, session=None, *args, **kwargs):

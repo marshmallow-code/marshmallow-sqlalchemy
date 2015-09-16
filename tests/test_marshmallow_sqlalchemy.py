@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
 from sqlalchemy.dialects import postgresql
 
-from marshmallow import fields, validate
+from marshmallow import fields, validate, post_load
 
 import pytest
 from marshmallow_sqlalchemy import (
@@ -671,7 +671,9 @@ class TestModelSchema:
                 model = models.School
             students = field_for(models.School, 'students', dump_only=True)
 
-            def make_object(self, data):
+            # override for easier testing
+            @post_load
+            def make_instance(self, data):
                 return data
 
         sch = SchoolSchema2()
