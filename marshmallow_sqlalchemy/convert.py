@@ -22,6 +22,13 @@ def _postgres_array_factory(converter, data_type):
         converter._get_field_class_for_data_type(data_type.item_type),
     )
 
+def _should_exclude_field(column, fields=None, exclude=None):
+    if fields and column.key not in fields:
+        return True
+    if exclude and column.key in exclude:
+        return True
+    return False
+
 class ModelConverter(object):
     """Class that converts a SQLAlchemy model into a dictionary of corresponding
     marshmallow `Fields <marshmallow.fields.Field>`.
@@ -51,10 +58,10 @@ class ModelConverter(object):
         'ONETOMANY': True,
     }
 
-    def fields_for_model(self, model, include_fk=False, fields=None):
+    def fields_for_model(self, model, include_fk=False, fields=None, exclude=None):
         result = {}
         for prop in model.__mapper__.iterate_properties:
-            if fields and prop.key not in fields:
+            if _should_exclude_field(prop, fields=fields, exclude=exclude):
                 continue
             if hasattr(prop, 'columns'):
                 if not include_fk:
@@ -70,10 +77,10 @@ class ModelConverter(object):
                 result[prop.key] = field
         return result
 
-    def fields_for_table(self, table, include_fk=False, fields=None):
+    def fields_for_table(self, table, include_fk=False, fields=None, exclude=None):
         result = {}
         for column in table.columns:
-            if fields and column.key not in fields:
+            if _should_exclude_field(column, fields=fields, exclude=exclude):
                 continue
             if not include_fk and column.foreign_keys:
                 continue
