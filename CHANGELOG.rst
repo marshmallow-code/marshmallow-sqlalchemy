@@ -5,6 +5,7 @@ Changelog
 ++++++++++++++++++
 
 - Don't autogenerate fields that are in ``Meta.exclude`` (:issue:`27`). Thanks :user:`jmcarp`.
+- Raise ``ModelConversionError`` if converting properties whose column don't define a ``python_type``. Thanks :user:`jmcarp`.
 -  *Backwards-incompatible*: ``ModelSchema.make_object`` is removed in favor of decorated ``make_instance`` method for compatibility with marshmallow>=2.0.0rc2.
 
 0.4.1 (2015-09-13)
