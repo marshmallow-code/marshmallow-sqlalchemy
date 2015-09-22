@@ -13,7 +13,7 @@ from marshmallow import fields, validate, post_load
 import pytest
 from marshmallow_sqlalchemy import (
     fields_for_model, TableSchema, ModelSchema, ModelConverter, property2field, column2field,
-    field_for,
+    field_for, ModelConversionError
 )
 from marshmallow_sqlalchemy.fields import Related
 
@@ -371,6 +371,11 @@ class TestPropertyFieldConversion:
         field = converter.property2field(prop)
         assert type(field) == fields.List
         assert type(field.container) == fields.Int
+
+    def test_convert_TSVECTOR(self, converter):
+        prop = make_property(postgresql.TSVECTOR)
+        with pytest.raises(ModelConversionError):
+            converter.property2field(prop)
 
 class TestPropToFieldClass:
 

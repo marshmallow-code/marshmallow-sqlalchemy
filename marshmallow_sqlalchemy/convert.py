@@ -132,8 +132,12 @@ class ModelConverter(object):
                 break
         else:
             # Try to find a field class based on the column's python_type
-            if data_type.python_type in ma.Schema.TYPE_MAPPING:
-                field_cls = ma.Schema.TYPE_MAPPING[data_type.python_type]
+            try:
+                python_type = data_type.python_type
+            except NotImplementedError:
+                python_type = None
+            if python_type in ma.Schema.TYPE_MAPPING:
+                field_cls = ma.Schema.TYPE_MAPPING[python_type]
             else:
                 raise ModelConversionError(
                     'Could not find field column of type {0}.'.format(types[0]))
