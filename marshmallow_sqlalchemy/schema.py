@@ -65,7 +65,7 @@ class TableSchemaMeta(SchemaMeta):
     @classmethod
     def get_fields(mcs, converter, opts):
         if opts.table is not None:
-            return converter.fields_for_table(opts.table, fields=opts.fields)
+            return converter.fields_for_table(opts.table, fields=opts.fields, exclude=opts.exclude)
         return {}
 
 class ModelSchemaMeta(SchemaMeta):
@@ -73,7 +73,7 @@ class ModelSchemaMeta(SchemaMeta):
     @classmethod
     def get_fields(mcs, converter, opts):
         if opts.model is not None:
-            return converter.fields_for_model(opts.model, fields=opts.fields)
+            return converter.fields_for_model(opts.model, fields=opts.fields, exclude=opts.exclude)
         return {}
 
 class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):

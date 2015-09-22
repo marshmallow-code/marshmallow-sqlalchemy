@@ -219,6 +219,12 @@ class TestModelFieldConversion:
         assert type(fields_['current_school_id']) is fields.Int
         assert type(fields_['date_created']) is fields.DateTime
 
+    def test_fields_for_model_handles_exclude(self, models):
+        fields_ = fields_for_model(models.Student, exclude=('dob', ))
+        assert type(fields_['id']) is fields.Int
+        assert type(fields_['full_name']) is fields.Str
+        assert 'dob' not in fields_
+
     def test_fields_for_model_handles_custom_types(self, models):
         fields_ = fields_for_model(models.Course, include_fk=True)
         assert type(fields_['grade']) is fields.Int
