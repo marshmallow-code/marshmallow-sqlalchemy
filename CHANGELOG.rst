@@ -4,7 +4,8 @@ Changelog
 0.5.0 (unreleased)
 ++++++++++++++++++
 
-- ``ModelSchema.make_object`` is removed in favor of decorated ``make_instance`` method for compatibility with marshmallow>=2.0.0rc2.
+- Don't autogenerate fields that are in ``Meta.exclude`` (:issue:`27`). Thanks :user:`jmcarp`.
+-  *Backwards-incompatible*: ``ModelSchema.make_object`` is removed in favor of decorated ``make_instance`` method for compatibility with marshmallow>=2.0.0rc2.
 
 0.4.1 (2015-09-13)
 ++++++++++++++++++
