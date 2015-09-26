@@ -324,11 +324,6 @@ class TestPropertyFieldConversion:
         field = converter.property2field(prop)
         assert type(field) == fields.Boolean
 
-    def test_convert_primary_key(self, converter):
-        prop = make_property(sa.Integer, primary_key=True)
-        field = converter.property2field(prop)
-        assert field.dump_only is True
-
     def test_convert_Numeric(self, converter):
         prop = make_property(sa.Numeric(scale=2))
         field = converter.property2field(prop)
@@ -509,9 +504,23 @@ class TestModelSchema:
         dump_data = schema.dump(student).data
         result = schema.load(dump_data)
 
-        assert type(result.data) == models.Student
-        assert result.data.id is None
+        assert result.data is student
         assert result.data.current_school == student.current_school
+
+    def test_model_schema_loading_custom_instance(self, models, schemas, student, session):
+        schema = schemas.StudentSchema(instance=student)
+        dump_data = {'full_name': 'Terry Gilliam'}
+        result = schema.load(dump_data)
+
+        assert result.data is student
+        assert result.data.current_school == student.current_school
+
+    def test_model_schema_loading_no_instance_or_pk(self, models, schemas, student, session):
+        schema = schemas.StudentSchema()
+        dump_data = {'full_name': 'Terry Gilliam'}
+        result = schema.load(dump_data)
+
+        assert result.data is not student
 
     def test_model_schema_loading_passing_session_to_load(self, models, schemas, student, session):
         class StudentSchemaNoSession(ModelSchema):
@@ -522,7 +531,6 @@ class TestModelSchema:
         dump_data = schema.dump(student).data
         result = schema.load(dump_data, session=session)
         assert type(result.data) == models.Student
-        assert result.data.id is None
         assert result.data.current_school == student.current_school
 
     def test_model_schema_validation_passing_session_to_validate(self, models,
@@ -585,7 +593,6 @@ class TestModelSchema:
         result = schema.load(dump_data)
 
         assert type(result.data) == models.Student
-        assert result.data.id is None
         assert result.data.current_school == student.current_school
 
     def test_dump_many_to_one_relationship(self, models, schemas, school, student):

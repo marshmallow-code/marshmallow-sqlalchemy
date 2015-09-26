@@ -179,10 +179,6 @@ class ModelConverter(object):
         if hasattr(column.type, 'scale'):
             kwargs['places'] = getattr(column.type, 'scale', None)
 
-        # Primary keys are dump_only ("read-only")
-        if getattr(column, 'primary_key', False):
-            kwargs['dump_only'] = True
-
     def _add_relationship_kwargs(self, kwargs, prop):
         """Add keyword arguments to kwargs (in-place) based on the passed in
         relationship `Property`.
