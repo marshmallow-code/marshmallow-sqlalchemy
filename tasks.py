@@ -9,15 +9,25 @@ docs_dir = 'docs'
 build_dir = os.path.join(docs_dir, '_build')
 
 @task
-def test():
-    run('py.test', echo=True)
+def test(watch=False, last_failing=False):
+    """Run the tests.
+
+    Note: --watch requires pytest-xdist to be installed.
+    """
+    import pytest
+    flake()
+    args = []
+    if watch:
+        args.append('-f')
+    if last_failing:
+        args.append('--lf')
+    retcode = pytest.main(args)
+    sys.exit(retcode)
 
 @task
-def watch():
-    """Run tests when a file changes."""
-    import pytest
-    errcode = pytest.main(['-f'])
-    sys.exit(errcode)
+def flake():
+    """Run flake8 on codebase."""
+    run('flake8 .', echo=True)
 
 @task
 def clean():
@@ -70,11 +80,6 @@ def readme(browse=False):
 def publish(test=False):
     """Publish to the cheeseshop."""
     clean()
-    try:
-        __import__('wheel')
-    except ImportError:
-        print('wheel required. Run `pip install wheel`.')
-        sys.exit(1)
     if test:
         run('python setup.py register -r test sdist bdist_wheel', echo=True)
         run('twine upload dist/* -r test', echo=True)
