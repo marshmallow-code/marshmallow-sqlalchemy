@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import marshmallow as ma
-from marshmallow.compat import with_metaclass
+from marshmallow.compat import with_metaclass, iteritems
 
 from .convert import ModelConverter
+from .fields import get_primary_column
 
 
 class TableSchemaOpts(ma.SchemaOpts):
@@ -111,21 +112,53 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         schema = UserSchema()
 
         user = schema.load({'name': 'Bill'}, session=session)
+        existing_user = schema.load({'name': 'Bill'}, instance=User.query.first())
+
+    :param session: Optional SQLAlchemy session; may be overridden in `load.`
+    :param instance: Optional existing instance to modify; may be overridden in `load`.
     """
     OPTIONS_CLASS = ModelSchemaOpts
 
     def __init__(self, *args, **kwargs):
         session = kwargs.pop('session', None)
+        self.instance = kwargs.pop('instance', None)
         super(ModelSchema, self).__init__(*args, **kwargs)
         self.session = session or self.opts.sqla_session
 
+    def get_instance(self, data):
+        """Retrieve an existing record by primary key."""
+        primary_column = get_primary_column(self.opts.model)
+        if primary_column.key in data:
+            return self.session.query(
+                self.opts.model
+            ).filter(
+                primary_column == data[primary_column.key]
+            ).first()
+        return None
+
     @ma.post_load
     def make_instance(self, data):
-        """Deserialize to an instance of the model."""
+        """Deserialize data to an instance of the model. Update an existing row
+        if specified in `self.instance` or loaded by primary key in the data;
+        else create a new row.
+
+        :param data: Data to deserialize.
+        """
+        instance = self.instance or self.get_instance(data)
+        if instance is not None:
+            for key, value in iteritems(data):
+                setattr(instance, key, value)
+            return instance
         return self.opts.model(**data)
 
-    def load(self, data, session=None, *args, **kwargs):
+    def load(self, data, session=None, instance=None, *args, **kwargs):
+        """Deserialize data to internal representation.
+
+        :param session: Optional SQLAlchemy session.
+        :param instance: Optional existing instance to modify.
+        """
         self.session = session or self.session
+        self.instance = instance or self.instance
         if not self.session:
             raise ValueError('Deserialization requires a session')
         return super(ModelSchema, self).load(data, *args, **kwargs)
