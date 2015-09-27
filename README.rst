@@ -2,11 +2,11 @@
 marshmallow-sqlalchemy
 **********************
 
-.. image:: https://img.shields.io/pypi/v/marshmallow-sqlalchemy.svg
-    :target: https://pypi.python.org/pypi/marshmallow-sqlalchemy
+.. image:: https://badge.fury.io/py/marshmallow-sqlalchemy.png
+    :target: http://badge.fury.io/py/marshmallow-sqlalchemy
     :alt: Latest version
 
-.. image:: https://img.shields.io/travis/marshmallow-code/marshmallow-sqlalchemy/pypi.svg
+.. image:: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy.svg?branch=dev
     :target: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy
     :alt: Travis-CI
 

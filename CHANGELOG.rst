@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-0.5.0 (unreleased)
+0.5.0 (2015-09-27)
 ++++++++++++++++++
 
 - Add ``instance`` argument to ``ModelSchema`` constructor and ``ModelSchema.load`` which allows for updating existing DB rows (:issue:`26`). Thanks :user:`sssilver` for reporting and :user:`jmcarp` for the patch.
