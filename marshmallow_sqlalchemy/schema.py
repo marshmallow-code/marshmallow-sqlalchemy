@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import marshmallow as ma
-from marshmallow.compat import with_metaclass
+from marshmallow.compat import with_metaclass, iteritems
 
 from .convert import ModelConverter
 from .fields import get_primary_column
@@ -146,7 +146,8 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         """
         instance = self.instance or self.get_instance(data)
         if instance is not None:
-            instance.__dict__.update(data)
+            for key, value in iteritems(data):
+                setattr(instance, key, value)
             return instance
         return self.opts.model(**data)
 
