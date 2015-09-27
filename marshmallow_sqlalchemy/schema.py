@@ -112,6 +112,10 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         schema = UserSchema()
 
         user = schema.load({'name': 'Bill'}, session=session)
+        existing_user = schema.load({'name': 'Bill'}, instance=User.query.first())
+
+    :param session: Optional SQLAlchemy session; may be overridden in `load.`
+    :param instance: Optional existing instance to modify; may be overridden in `load`.
     """
     OPTIONS_CLASS = ModelSchemaOpts
 
@@ -122,6 +126,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         self.session = session or self.opts.sqla_session
 
     def get_instance(self, data):
+        """Retrieve an existing record by primary key."""
         primary_column = get_primary_column(self.opts.model)
         if primary_column.key in data:
             return self.session.query(
@@ -133,7 +138,12 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
 
     @ma.post_load
     def make_instance(self, data):
-        """Deserialize to an instance of the model."""
+        """Deserialize data to an instance of the model. Update an existing row
+        if specified in `self.instance` or loaded by primary key in the data;
+        else create a new row.
+
+        :param data: Data to deserialize.
+        """
         instance = self.instance or self.get_instance(data)
         if instance is not None:
             instance.__dict__.update(data)
@@ -141,6 +151,11 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         return self.opts.model(**data)
 
     def load(self, data, session=None, instance=None, *args, **kwargs):
+        """Deserialize data to internal representation.
+
+        :param session: Optional SQLAlchemy session.
+        :param instance: Optional existing instance to modify.
+        """
         self.session = session or self.session
         self.instance = instance or self.instance
         if not self.session:
