@@ -3,7 +3,7 @@ import marshmallow as ma
 from marshmallow.compat import with_metaclass, iteritems
 
 from .convert import ModelConverter
-from .fields import get_primary_column
+from .fields import get_primary_columns
 
 
 class TableSchemaOpts(ma.SchemaOpts):
@@ -126,20 +126,24 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         self.session = session or self.opts.sqla_session
 
     def get_instance(self, data):
-        """Retrieve an existing record by primary key."""
-        primary_column = get_primary_column(self.opts.model)
-        if primary_column.key in data:
+        """Retrieve an existing record by primary key(s)."""
+        columns = get_primary_columns(self.opts.model)
+        filters = {
+            column.key: data.get(column.key)
+            for column in columns
+        }
+        if None not in filters.values():
             return self.session.query(
                 self.opts.model
-            ).filter(
-                primary_column == data[primary_column.key]
+            ).filter_by(
+                **filters
             ).first()
         return None
 
     @ma.post_load
     def make_instance(self, data):
         """Deserialize data to an instance of the model. Update an existing row
-        if specified in `self.instance` or loaded by primary key in the data;
+        if specified in `self.instance` or loaded by primary key(s) in the data;
         else create a new row.
 
         :param data: Data to deserialize.

@@ -3,30 +3,28 @@
 from marshmallow import fields
 
 
-def get_primary_column(model):
-    """Get primary key column for a SQLAlchemy model.
+def get_primary_columns(model):
+    """Get primary key columns for a SQLAlchemy model.
 
     :param model: SQLAlchemy model class
-    :raise: RuntimeError if model has multiple primary key columns
     """
-    columns = model.__mapper__.primary_key
-    if len(columns) == 1:
-        return columns[0]
-    raise RuntimeError('Model {0!r} has multiple primary keys'.format(model))
+    return model.__mapper__.primary_key
 
+def ensure_list(value):
+    return value if isinstance(value, list) else [value]
 
 class Related(fields.Field):
     """Related data represented by a SQLAlchemy `relationship`. Must be attached
     to a :class:`Schema` class whose options includes a SQLAlchemy `model`, such
     as :class:`ModelSchema`.
 
-    :param str column: Optional column name on related model. If not provided,
-        the primary key of the related model will be used.
+    :param list columns: Optional column names on related model. If not provided,
+        the primary key(s) of the related model will be used.
     """
 
     def __init__(self, column=None, **kwargs):
         super(Related, self).__init__(**kwargs)
-        self.column = column
+        self.columns = ensure_list(column or [])
 
     @property
     def model(self):
@@ -37,21 +35,29 @@ class Related(fields.Field):
         return getattr(self.model, self.attribute or self.name).property.mapper.class_
 
     @property
-    def related_column(self):
-        if self.column:
-            return self.related_model.__mapper__.columns[self.column]
-        return get_primary_column(self.related_model)
+    def related_columns(self):
+        if self.columns:
+            return [
+                self.related_model.__mapper__.columns[column]
+                for column in self.columns
+            ]
+        return get_primary_columns(self.related_model)
 
     @property
     def session(self):
         return self.parent.session
 
     def _serialize(self, value, attr, obj):
-        return getattr(value, self.related_column.key, None)
+        ret = [
+            getattr(value, column.key, None)
+            for column in self.related_columns
+        ]
+        return ret if len(ret) > 1 else ret[0]
 
     def _deserialize(self, value, *args, **kwargs):
         return self.session.query(
             self.related_model
-        ).filter(
-            self.related_column == value
-        ).one()
+        ).filter_by(**{
+            column.key: datum
+            for column, datum in zip(self.related_columns, ensure_list(value))
+        }).one()

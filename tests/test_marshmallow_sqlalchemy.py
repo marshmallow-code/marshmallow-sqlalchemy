@@ -142,6 +142,27 @@ def models(Base):
 
         marks_available = sa.Column(sa.Integer)
 
+    class Seminar(Base):
+        __tablename__ = 'seminar'
+
+        title = sa.Column(sa.String, primary_key=True)
+        semester = sa.Column(sa.String, primary_key=True)
+
+    class Lecture(Base):
+        __tablename__ = 'lecture'
+        __table_args__ = (
+            sa.ForeignKeyConstraint(
+                ['seminar_title', 'seminar_semester'],
+                ['seminar.title', 'seminar.semester']
+            ),
+        )
+
+        id = sa.Column(sa.Integer, primary_key=True)
+        topic = sa.Column(sa.String)
+        seminar_title = sa.Column(sa.String, sa.ForeignKey(Seminar.title))
+        seminar_semester = sa.Column(sa.String, sa.ForeignKey(Seminar.semester))
+        seminar = relationship(Seminar, foreign_keys=[seminar_title, seminar_semester])
+
     # So that we can access models with dot-notation, e.g. models.Course
     class _models(object):
         def __init__(self):
@@ -152,6 +173,8 @@ def models(Base):
             self.SubstituteTeacher = SubstituteTeacher
             self.Paper = Paper
             self.GradedPaper = GradedPaper
+            self.Seminar = Seminar
+            self.Lecture = Lecture
     return _models()
 
 @pytest.fixture()
@@ -195,6 +218,16 @@ def schemas(models, session):
             model = models.Student
             sqla_session = session
 
+    class SeminarSchema(ModelSchema):
+        class Meta:
+            model = models.Seminar
+            sqla_session = session
+
+    class LectureSchema(ModelSchema):
+        class Meta:
+            model = models.Lecture
+            sqla_session = session
+
     # Again, so we can use dot-notation
     class _schemas(object):
         def __init__(self):
@@ -206,6 +239,8 @@ def schemas(models, session):
             self.PaperSchema = PaperSchema
             self.GradedPaperSchema = GradedPaperSchema
             self.HyperlinkStudentSchema = HyperlinkStudentSchema
+            self.SeminarSchema = SeminarSchema
+            self.LectureSchema = LectureSchema
     return _schemas()
 
 
@@ -462,6 +497,20 @@ class TestModelSchema:
         session.flush()
         return sub_
 
+    @pytest.fixture()
+    def seminar(self, models, session):
+        seminar_ = models.Seminar(title='physics', semester='spring')
+        session.add(seminar_)
+        session.flush()
+        return seminar_
+
+    @pytest.fixture()
+    def lecture(self, models, session, seminar):
+        lecture_ = models.Lecture(topic='force', seminar=seminar)
+        session.add(lecture_)
+        session.flush()
+        return lecture_
+
     def test_model_schema_field_inheritance(self, schemas):
         class CourseSchemaSub(schemas.CourseSchema):
             additional = fields.Int()
@@ -521,6 +570,21 @@ class TestModelSchema:
         result = schema.load(dump_data)
 
         assert result.data is not student
+
+    def test_model_schema_compound_key(self, schemas, seminar):
+        schema = schemas.SeminarSchema()
+        dump_data = schema.dump(seminar).data
+        result = schema.load(dump_data)
+
+        assert result.data is seminar
+
+    def test_model_schema_compound_key_relationship(self, schemas, lecture):
+        schema = schemas.LectureSchema()
+        dump_data = schema.dump(lecture).data
+        assert dump_data['seminar'] == [lecture.seminar_title, lecture.seminar_semester]
+        result = schema.load(dump_data)
+
+        assert result.data is lecture
 
     def test_model_schema_loading_passing_session_to_load(self, models, schemas, student, session):
         class StudentSchemaNoSession(ModelSchema):
