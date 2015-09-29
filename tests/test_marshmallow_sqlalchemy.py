@@ -581,10 +581,20 @@ class TestModelSchema:
     def test_model_schema_compound_key_relationship(self, schemas, lecture):
         schema = schemas.LectureSchema()
         dump_data = schema.dump(lecture).data
-        assert dump_data['seminar'] == [lecture.seminar_title, lecture.seminar_semester]
+        assert dump_data['seminar'] == {
+            'title': lecture.seminar_title,
+            'semester': lecture.seminar_semester,
+        }
         result = schema.load(dump_data)
 
         assert result.data is lecture
+
+    def test_model_schema_compound_key_relationship_invalid_key(self, schemas, lecture):
+        schema = schemas.LectureSchema()
+        dump_data = schema.dump(lecture).data
+        dump_data['seminar'] = 'scalar'
+        with pytest.raises(ValueError):
+            schema.load(dump_data)
 
     def test_model_schema_loading_passing_session_to_load(self, models, schemas, student, session):
         class StudentSchemaNoSession(ModelSchema):

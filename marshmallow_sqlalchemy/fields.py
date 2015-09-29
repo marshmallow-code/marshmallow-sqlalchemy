@@ -48,16 +48,26 @@ class Related(fields.Field):
         return self.parent.session
 
     def _serialize(self, value, attr, obj):
-        ret = [
-            getattr(value, column.key, None)
+        ret = {
+            column.key: getattr(value, column.key, None)
             for column in self.related_columns
-        ]
-        return ret if len(ret) > 1 else ret[0]
+        }
+        return ret if len(ret) > 1 else list(ret.values())[0]
 
     def _deserialize(self, value, *args, **kwargs):
+        if not isinstance(value, dict):
+            if len(self.related_columns) != 1:
+                raise ValueError(
+                    'Could not deserialized related value {0!r}; expected a dictionary '
+                    'with keys {1!r}'.format(
+                        value,
+                        [column.key for column in self.related_columns]
+                    )
+                )
+            value = {self.related_columns[0].key: value}
         return self.session.query(
             self.related_model
         ).filter_by(**{
-            column.key: datum
-            for column, datum in zip(self.related_columns, ensure_list(value))
+            column.key: value.get(column.key)
+            for column in self.related_columns
         }).one()
