@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.6.0 (unreleased)
+++++++++++++++++++
+
+- Support for compound primary keys. Thanks :user:`jmcarp`.
+
 0.5.0 (2015-09-27)
 ++++++++++++++++++
 
