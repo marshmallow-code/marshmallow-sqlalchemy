@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from marshmallow import fields
+from marshmallow.utils import is_iterable_but_not_string
 
 
 def get_primary_columns(model):
@@ -11,7 +12,7 @@ def get_primary_columns(model):
     return model.__mapper__.primary_key
 
 def ensure_list(value):
-    return value if isinstance(value, list) else [value]
+    return value if is_iterable_but_not_string(value) else [value]
 
 class Related(fields.Field):
     """Related data represented by a SQLAlchemy `relationship`. Must be attached
