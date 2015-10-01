@@ -11,6 +11,12 @@ def get_primary_columns(model):
     """
     return model.__mapper__.primary_key
 
+def get_schema_for_field(field):
+    if hasattr(field, 'root'):  # marshmallow>=2.1
+        return field.root
+    else:
+        return field.parent
+
 def ensure_list(value):
     return value if is_iterable_but_not_string(value) else [value]
 
@@ -29,7 +35,8 @@ class Related(fields.Field):
 
     @property
     def model(self):
-        return self.parent.opts.model
+        schema = get_schema_for_field(self)
+        return schema.opts.model
 
     @property
     def related_model(self):
