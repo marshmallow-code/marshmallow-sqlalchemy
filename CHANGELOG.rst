@@ -4,7 +4,13 @@ Changelog
 0.6.0 (unreleased)
 ++++++++++++++++++
 
+Features:
+
 - Support for compound primary keys. Thanks :user:`jmcarp`.
+
+Other changes:
+
+- Supports marshmallow>=2.0.0.
 
 0.5.0 (2015-09-27)
 ++++++++++++++++++

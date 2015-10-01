@@ -5,6 +5,12 @@ sudo: false
 
 language: python
 
+env:
+  # Lowest supported version
+  - MARSHMALLOW_VERSION="==2.0.0"
+  # Latest release
+  - MARSHMALLOW_VERSION=""
+
 python:
   - "3.5"
   - "3.4"
@@ -13,8 +19,9 @@ python:
   - "pypy"
 
 install:
-  - pip install -U .
-  - pip install -r dev-requirements.txt
+  - travis_retry pip install -U .
+  - travis_retry pip install -r dev-requirements.txt
+  - travis_retry pip install -U marshmallow"$MARSHMALLOW_VERSION"
 before_script:
   - flake8 .
 
