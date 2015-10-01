@@ -53,7 +53,8 @@ class Related(fields.Field):
 
     @property
     def session(self):
-        return self.parent.session
+        schema = get_schema_for_field(self)
+        return schema.session
 
     def _serialize(self, value, attr, obj):
         ret = {
