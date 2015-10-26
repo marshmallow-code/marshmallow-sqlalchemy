@@ -711,6 +711,15 @@ class TestModelSchema:
         assert 'full_name' in data
         assert 'date_created' not in data
 
+    def test_include_fk_option(self, models, schemas):
+        class StudentSchema(ModelSchema):
+            class Meta:
+                model = models.Student
+                include_fk = True
+
+        assert 'current_school_id' in StudentSchema().fields
+        assert 'current_school_id' not in schemas.StudentSchema().fields
+
     def test_additional_option(self, student, models, session):
         class StudentSchema(ModelSchema):
             uppername = fields.Function(lambda x: x.full_name.upper())

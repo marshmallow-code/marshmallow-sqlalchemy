@@ -13,12 +13,14 @@ class TableSchemaOpts(ma.SchemaOpts):
     - ``table``: The SQLAlchemy table to generate the `Schema` from (required).
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy table to
         marshmallow fields.
+    - ``include_fk``: Whether to include foreign fields; defaults to `False`.
     """
 
     def __init__(self, meta):
         super(TableSchemaOpts, self).__init__(meta)
         self.table = getattr(meta, 'table', None)
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)
+        self.include_fk = getattr(meta, 'include_fk', False)
 
 class ModelSchemaOpts(ma.SchemaOpts):
     """Options class for `ModelSchema`.
@@ -29,6 +31,7 @@ class ModelSchemaOpts(ma.SchemaOpts):
         can also pass a session to the Schema's `load` method.
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
         marshmallow fields.
+    - ``include_fk``: Whether to include foreign fields; defaults to `False`.
     """
 
     def __init__(self, meta):
@@ -36,6 +39,7 @@ class ModelSchemaOpts(ma.SchemaOpts):
         self.model = getattr(meta, 'model', None)
         self.sqla_session = getattr(meta, 'sqla_session', None)
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)
+        self.include_fk = getattr(meta, 'include_fk', False)
 
 class SchemaMeta(ma.schema.SchemaMeta):
     """Metaclass for `ModelSchema`."""
@@ -66,7 +70,12 @@ class TableSchemaMeta(SchemaMeta):
     @classmethod
     def get_fields(mcs, converter, opts):
         if opts.table is not None:
-            return converter.fields_for_table(opts.table, fields=opts.fields, exclude=opts.exclude)
+            return converter.fields_for_table(
+                opts.table,
+                fields=opts.fields,
+                exclude=opts.exclude,
+                include_fk=opts.include_fk,
+            )
         return {}
 
 class ModelSchemaMeta(SchemaMeta):
@@ -74,7 +83,12 @@ class ModelSchemaMeta(SchemaMeta):
     @classmethod
     def get_fields(mcs, converter, opts):
         if opts.model is not None:
-            return converter.fields_for_model(opts.model, fields=opts.fields, exclude=opts.exclude)
+            return converter.fields_for_model(
+                opts.model,
+                fields=opts.fields,
+                exclude=opts.exclude,
+                include_fk=opts.include_fk,
+            )
         return {}
 
 class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):
