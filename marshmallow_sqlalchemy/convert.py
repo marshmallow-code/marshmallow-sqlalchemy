@@ -51,7 +51,7 @@ class ModelConverter(object):
         mysql.SET: fields.List,
         mysql.ENUM: fields.Field,
 
-        mysql.BIT: fields.Integer,
+        mssql.BIT: fields.Integer,
     }
 
     DIRECTION_MAPPING = {
