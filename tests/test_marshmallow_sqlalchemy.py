@@ -567,7 +567,7 @@ class TestModelSchema:
     def test_model_schema_loading_custom_instance(self, models, schemas, student, session):
         schema = schemas.StudentSchema(instance=student)
         dump_data = {'full_name': 'Terry Gilliam'}
-        result = schema.load(dump_data)
+        result = schema.load(dump_data, partial=True)
 
         assert result.data is student
         assert result.data.current_school == student.current_school
@@ -685,7 +685,7 @@ class TestModelSchema:
 
     def test_load_many_to_one_relationship(self, models, schemas, school, student):
         schema = schemas.SchoolSchema()
-        load_data = schema.load({'students': [1]}).data
+        load_data = schema.load({'students': [1]}, partial=True).data
         assert type(load_data.students[0]) is models.Student
         assert load_data.students[0] == student
 
