@@ -168,6 +168,7 @@ class ModelConverter(object):
         """
         if column.nullable:
             kwargs['allow_none'] = True
+        kwargs['required'] = not column.nullable
 
         if hasattr(column.type, 'enums'):
             kwargs['validate'].append(validate.OneOf(choices=column.type.enums))
@@ -191,6 +192,7 @@ class ModelConverter(object):
                 break
         kwargs.update({
             'allow_none': nullable,
+            'required': not nullable,
         })
 
     def get_base_kwargs(self):

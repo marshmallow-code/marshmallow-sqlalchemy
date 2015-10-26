@@ -556,6 +556,14 @@ class TestModelSchema:
         assert result.data is student
         assert result.data.current_school == student.current_school
 
+    def test_model_schema_loading_missing_field(self, models, schemas, student, session):
+        schema = schemas.StudentSchema()
+        dump_data = schema.dump(student).data
+        dump_data.pop('full_name')
+        result = schema.load(dump_data)
+
+        assert result.errors['full_name'] == ['Missing data for required field.']
+
     def test_model_schema_loading_custom_instance(self, models, schemas, student, session):
         schema = schemas.StudentSchema(instance=student)
         dump_data = {'full_name': 'Terry Gilliam'}
