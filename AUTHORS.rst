@@ -14,3 +14,4 @@ Contributors
 - Rob MacKinnon `@rmackinnon <https://github.com/rmackinnon>`_
 - Jason Mitchell `@mitchej123 <https://github.com/mitchej123>`_
 - Douglas Russell `@dpwrussell <https://github.com/dpwrussell>`_
+- Rudá Porto Filgueiras `@rudaporto <https://github.com/rudaporto>`_

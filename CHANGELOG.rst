@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.7.0 (unreleased)
+++++++++++++++++++
+
+Features:
+
+- Add ``include_fk`` class Meta option (:issue:`36`). Thanks :user:`jmcarp`.
+- Improve support for MySQL BIT field (:issue:`41`). Thanks :user:`rudaporto`.
+
 0.6.0 (2015-09-29)
 ++++++++++++++++++
 
