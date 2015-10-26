@@ -4,7 +4,7 @@ import functools
 
 import marshmallow as ma
 from marshmallow import validate, fields
-from sqlalchemy.dialects import postgresql, mysql
+from sqlalchemy.dialects import postgresql, mysql, mssql
 import sqlalchemy as sa
 
 from .exceptions import ModelConversionError
@@ -50,6 +50,8 @@ class ModelConverter(object):
         mysql.YEAR: fields.Integer,
         mysql.SET: fields.List,
         mysql.ENUM: fields.Field,
+
+        mysql.BIT: fields.Integer,
     }
 
     DIRECTION_MAPPING = {
