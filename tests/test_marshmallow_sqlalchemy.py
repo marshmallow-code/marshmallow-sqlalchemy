@@ -556,9 +556,18 @@ class TestModelSchema:
         assert result.data is student
         assert result.data.current_school == student.current_school
 
+    def test_model_schema_loading_missing_field(self, models, schemas, student, session):
+        schema = schemas.StudentSchema()
+        dump_data = schema.dump(student).data
+        dump_data.pop('full_name')
+        result = schema.load(dump_data)
+
+        assert result.errors['full_name'] == ['Missing data for required field.']
+
     def test_model_schema_loading_custom_instance(self, models, schemas, student, session):
         schema = schemas.StudentSchema(instance=student)
-        dump_data = {'full_name': 'Terry Gilliam'}
+        dump_data = schema.dump(student).data
+        dump_data['full_name'] = 'Terry Gilliam'
         result = schema.load(dump_data)
 
         assert result.data is student
@@ -677,7 +686,8 @@ class TestModelSchema:
 
     def test_load_many_to_one_relationship(self, models, schemas, school, student):
         schema = schemas.SchoolSchema()
-        load_data = schema.load({'students': [1]}).data
+        dump_data = schema.dump(school).data
+        load_data = schema.load(dump_data).data
         assert type(load_data.students[0]) is models.Student
         assert load_data.students[0] == student
 
