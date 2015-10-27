@@ -5,11 +5,11 @@ sudo: false
 
 language: python
 
-# env:
-#   # Lowest supported version
-#   - MARSHMALLOW_VERSION="==2.0.0"
-#   # Latest release
-#   - MARSHMALLOW_VERSION=""
+env:
+  # Lowest supported version
+  - MARSHMALLOW_VERSION="==2.0.0"
+  # Latest release
+  - MARSHMALLOW_VERSION=""
 
 python:
   - "3.5"
@@ -21,7 +21,7 @@ python:
 install:
   - travis_retry pip install -U .
   - travis_retry pip install -r dev-requirements.txt
-  # - travis_retry pip install -U marshmallow"$MARSHMALLOW_VERSION"
+  - travis_retry pip install -U marshmallow"$MARSHMALLOW_VERSION"
 before_script:
   - flake8 .
 

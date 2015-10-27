@@ -9,5 +9,3 @@ mock
 # packaging
 wheel
 twine
-
-git+https://github.com/marshmallow-code/marshmallow@dev
