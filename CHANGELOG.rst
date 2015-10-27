@@ -7,6 +7,7 @@ Changelog
 Features:
 
 - Add ``include_fk`` class Meta option (:issue:`36`). Thanks :user:`jmcarp`.
+- Non-nullable columns will generated required marshmallow Fields (:issue:`40`). Thanks :user:`jmcarp`.
 - Improve support for MySQL BIT field (:issue:`41`). Thanks :user:`rudaporto`.
 
 0.6.0 (2015-09-29)
