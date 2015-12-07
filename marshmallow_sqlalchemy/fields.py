@@ -4,12 +4,16 @@ from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
 
 
-def get_primary_columns(model):
-    """Get primary key columns for a SQLAlchemy model.
+def get_primary_keys(model):
+    """Get primary key properties for a SQLAlchemy model.
 
     :param model: SQLAlchemy model class
     """
-    return model.__mapper__.primary_key
+    mapper = model.__mapper__
+    return [
+        mapper.get_property_by_column(column)
+        for column in mapper.primary_key
+    ]
 
 def get_schema_for_field(field):
     if hasattr(field, 'root'):  # marshmallow>=2.1
@@ -43,13 +47,13 @@ class Related(fields.Field):
         return getattr(self.model, self.attribute or self.name).property.mapper.class_
 
     @property
-    def related_columns(self):
+    def related_keys(self):
         if self.columns:
             return [
                 self.related_model.__mapper__.columns[column]
                 for column in self.columns
             ]
-        return get_primary_columns(self.related_model)
+        return get_primary_keys(self.related_model)
 
     @property
     def session(self):
@@ -58,25 +62,25 @@ class Related(fields.Field):
 
     def _serialize(self, value, attr, obj):
         ret = {
-            column.key: getattr(value, column.key, None)
-            for column in self.related_columns
+            prop.key: getattr(value, prop.key, None)
+            for prop in self.related_keys
         }
         return ret if len(ret) > 1 else list(ret.values())[0]
 
     def _deserialize(self, value, *args, **kwargs):
         if not isinstance(value, dict):
-            if len(self.related_columns) != 1:
+            if len(self.related_keys) != 1:
                 raise ValueError(
                     'Could not deserialized related value {0!r}; expected a dictionary '
                     'with keys {1!r}'.format(
                         value,
-                        [column.key for column in self.related_columns]
+                        [prop.key for prop in self.related_keys]
                     )
                 )
-            value = {self.related_columns[0].key: value}
+            value = {self.related_keys[0].key: value}
         return self.session.query(
             self.related_model
         ).filter_by(**{
-            column.key: value.get(column.key)
-            for column in self.related_columns
+            prop.key: value.get(prop.key)
+            for prop in self.related_keys
         }).one()

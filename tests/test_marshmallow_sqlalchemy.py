@@ -73,7 +73,7 @@ def models(Base):
 
     class School(Base):
         __tablename__ = 'school'
-        id = sa.Column(sa.Integer, primary_key=True)
+        id = sa.Column('school_id', sa.Integer, primary_key=True)
         name = sa.Column(sa.String(255), nullable=False)
 
         @property
@@ -465,7 +465,7 @@ class TestTableSchema:
                 table = models.School.__table__
         schema = SchoolSchema()
         dump = schema.dump(school).data
-        assert dump == {'name': 'Univ. of Whales', 'id': 1}
+        assert dump == {'name': 'Univ. of Whales', 'school_id': 1}
 
 class TestModelSchema:
 
@@ -830,4 +830,4 @@ class TestNullForeignKey:
 
         assert type(result.data) is models.Teacher
         assert 'substitute' in data
-        assert data['substitute'] == None
+        assert data['substitute'] is None
