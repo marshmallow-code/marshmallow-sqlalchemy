@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-0.7.0 (unreleased)
+0.7.0 (2015-12-07)
 ++++++++++++++++++
 
 Features:
@@ -9,6 +9,12 @@ Features:
 - Add ``include_fk`` class Meta option (:issue:`36`). Thanks :user:`jmcarp`.
 - Non-nullable columns will generated required marshmallow Fields (:issue:`40`). Thanks :user:`jmcarp`.
 - Improve support for MySQL BIT field (:issue:`41`). Thanks :user:`rudaporto`.
+- *Backwards-incompatible*: Remove ``fields.get_primary_columns`` in favor of ``fields.get_primary_keys``.
+- *Backwards-incompatible*: Remove ``Related.related_columns`` in favor of ``fields.related_keys``.
+
+Bug fixes:
+
+- Fix serializing relationships when using non-default column names (:issue:`44`). Thanks :user:`jmcarp` for the fix. Thanks :user:`repole` for the bug report.
 
 0.6.0 (2015-09-29)
 ++++++++++++++++++
