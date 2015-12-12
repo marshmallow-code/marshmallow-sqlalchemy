@@ -16,6 +16,19 @@ def _is_field(value):
         issubclass(value, fields.Field)
     )
 
+def _has_default(column):
+    return (
+        column.default is not None or
+        column.server_default is not None or
+        _is_auto_increment(column)
+    )
+
+def _is_auto_increment(column):
+    return (
+        column.table is not None and
+        column is column.table._autoincrement_column
+    )
+
 def _postgres_array_factory(converter, data_type):
     return functools.partial(
         fields.List,
@@ -170,7 +183,7 @@ class ModelConverter(object):
         """
         if column.nullable:
             kwargs['allow_none'] = True
-        kwargs['required'] = not column.nullable
+        kwargs['required'] = not column.nullable and not _has_default(column)
 
         if hasattr(column.type, 'enums'):
             kwargs['validate'].append(validate.OneOf(choices=column.type.enums))
