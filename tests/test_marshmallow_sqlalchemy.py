@@ -83,7 +83,7 @@ def models(Base):
     class Student(Base):
         __tablename__ = 'student'
         id = sa.Column(sa.Integer, primary_key=True)
-        full_name = sa.Column(sa.String(255), nullable=False, unique=True, default='noname')
+        full_name = sa.Column(sa.String(255), nullable=False, unique=True)
         dob = sa.Column(sa.Date(), nullable=True)
         date_created = sa.Column(sa.DateTime, default=dt.datetime.utcnow,
                 doc='date the student was created')
@@ -406,6 +406,21 @@ class TestPropertyFieldConversion:
         prop = make_property(postgresql.TSVECTOR)
         with pytest.raises(ModelConversionError):
             converter.property2field(prop)
+
+    def test_convert_default(self, converter):
+        prop = make_property(sa.String, default='ack')
+        field = converter.property2field(prop)
+        assert field.required is False
+
+    def test_convert_server_default(self, converter):
+        prop = make_property(sa.String, server_default=sa.text('sysdate'))
+        field = converter.property2field(prop)
+        assert field.required is False
+
+    def test_convert_autoincrement(self, models, converter):
+        prop = models.Course.__mapper__.get_property('id')
+        field = converter.property2field(prop)
+        assert field.required is False
 
 class TestPropToFieldClass:
 
