@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.7.1 (2015-12-13)
+++++++++++++++++++
+
+Bug fixes:
+
+- Don't make marshmallow fields required for non-nullable columns if a column has a default value or autoincrements (:issue:`47`). Thanks :user:`jmcarp` for the fix. Thanks :user:`AdrielVelazquez` for reporting.
+
 0.7.0 (2015-12-07)
 ++++++++++++++++++
 
