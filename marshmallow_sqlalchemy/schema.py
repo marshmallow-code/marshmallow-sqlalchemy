@@ -53,7 +53,7 @@ class SchemaMeta(ma.schema.SchemaMeta):
         declared_fields = kwargs.get('dict_class', dict)()
         opts = klass.opts
         Converter = opts.model_converter
-        converter = Converter()
+        converter = Converter(schema_cls=klass)
         declared_fields = mcs.get_fields(converter, opts)
         base_fields = super(SchemaMeta, mcs).get_declared_fields(
             klass, *args, **kwargs

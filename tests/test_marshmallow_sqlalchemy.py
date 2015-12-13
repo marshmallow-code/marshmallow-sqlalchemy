@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
 from sqlalchemy.dialects import postgresql
 
-from marshmallow import fields, validate, post_load
+from marshmallow import Schema, fields, validate, post_load
 
 import pytest
 from marshmallow_sqlalchemy import (
@@ -177,6 +177,9 @@ def models(Base):
             self.Lecture = Lecture
     return _models()
 
+class MyDateField(fields.Date):
+    pass
+
 @pytest.fixture()
 def schemas(models, session):
     class CourseSchema(ModelSchema):
@@ -190,6 +193,16 @@ def schemas(models, session):
             sqla_session = session
 
     class StudentSchema(ModelSchema):
+        class Meta:
+            model = models.Student
+            sqla_session = session
+
+    class StudentSchemaWithCustomTypeMapping(ModelSchema):
+        TYPE_MAPPING = Schema.TYPE_MAPPING.copy()
+        TYPE_MAPPING.update({
+            dt.date: MyDateField
+        })
+
         class Meta:
             model = models.Student
             sqla_session = session
@@ -234,6 +247,7 @@ def schemas(models, session):
             self.CourseSchema = CourseSchema
             self.SchoolSchema = SchoolSchema
             self.StudentSchema = StudentSchema
+            self.StudentSchemaWithCustomTypeMapping = StudentSchemaWithCustomTypeMapping
             self.TeacherSchema = TeacherSchema
             self.SubstituteTeacherSchema = SubstituteTeacherSchema
             self.PaperSchema = PaperSchema
@@ -318,6 +332,21 @@ class TestPropertyFieldConversion:
     @pytest.fixture()
     def converter(self):
         return ModelConverter()
+
+    def test_convert_custom_type_mapping_on_schema(self):
+        class MyDateTimeField(fields.DateTime):
+            pass
+
+        class MySchema(Schema):
+            TYPE_MAPPING = Schema.TYPE_MAPPING.copy()
+            TYPE_MAPPING.update({
+                dt.datetime: MyDateTimeField
+            })
+
+        converter = ModelConverter(schema_cls=MySchema)
+        prop = make_property(sa.DateTime())
+        field = converter.property2field(prop)
+        assert type(field) == MyDateTimeField
 
     def test_convert_String(self, converter):
         prop = make_property(sa.String())
@@ -525,6 +554,10 @@ class TestModelSchema:
         session.add(lecture_)
         session.flush()
         return lecture_
+
+    def test_model_schema_with_custom_type_mapping(self, schemas):
+        schema = schemas.StudentSchemaWithCustomTypeMapping()
+        assert type(schema.fields['dob']) is MyDateField
 
     def test_model_schema_field_inheritance(self, schemas):
         class CourseSchemaSub(schemas.CourseSchema):
