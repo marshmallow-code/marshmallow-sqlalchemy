@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.8.0 (unreleased)
+++++++++++++++++++
+
+Features:
+
+- ``ModelSchema`` and ``TableSchema`` will respect the ``TYPE_MAPPING`` class variable of Schema subclasses when converting ``Columns`` to ``Fields`` (:issue:`42`). Thanks :user:`dwieeb` for the suggestion.
+
 0.7.1 (2015-12-13)
 ++++++++++++++++++
 
