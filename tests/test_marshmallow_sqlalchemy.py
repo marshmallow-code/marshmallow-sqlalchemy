@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
 from sqlalchemy.dialects import postgresql
 
 from marshmallow import Schema, fields, validate, post_load
+from marshmallow.compat import OrderedDict
 
 import pytest
 from marshmallow_sqlalchemy import (
@@ -587,6 +588,17 @@ class TestModelSchema:
         assert 'id' in field_names
         assert 'name' in field_names
         assert 'cost' in field_names
+
+    def test_model_schema_ordered(self, models):
+        class SchoolSchema(ModelSchema):
+            class Meta:
+                model = models.School
+                ordered = True
+
+        schema = SchoolSchema()
+        assert isinstance(schema.fields, OrderedDict)
+        fields = [prop.key for prop in models.School.__mapper__.iterate_properties]
+        assert list(schema.fields.keys()) == fields
 
     def test_model_schema_dumping(self, schemas, student):
         schema = schemas.StudentSchema()
