@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.8.1 (unreleased)
+++++++++++++++++++
+
+Bug fixes:
+
+- ``ModelSchema`` and ``TableSchema`` respect field order if the ``ordered=True`` class Meta option is set (:issue:`52`). Thanks :user:`jeffwidman` for reporting and :user:`jmcarp` for the patch.
+
 0.8.0 (2015-12-28)
 ++++++++++++++++++
 
