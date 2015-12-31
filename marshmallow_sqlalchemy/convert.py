@@ -83,8 +83,8 @@ class ModelConverter(object):
         else:
             return ma.Schema.TYPE_MAPPING
 
-    def fields_for_model(self, model, include_fk=False, fields=None, exclude=None):
-        result = {}
+    def fields_for_model(self, model, include_fk=False, fields=None, exclude=None, dict_cls=dict):
+        result = dict_cls()
         for prop in model.__mapper__.iterate_properties:
             if _should_exclude_field(prop, fields=fields, exclude=exclude):
                 continue
@@ -102,8 +102,8 @@ class ModelConverter(object):
                 result[prop.key] = field
         return result
 
-    def fields_for_table(self, table, include_fk=False, fields=None, exclude=None):
-        result = {}
+    def fields_for_table(self, table, include_fk=False, fields=None, exclude=None, dict_cls=dict):
+        result = dict_cls()
         for column in table.columns:
             if _should_exclude_field(column, fields=fields, exclude=exclude):
                 continue
