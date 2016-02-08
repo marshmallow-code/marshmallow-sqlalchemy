@@ -290,9 +290,11 @@ def models_schemas_inter(Base, models, schemas, session):
             sa.Integer,
             info={
                 'marshmallow_sqlalchemy': {
-                    'field': fields.Decimal()
-                 }
-            }
+                    'field': fields.Decimal(),
+                    'load_only': True
+                }
+            },
+            nullable=True
         )
 
         student_id = sa.Column(sa.Integer, sa.ForeignKey('student.id'),
@@ -302,7 +304,7 @@ def models_schemas_inter(Base, models, schemas, session):
             info={
                 'marshmallow_sqlalchemy': {
                     'field': fields.Nested(schemas.StudentSchema)
-                 }
+                }
             }
         )
 
@@ -403,6 +405,8 @@ class TestModelFieldConversion:
     def test_property_info_field_customization(self, models_schemas_inter):
         locker_fields = fields_for_model(models_schemas_inter.Locker)
         assert type(locker_fields['capacity']) is fields.Decimal
+        assert locker_fields['capacity'].load_only is True
+        assert locker_fields['capacity'].allow_none is True
 
     def test_relationship_info_field_customization(self, models_schemas_inter):
         locker_fields = fields_for_model(models_schemas_inter.Locker)
