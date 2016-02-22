@@ -149,6 +149,8 @@ def models(Base):
         title = sa.Column(sa.String, primary_key=True)
         semester = sa.Column(sa.String, primary_key=True)
 
+        label = column_property(title + ': ' + semester)
+
     class Lecture(Base):
         __tablename__ = 'lecture'
         __table_args__ = (
@@ -236,6 +238,7 @@ def schemas(models, session):
         class Meta:
             model = models.Seminar
             sqla_session = session
+        label = fields.Str()
 
     class LectureSchema(ModelSchema):
         class Meta:

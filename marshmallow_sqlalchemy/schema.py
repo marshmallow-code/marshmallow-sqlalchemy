@@ -54,27 +54,28 @@ class SchemaMeta(ma.schema.SchemaMeta):
         opts = klass.opts
         Converter = opts.model_converter
         converter = Converter(schema_cls=klass)
-        declared_fields = mcs.get_fields(converter, opts, dict_cls)
         base_fields = super(SchemaMeta, mcs).get_declared_fields(
             klass, cls_fields, inherited_fields, dict_cls
         )
+        declared_fields = mcs.get_fields(converter, opts, base_fields, dict_cls)
         declared_fields.update(base_fields)
         return declared_fields
 
     @classmethod
-    def get_fields(mcs, converter, opts):
+    def get_fields(mcs, converter, base_fields, opts):
         pass
 
 class TableSchemaMeta(SchemaMeta):
 
     @classmethod
-    def get_fields(mcs, converter, opts, dict_cls):
+    def get_fields(mcs, converter, opts, base_fields, dict_cls):
         if opts.table is not None:
             return converter.fields_for_table(
                 opts.table,
                 fields=opts.fields,
                 exclude=opts.exclude,
                 include_fk=opts.include_fk,
+                base_fields=base_fields,
                 dict_cls=dict_cls,
             )
         return dict_cls()
@@ -82,13 +83,14 @@ class TableSchemaMeta(SchemaMeta):
 class ModelSchemaMeta(SchemaMeta):
 
     @classmethod
-    def get_fields(mcs, converter, opts, dict_cls):
+    def get_fields(mcs, converter, opts, base_fields, dict_cls):
         if opts.model is not None:
             return converter.fields_for_model(
                 opts.model,
                 fields=opts.fields,
                 exclude=opts.exclude,
                 include_fk=opts.include_fk,
+                base_fields=base_fields,
                 dict_cls=dict_cls,
             )
         return dict_cls()
