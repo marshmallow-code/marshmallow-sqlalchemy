@@ -1,12 +1,13 @@
 Changelog
 ---------
 
-0.8.1 (unreleased)
+0.8.1 (2016-02-21)
 ++++++++++++++++++
 
 Bug fixes:
 
 - ``ModelSchema`` and ``TableSchema`` respect field order if the ``ordered=True`` class Meta option is set (:issue:`52`). Thanks :user:`jeffwidman` for reporting and :user:`jmcarp` for the patch.
+- Declared fields are not introspected in order to support, e.g. ``column_property`` (:issue:`57`). Thanks :user:`jmcarp`.
 
 0.8.0 (2015-12-28)
 ++++++++++++++++++
