@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from sqlalchemy.sql.expression import or_, and_
+
 from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
 
@@ -31,9 +33,11 @@ class Related(fields.Field):
 
     :param list columns: Optional column names on related model. If not provided,
         the primary key(s) of the related model will be used.
+    :param bool many: Whether the field is a collection of related objects.
     """
 
     def __init__(self, column=None, **kwargs):
+        self.many = kwargs.get('many', False)
         super(Related, self).__init__(**kwargs)
         self.columns = ensure_list(column or [])
 
@@ -61,26 +65,32 @@ class Related(fields.Field):
         return schema.session
 
     def _serialize(self, value, attr, obj):
-        ret = {
-            prop.key: getattr(value, prop.key, None)
-            for prop in self.related_keys
-        }
-        return ret if len(ret) > 1 else list(ret.values())[0]
+        if not self.many:
+            value = [value]
+        ret = []
+        for item in value:
+            related_keys = {
+                prop.key: getattr(item, prop.key, None)
+                for prop in self.related_keys
+            }
+            ret.append(related_keys if len(related_keys) > 1 else list(related_keys.values())[0])
+        return ret if self.many else ret[0]
 
     def _deserialize(self, value, *args, **kwargs):
-        if not isinstance(value, dict):
-            if len(self.related_keys) != 1:
-                raise ValueError(
-                    'Could not deserialized related value {0!r}; expected a dictionary '
-                    'with keys {1!r}'.format(
-                        value,
-                        [prop.key for prop in self.related_keys]
+        if not self.many:
+            value = [value]
+        criteria = []
+        for item in value:
+            if not isinstance(item, dict):
+                if len(self.related_keys) != 1:
+                    raise ValueError(
+                        'Could not deserialized related value {0!r}; expected a '
+                        'dictionary with keys {1!r}'.format(
+                            item, [prop.key for prop in self.related_keys]
+                        )
                     )
-                )
-            value = {self.related_keys[0].key: value}
-        return self.session.query(
-            self.related_model
-        ).filter_by(**{
-            prop.key: value.get(prop.key)
-            for prop in self.related_keys
-        }).one()
+                item = {self.related_keys[0].key: item}
+            criteria.append(and_(*(prop.expression == item.get(prop.key)
+                                   for prop in self.related_keys)))
+        query = self.session.query(self.related_model).filter(or_(*criteria))
+        return query.all() if self.many else query.one()

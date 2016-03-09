@@ -168,9 +168,10 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         """
         instance = self.instance or self.get_instance(data)
         if instance is not None:
-            for key, value in iteritems(data):
-                setattr(instance, key, value)
-            return instance
+            with self.session.no_autoflush:
+                for key, value in iteritems(data):
+                    setattr(instance, key, value)
+                return instance
         return self.opts.model(**data)
 
     def load(self, data, session=None, instance=None, *args, **kwargs):
