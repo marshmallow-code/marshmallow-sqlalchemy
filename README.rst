@@ -101,7 +101,7 @@ License
 MIT licensed. See the bundled `LICENSE <https://github.com/marshmallow-code/marshmallow-sqlalchemy/blob/dev/LICENSE>`_ file for more details.
 
 
-.. |pypi-package| image:: https://badge.fury.io/py/marshmallow-sqlalchemy.png
+.. |pypi-package| image:: https://badge.fury.io/py/marshmallow-sqlalchemy.svg
     :target: http://badge.fury.io/py/marshmallow-sqlalchemy
     :alt: Latest version
 .. |build-status| image:: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy.svg?branch=dev
