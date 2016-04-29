@@ -2,13 +2,7 @@
 marshmallow-sqlalchemy
 **********************
 
-.. image:: https://badge.fury.io/py/marshmallow-sqlalchemy.png
-    :target: http://badge.fury.io/py/marshmallow-sqlalchemy
-    :alt: Latest version
-
-.. image:: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy.svg?branch=dev
-    :target: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy
-    :alt: Travis-CI
+|pypi-package| |build-status| |docs|
 
 Homepage: http://marshmallow-sqlalchemy.rtfd.org/
 
@@ -105,3 +99,14 @@ License
 =======
 
 MIT licensed. See the bundled `LICENSE <https://github.com/marshmallow-code/marshmallow-sqlalchemy/blob/dev/LICENSE>`_ file for more details.
+
+
+.. |pypi-package| image:: https://badge.fury.io/py/marshmallow-sqlalchemy.svg
+    :target: http://badge.fury.io/py/marshmallow-sqlalchemy
+    :alt: Latest version
+.. |build-status| image:: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy.svg?branch=dev
+    :target: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy
+    :alt: Travis-CI
+.. |docs| image:: https://readthedocs.org/projects/marshmallow-sqlalchemy/badge/
+   :target: http://marshmallow-sqlalchemy.readthedocs.io/
+   :alt: Documentation
