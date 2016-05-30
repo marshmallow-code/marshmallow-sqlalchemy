@@ -58,10 +58,10 @@ Here is an alternative way to define a BaseSchema class with a common ``Session`
 
     # myproject/schemas.py
 
-    from marshmallow_sqlalchemy import SchemaOpts
+    from marshmallow_sqlalchemy import ModelSchemaOpts
     from .db import Session
 
-    class BaseOpts(SchemaOpts):
+    class BaseOpts(ModelSchemaOpts):
         def __init__(self, meta):
             if not hasattr(meta, 'sql_session'):
                 meta.sqla_session = Session
