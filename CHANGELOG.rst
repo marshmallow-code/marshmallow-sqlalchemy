@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.8.2 (unreleased)
+++++++++++++++++++
+
+Bug fixes:
+
+- Depend on SQLAlchemy>=0.9.7, since marshmallow-sqlalchemy uses ``sqlalchemy.dialects.postgresql.JSONB`` (:issue:`65`). Thanks :user:`alejom99` for reporting.
+
 0.8.1 (2016-02-21)
 ++++++++++++++++++
 
