@@ -4,7 +4,7 @@ marshmallow-sqlalchemy
 
 Release v\ |version| (:ref:`Changelog <changelog>`)
 
-`SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.org/en/latest/>`_ (de)serialization library.
+`SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_ (de)serialization library.
 
 Declare your models
 ===================
