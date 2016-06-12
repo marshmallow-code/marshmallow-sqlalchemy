@@ -4,9 +4,9 @@ marshmallow-sqlalchemy
 
 |pypi-package| |build-status| |docs|
 
-Homepage: http://marshmallow-sqlalchemy.rtfd.org/
+Homepage: https://marshmallow-sqlalchemy.readthedocs.io/
 
-`SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.org/en/latest/>`_ (de)serialization library.
+`SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_ (de)serialization library.
 
 Declare your models
 ===================
@@ -85,13 +85,13 @@ Get it now
 Documentation
 =============
 
-Documentation is available at http://marshmallow-sqlalchemy.readthedocs.org/ .
+Documentation is available at https://marshmallow-sqlalchemy.readthedocs.io/ .
 
 Project Links
 =============
 
-- Docs: http://marshmallow-sqlalchemy.rtfd.org/
-- Changelog: http://marshmallow-sqlalchemy.readthedocs.org/en/latest/changelog.html
+- Docs: https://marshmallow-sqlalchemy.readthedocs.io/
+- Changelog: https://marshmallow-sqlalchemy.readthedocs.io/en/latest/changelog.html
 - PyPI: https://pypi.python.org/pypi/marshmallow-sqlalchemy
 - Issues: https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues
 
