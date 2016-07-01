@@ -164,7 +164,8 @@ def models(Base):
         topic = sa.Column(sa.String)
         seminar_title = sa.Column(sa.String, sa.ForeignKey(Seminar.title))
         seminar_semester = sa.Column(sa.String, sa.ForeignKey(Seminar.semester))
-        seminar = relationship(Seminar, foreign_keys=[seminar_title, seminar_semester])
+        seminar = relationship(Seminar, foreign_keys=[seminar_title, seminar_semester],
+                               backref='lectures')
 
     # So that we can access models with dot-notation, e.g. models.Course
     class _models(object):
@@ -894,3 +895,31 @@ class TestNullForeignKey:
         assert type(result.data) is models.Teacher
         assert 'substitute' in data
         assert data['substitute'] is None
+
+class TestDeserializeObjectThatDNE:
+    def test_deserialization_of_seminar_with_many_lectures_that_DNE(self, models,
+                                                                   schemas, session):
+        seminar_schema = schemas.SeminarSchema()
+        seminar_dict = {
+            'title': 'Novice Training',
+            'semester': 'First',
+            'lectures': [
+                {
+                    'topic': "Intro to Ter'Angreal",
+                    "seminar_title": "Novice Training",
+                    "seminar_semester": "First"
+                },
+                {
+                    'topic': "History of the Ajahs",
+                    "seminar_title": "Novice Training",
+                    "seminar_semester": "First"
+                }
+            ]
+        }
+        deserialized_seminar_object = seminar_schema.load(seminar_dict, session).data
+        # Ensure both nested lecture objects weren't forgotten...
+
+        assert(len(deserialized_seminar_object.lectures) == 2)
+        # Assume that if 1 lecture has a field with the correct String value, all strings
+        # were successfully deserialized in nested objects
+        assert(deserialized_seminar_object.lectures[0].topic == "Intro to Ter'Angreal")
