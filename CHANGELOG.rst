@@ -1,8 +1,12 @@
 Changelog
 ---------
 
-0.8.2 (unreleased)
+0.9.0 (2016-07-02)
 ++++++++++++++++++
+
+Features:
+
+- Enable deserialization of many-to-one nested objects that do not exist in the database (:issue:`69`). Thanks :user:`seanharr11` for the PR.
 
 Bug fixes:
 
