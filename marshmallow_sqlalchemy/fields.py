@@ -3,6 +3,7 @@
 from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
 
+from sqlalchemy.orm.exc import NoResultFound
 
 def get_primary_keys(model):
     """Get primary key properties for a SQLAlchemy model.
@@ -78,9 +79,14 @@ class Related(fields.Field):
                     )
                 )
             value = {self.related_keys[0].key: value}
-        return self.session.query(
-            self.related_model
-        ).filter_by(**{
-            prop.key: value.get(prop.key)
-            for prop in self.related_keys
-        }).one()
+        try:
+            return self.session.query(
+                self.related_model
+            ).filter_by(**{
+                prop.key: value.get(prop.key)
+                for prop in self.related_keys
+            }).one()
+        except NoResultFound:
+            # The related-object DNE in the DB, but we still want to deserialize it
+            # ...perhaps we want to add it to the DB later
+            return self.related_model(**value)
