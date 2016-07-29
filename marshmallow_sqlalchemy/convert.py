@@ -65,8 +65,9 @@ class ModelConverter(object):
         mysql.ENUM: fields.Field,
 
         mssql.BIT: fields.Integer,
-        sa.JSON: fields.Raw,
     }
+    if sa.JSON:
+        SQLA_TYPE_MAPPING[sa.JSON] = fields.Raw
 
     DIRECTION_MAPPING = {
         'MANYTOONE': False,
