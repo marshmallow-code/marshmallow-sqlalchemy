@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.10.0 (unreleased)
++++++++++++++++++++
+
+Features:
+
+- Support for SQLAlchemy JSON type (in SQLAlchemy>=1.1) (:issue:`74`). Thanks :user:`ewittle` for the PR.
+
 0.9.0 (2016-07-02)
 ++++++++++++++++++
 
