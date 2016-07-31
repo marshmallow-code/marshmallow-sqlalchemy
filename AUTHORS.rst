@@ -16,3 +16,4 @@ Contributors
 - Douglas Russell `@dpwrussell <https://github.com/dpwrussell>`_
 - Rudá Porto Filgueiras `@rudaporto <https://github.com/rudaporto>`_
 - Sean Harrington `@seanharr11 <https://github.com/seanharr11>`_
+- Eric Wittle `@ewittle <https://github.com/ewittle>`_

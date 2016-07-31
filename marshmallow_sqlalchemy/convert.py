@@ -66,6 +66,8 @@ class ModelConverter(object):
 
         mssql.BIT: fields.Integer,
     }
+    if hasattr(sa, 'JSON'):
+        SQLA_TYPE_MAPPING[sa.JSON] = fields.Raw
 
     DIRECTION_MAPPING = {
         'MANYTOONE': False,
