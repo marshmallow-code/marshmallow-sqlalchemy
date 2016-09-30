@@ -120,8 +120,8 @@ class ModelConverter(object):
                 result[column.key] = field
         return result
 
-    def property2field(self, prop, instance=True, **kwargs):
-        field_class = self._get_field_class_for_property(prop)
+    def property2field(self, prop, instance=True, klass=None, **kwargs):
+        field_class = klass or self._get_field_class_for_property(prop)
         if not instance:
             return field_class
         field_kwargs = self._get_field_kwargs_for_property(prop)

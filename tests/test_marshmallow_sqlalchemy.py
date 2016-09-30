@@ -497,6 +497,9 @@ class TestFieldFor:
         field = field_for(models.Student, 'current_school', session=session)
         assert type(field) == Related
 
+        field = field_for(models.Student, 'full_name', klass=fields.Date)
+        assert type(field) == fields.Date
+
 class TestTableSchema:
 
     @pytest.fixture
