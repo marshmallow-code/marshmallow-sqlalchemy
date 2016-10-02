@@ -500,6 +500,14 @@ class TestFieldFor:
         field = field_for(models.Student, 'full_name', field_class=fields.Date)
         assert type(field) == fields.Date
 
+    def test_field_for_can_override_validators(self, models, session):
+        field = field_for(models.Student, 'full_name', validate=[validate.Length(max=20)])
+        assert len(field.validators) == 1
+        assert field.validators[0].max == 20
+
+        field = field_for(models.Student, 'full_name', validate=[])
+        assert field.validators == []
+
 class TestTableSchema:
 
     @pytest.fixture
