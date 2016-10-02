@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.11.0 (2016-10-01)
++++++++++++++++++++
+
+Features:
+
+- Allow overriding field class returned by ``field_for`` by adding the ``field_class`` param (:issue:`81`). Thanks :user:`cancan101`.
+
 0.10.0 (2016-08-14)
 +++++++++++++++++++
 

@@ -17,3 +17,4 @@ Contributors
 - Rudá Porto Filgueiras `@rudaporto <https://github.com/rudaporto>`_
 - Sean Harrington `@seanharr11 <https://github.com/seanharr11>`_
 - Eric Wittle `@ewittle <https://github.com/ewittle>`_
+- Alex Rothberg `@cancan101 <https://github.com/cancan101>`_
