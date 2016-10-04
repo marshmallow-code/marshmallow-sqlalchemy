@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.12.0 (unreleased)
++++++++++++++++++++
+
+Features:
+
+- Add support for TypeDecorator-based types (:issue:`83`). Thanks :user:`frol`.
+
 0.11.0 (2016-10-01)
 +++++++++++++++++++
 

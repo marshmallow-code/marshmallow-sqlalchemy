@@ -18,3 +18,4 @@ Contributors
 - Sean Harrington `@seanharr11 <https://github.com/seanharr11>`_
 - Eric Wittle `@ewittle <https://github.com/ewittle>`_
 - Alex Rothberg `@cancan101 <https://github.com/cancan101>`_
+- Vlad Frolov `@frol <https://github.com/frol>`_
