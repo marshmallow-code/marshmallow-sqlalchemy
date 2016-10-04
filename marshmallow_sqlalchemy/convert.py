@@ -171,6 +171,8 @@ class ModelConverter(object):
             if python_type in self.type_mapping:
                 field_cls = self.type_mapping[python_type]
             else:
+                if hasattr(data_type, 'impl'):
+                    return self._get_field_class_for_data_type(data_type.impl)
                 raise ModelConversionError(
                     'Could not find field column of type {0}.'.format(types[0]))
         return field_cls
