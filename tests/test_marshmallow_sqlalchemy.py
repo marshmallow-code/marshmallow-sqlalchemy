@@ -28,6 +28,10 @@ class AnotherInteger(sa.Integer):
     """Use me to test if MRO works like we want"""
     pass
 
+class AnotherText(sa.types.TypeDecorator):
+    """Use me to test if MRO and `impl` virtual type works like we want"""
+    impl = sa.UnicodeText
+
 @pytest.fixture()
 def Base():
     return declarative_base()
@@ -67,6 +71,7 @@ def models(Base):
         has_prereqs = sa.Column(sa.Boolean, nullable=False)
         started = sa.Column(sa.DateTime, nullable=False)
         grade = sa.Column(AnotherInteger, nullable=False)
+        transcription = sa.Column(AnotherText, nullable=False)
 
         @property
         def url(self):
@@ -282,6 +287,7 @@ class TestModelFieldConversion:
     def test_fields_for_model_handles_custom_types(self, models):
         fields_ = fields_for_model(models.Course, include_fk=True)
         assert type(fields_['grade']) is fields.Int
+        assert type(fields_['transcription']) is fields.Str
 
     def test_fields_for_model_saves_doc(self, models):
         fields_ = fields_for_model(models.Student, include_fk=True)
