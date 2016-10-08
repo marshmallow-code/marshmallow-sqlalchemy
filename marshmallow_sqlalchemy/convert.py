@@ -2,6 +2,7 @@
 import inspect
 import functools
 
+import uuid
 import marshmallow as ma
 from marshmallow import validate, fields
 from sqlalchemy.dialects import postgresql, mysql, mssql
@@ -208,7 +209,9 @@ class ModelConverter(object):
             kwargs['validate'].append(validate.OneOf(choices=column.type.enums))
 
         # Add a length validator if a max length is set on the column
-        if hasattr(column.type, 'length'):
+        # Skip UUID columns
+        # (see https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/54)
+        if hasattr(column.type, 'length') and not issubclass(column.type.python_type, uuid.UUID):
             kwargs['validate'].append(validate.Length(max=column.type.length))
 
         if hasattr(column.type, 'scale'):

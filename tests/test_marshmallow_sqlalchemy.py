@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+import uuid
 import datetime as dt
 import decimal
 
@@ -493,6 +494,19 @@ class TestColumnToFieldClass:
         column = sa.Column(sa.String(255))
         field = column2field(column, instance=True, description='just a string')
         assert field.metadata['description'] == 'just a string'
+
+    def test_uuid_column2field(self):
+        class UUIDType(sa.types.TypeDecorator):
+            python_type = uuid.UUID
+            impl = sa.BINARY(16)
+        column = sa.Column(UUIDType)
+        assert issubclass(column.type.python_type, uuid.UUID)  # Test against test check
+        assert hasattr(column.type, 'length')  # Test against test check
+        assert column.type.length == 16  # Test against test
+        field = column2field(column, instance=True)
+
+        uuid_val = uuid.uuid4()
+        assert field.deserialize(str(uuid_val)) == uuid_val
 
 class TestFieldFor:
 
