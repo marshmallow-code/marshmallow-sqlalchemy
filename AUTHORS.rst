@@ -19,3 +19,4 @@ Contributors
 - Eric Wittle `@ewittle <https://github.com/ewittle>`_
 - Alex Rothberg `@cancan101 <https://github.com/cancan101>`_
 - Vlad Frolov `@frol <https://github.com/frol>`_
+- Kelvin Hammond `@kelvinhammond <https://github.com/kelvinhammond>`_

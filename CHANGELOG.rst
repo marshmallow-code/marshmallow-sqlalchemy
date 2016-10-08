@@ -8,6 +8,10 @@ Features:
 
 - Add support for TypeDecorator-based types (:issue:`83`). Thanks :user:`frol`.
 
+Bug fixes:
+
+- Fix bug that caused a validation errors for custom column types that have the ``python_type`` of ``uuid.UUID`` (:issue:`54`). Thanks :user:`wkevina` and thanks :user:`kelvinhammond` for the fix.
+
 0.11.0 (2016-10-01)
 +++++++++++++++++++
 
