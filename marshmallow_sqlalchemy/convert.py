@@ -207,6 +207,8 @@ class ModelConverter(object):
             kwargs['validate'].append(validate.OneOf(choices=column.type.enums))
 
         # Add a length validator if a max length is set on the column
+        # Skip UUID columns
+        # (see https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/54)
         if hasattr(column.type, 'length') and not issubclass(column.type.python_type, uuid.UUID):
             kwargs['validate'].append(validate.Length(max=column.type.length))
 

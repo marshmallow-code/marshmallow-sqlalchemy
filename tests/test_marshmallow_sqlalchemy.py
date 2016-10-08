@@ -498,7 +498,9 @@ class TestColumnToFieldClass:
         assert hasattr(column.type, 'length')  # Test against test check
         assert column.type.length == 16  # Test against test
         field = column2field(column, instance=True)
-        assert not any(filter(lambda x: isinstance(x, validate.Length), field.validate))
+
+        uuid_val = uuid.uuid4()
+        assert field.deserialize(str(uuid_val)) == uuid_val
 
 class TestFieldFor:
 
