@@ -12,6 +12,10 @@ Bug fixes:
 
 - Fix bug that caused a validation errors for custom column types that have the ``python_type`` of ``uuid.UUID`` (:issue:`54`). Thanks :user:`wkevina` and thanks :user:`kelvinhammond` for the fix.
 
+Other changes:
+
+- Drop official support for Python 3.3. Python>=3.4 and Python 2.7 are supported.
+
 0.11.0 (2016-10-01)
 +++++++++++++++++++
 
