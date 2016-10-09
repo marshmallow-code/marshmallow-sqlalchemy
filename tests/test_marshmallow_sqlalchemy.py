@@ -61,6 +61,16 @@ def models(Base):
         sa.Column('course_id', sa.Integer, sa.ForeignKey('course.id'))
     )
 
+    class MyCustomType(sa.types.TypeDecorator):
+        impl = sa.String(20)
+
+        def python_type(self, foo):
+            '''
+            Test non-standard python_type (MyCustomType.python_type is not a
+            class, but rather a method)
+            '''
+            return str
+
     class Course(Base):
         __tablename__ = 'course'
         id = sa.Column(sa.Integer, primary_key=True)
@@ -73,6 +83,7 @@ def models(Base):
         started = sa.Column(sa.DateTime, nullable=False)
         grade = sa.Column(AnotherInteger, nullable=False)
         transcription = sa.Column(AnotherText, nullable=False)
+        custom_type = sa.Column(MyCustomType, nullable=True)
 
         @property
         def url(self):
