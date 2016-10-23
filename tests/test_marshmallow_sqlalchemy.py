@@ -308,7 +308,7 @@ class TestModelFieldConversion:
         fields_ = fields_for_model(models.Course)
         validator = contains_validator(fields_['level'], validate.OneOf)
         assert validator
-        assert validator.choices == ('Primary', 'Secondary')
+        assert list(validator.choices) == ['Primary', 'Secondary']
 
     def test_many_to_many_relationship(self, models):
         student_fields = fields_for_model(models.Student)
