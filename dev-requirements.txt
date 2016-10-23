@@ -8,4 +8,4 @@ mock==2.0.0
 
 # packaging
 wheel
-twine
+twine==1.8.1
