@@ -4,7 +4,7 @@ flake8
 # testing
 pytest>=2.8.0
 tox>=1.5.0
-mock
+mock==2.0.0
 
 # packaging
 wheel
