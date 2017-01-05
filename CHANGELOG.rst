@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.12.1 (2016-01-05)
++++++++++++++++++++
+
+Bug fixes:
+
+- Reset ``ModelSchema.instance`` after each ``load`` call, allowing schema instances to be reused (:issue:`78`). Thanks :user:`georgexsh` for reporting.
+
+Other changes:
+
+- Test against Python 3.6.
+
 0.12.0 (2016-10-08)
 +++++++++++++++++++
 
