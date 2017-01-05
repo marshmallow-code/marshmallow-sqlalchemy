@@ -668,6 +668,23 @@ class TestModelSchema:
         assert result.data is student
         assert result.data.current_school == student.current_school
 
+    # Regression test for https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/78
+    def test_model_schema_loading_resets_instance(self, models, schemas, student):
+        schema = schemas.StudentSchema()
+        result1 = schema.load({'full_name': 'new name'}, instance=student)
+        assert not result1.errors
+        data1 = result1.data
+        assert data1.id == student.id
+        assert data1.full_name == student.full_name
+
+        result2 = schema.load({'full_name': 'new name2'})
+        assert not result2.errors
+        data2 = result2.data
+        assert isinstance(data2, models.Student)
+        # loaded data is different from first instance (student)
+        assert data2 != student
+        assert data2.full_name == 'new name2'
+
     def test_model_schema_loading_no_instance_or_pk(self, models, schemas, student, session):
         schema = schemas.StudentSchema()
         dump_data = {'full_name': 'Terry Gilliam'}

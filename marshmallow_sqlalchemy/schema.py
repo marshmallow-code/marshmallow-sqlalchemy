@@ -183,7 +183,9 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         self.instance = instance or self.instance
         if not self.session:
             raise ValueError('Deserialization requires a session')
-        return super(ModelSchema, self).load(data, *args, **kwargs)
+        ret = super(ModelSchema, self).load(data, *args, **kwargs)
+        self.instance = None
+        return ret
 
     def validate(self, data, session=None, *args, **kwargs):
         self.session = session or self.session
