@@ -72,7 +72,7 @@ class Related(fields.Field):
         if not isinstance(value, dict):
             if len(self.related_keys) != 1:
                 raise ValueError(
-                    'Could not deserialized related value {0!r}; expected a dictionary '
+                    'Could not deserialize related value {0!r}; expected a dictionary '
                     'with keys {1!r}'.format(
                         value,
                         [prop.key for prop in self.related_keys]
