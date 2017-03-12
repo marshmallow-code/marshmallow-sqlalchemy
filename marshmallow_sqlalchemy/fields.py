@@ -34,6 +34,11 @@ class Related(fields.Field):
         the primary key(s) of the related model will be used.
     """
 
+    default_error_messages = {
+        'invalid': 'Could not deserialize related value {value!r}; '
+                   'expected a dictionary with keys {keys!r}'
+    }
+
     def __init__(self, column=None, **kwargs):
         super(Related, self).__init__(**kwargs)
         self.columns = ensure_list(column or [])
@@ -71,13 +76,7 @@ class Related(fields.Field):
     def _deserialize(self, value, *args, **kwargs):
         if not isinstance(value, dict):
             if len(self.related_keys) != 1:
-                raise ValueError(
-                    'Could not deserialize related value {0!r}; expected a dictionary '
-                    'with keys {1!r}'.format(
-                        value,
-                        [prop.key for prop in self.related_keys]
-                    )
-                )
+                self.fail('invalid', value=value, keys=[prop.key for prop in self.related_keys])
             value = {self.related_keys[0].key: value}
         try:
             return self.session.query(

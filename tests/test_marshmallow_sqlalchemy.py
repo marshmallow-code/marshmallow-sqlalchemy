@@ -714,8 +714,9 @@ class TestModelSchema:
         schema = schemas.LectureSchema()
         dump_data = schema.dump(lecture).data
         dump_data['seminar'] = 'scalar'
-        with pytest.raises(ValueError):
-            schema.load(dump_data)
+        result = schema.load(dump_data)
+        assert result.errors
+        assert 'seminar' in result.errors
 
     def test_model_schema_loading_passing_session_to_load(self, models, schemas, student, session):
         class StudentSchemaNoSession(ModelSchema):
