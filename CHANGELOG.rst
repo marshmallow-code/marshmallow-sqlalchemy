@@ -1,8 +1,12 @@
 Changelog
 ---------
 
-0.12.2 (unreleased)
+0.13.0 (2017-03-12)
 +++++++++++++++++++
+
+Features:
+
+- Invalid inputs for compound primary keys raise a ``ValidationError`` when deserializing a scalar value (:issue:`103`). Thanks :user:`YuriHeupa` for the PR.
 
 Bug fixes:
 
