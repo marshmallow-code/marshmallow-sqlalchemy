@@ -16,8 +16,8 @@ class TableSchemaOpts(ma.SchemaOpts):
     - ``include_fk``: Whether to include foreign fields; defaults to `False`.
     """
 
-    def __init__(self, meta):
-        super(TableSchemaOpts, self).__init__(meta)
+    def __init__(self, meta, *args, **kwargs):
+        super(TableSchemaOpts, self).__init__(meta, *args, **kwargs)
         self.table = getattr(meta, 'table', None)
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)
         self.include_fk = getattr(meta, 'include_fk', False)
@@ -34,8 +34,8 @@ class ModelSchemaOpts(ma.SchemaOpts):
     - ``include_fk``: Whether to include foreign fields; defaults to `False`.
     """
 
-    def __init__(self, meta):
-        super(ModelSchemaOpts, self).__init__(meta)
+    def __init__(self, meta, *args, **kwargs):
+        super(ModelSchemaOpts, self).__init__(meta, *args, **kwargs)
         self.model = getattr(meta, 'model', None)
         self.sqla_session = getattr(meta, 'sqla_session', None)
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)

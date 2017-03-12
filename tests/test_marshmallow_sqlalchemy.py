@@ -3,6 +3,7 @@ from __future__ import absolute_import
 import uuid
 import datetime as dt
 import decimal
+from collections import OrderedDict
 
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base
@@ -10,7 +11,6 @@ from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
 from sqlalchemy.dialects import postgresql
 
 from marshmallow import Schema, fields, validate, post_load
-from marshmallow.compat import OrderedDict
 
 import pytest
 from marshmallow_sqlalchemy import (

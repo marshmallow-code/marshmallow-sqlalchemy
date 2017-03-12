@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.12.2 (unreleased)
++++++++++++++++++++
+
+Bug fixes:
+
+- Fix compatibility with marshmallow>=3.x.
+
 0.12.1 (2017-01-05)
 +++++++++++++++++++
 
