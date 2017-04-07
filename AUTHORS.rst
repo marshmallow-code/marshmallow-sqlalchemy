@@ -21,3 +21,4 @@ Contributors
 - Vlad Frolov `@frol <https://github.com/frol>`_
 - Kelvin Hammond `@kelvinhammond <https://github.com/kelvinhammond>`_
 - Yuri Heupa `@YuriHeupa <https://github.com/YuriHeupa>`_
+- Jeremy Muhlich `@jmuhlich <https://github.com/jmuhlich>`_
