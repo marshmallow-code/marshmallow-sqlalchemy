@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.13.1 (2017-04-06)
++++++++++++++++++++
+
+Bug fixes:
+
+- Prevent unnecessary queries when using the `fields.Related` (:issue:`106`). Thanks :user:`xarg` for reporting and thanks :user:`jmuhlich` for the PR.
+
 0.13.0 (2017-03-12)
 +++++++++++++++++++
 

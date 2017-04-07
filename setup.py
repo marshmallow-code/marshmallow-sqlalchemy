@@ -45,7 +45,7 @@ setup(
     package_dir={'marshmallow-sqlalchemy': 'marshmallow-sqlalchemy'},
     include_package_data=True,
     install_requires=REQUIRES,
-    license=read("LICENSE"),
+    license='MIT',
     zip_safe=False,
     keywords='sqlalchemy marshmallow',
     classifiers=[
