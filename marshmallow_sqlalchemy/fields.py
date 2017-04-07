@@ -78,14 +78,22 @@ class Related(fields.Field):
             if len(self.related_keys) != 1:
                 self.fail('invalid', value=value, keys=[prop.key for prop in self.related_keys])
             value = {self.related_keys[0].key: value}
+        query = self.session.query(self.related_model)
         try:
-            return self.session.query(
-                self.related_model
-            ).filter_by(**{
-                prop.key: value.get(prop.key)
-                for prop in self.related_keys
-            }).one()
+            if self.columns:
+                result = query.filter_by(**{
+                    prop.key: value.get(prop.key)
+                    for prop in self.related_keys
+                }).one()
+            else:
+                # Use a faster path if the related key is the primary key.
+                result = query.get([
+                    value.get(prop.key) for prop in self.related_keys
+                ])
+                if result is None:
+                    raise NoResultFound
         except NoResultFound:
             # The related-object DNE in the DB, but we still want to deserialize it
             # ...perhaps we want to add it to the DB later
             return self.related_model(**value)
+        return result
