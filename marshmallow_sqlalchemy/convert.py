@@ -216,7 +216,8 @@ class ModelConverter(object):
                 python_type = column.type.python_type
             except (AttributeError, NotImplementedError):
                 python_type = None
-            if not python_type or not issubclass(python_type, uuid.UUID):
+            if not python_type or (inspect.isclass(python_type) and
+                                   not issubclass(python_type, uuid.UUID)):
                 kwargs['validate'].append(validate.Length(max=column.type.length))
 
         if hasattr(column.type, 'scale'):
