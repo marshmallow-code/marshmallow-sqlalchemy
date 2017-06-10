@@ -219,3 +219,43 @@ An example of then using this:
     print author_schema.dump(author).data
 
 This is inspired by functionality from ColanderAlchemy.
+
+Smart Nested Field
+======================================================
+If you want to avoid lazy loading a nested attribute, but you still need id, then use this trick.
+
+.. code-block:: python
+
+    class SmartNested(fields.Nested):
+
+        def serialize(self, attr, obj, accessor=None):
+            if attr not in obj.__dict__:
+                return {'id': int(getattr(obj, attr + '_id'))}
+            return super(SmartNested, self).serialize(attr, obj, accessor)
+
+An example of then using this:
+
+.. code-block:: python
+
+    from marshmallow_sqlalchemy import ModelSchema
+
+    class BookSchema(ModelSchema):
+        author = SmartNested(AuthorSchema)
+        class Meta:
+            model = Book
+            sqla_session = Session
+
+    book = Book(id=1)
+    book.author = Author(name='Chuck Paluhniuk')
+    session.add(author)
+    session.commit()
+
+    book = Book.query.get(1)
+    print(BookSchema().dump(book).data['author'])
+    # {'id': 1}
+
+    book = Book.query.options(joinedload('author')).get(1)
+    print(BookSchema().dump(book).data['author'])
+    # {'id': 1, 'name': 'Chuck Paluhniuk'}
+
+This method allows you to make convenient rest api, where relationship id will always be in one place.
