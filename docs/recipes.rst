@@ -221,8 +221,9 @@ An example of then using this:
 This is inspired by functionality from ColanderAlchemy.
 
 Smart Nested Field
-======================================================
-If you want to avoid lazy loading a nested attribute, but you still need id, then use this trick.
+==================
+
+To serialize nested attributes to primary keys unless they are already loaded, you can use this custom field.
 
 .. code-block:: python
 
@@ -257,5 +258,3 @@ An example of then using this:
     book = Book.query.options(joinedload('author')).get(1)
     print(BookSchema().dump(book).data['author'])
     # {'id': 1, 'name': 'Chuck Paluhniuk'}
-
-This method allows you to make convenient rest api, where relationship id will always be in one place.
