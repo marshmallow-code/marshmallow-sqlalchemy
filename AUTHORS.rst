@@ -22,3 +22,4 @@ Contributors
 - Kelvin Hammond `@kelvinhammond <https://github.com/kelvinhammond>`_
 - Yuri Heupa `@YuriHeupa <https://github.com/YuriHeupa>`_
 - Jeremy Muhlich `@jmuhlich <https://github.com/jmuhlich>`_
+- Ilya Chistyakov `@ilya-chistyakov <https://github.com/ilya-chistyakov>`_
