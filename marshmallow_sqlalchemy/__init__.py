@@ -17,7 +17,7 @@ from .convert import (
 )
 from .exceptions import ModelConversionError
 
-__version__ = '0.13.1'
+__version__ = '0.13.2'
 __license__ = 'MIT'
 
 __all__ = [

@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.13.2 (2017-10-23)
++++++++++++++++++++
+
+Bug fixes:
+
+- Unset ``instance`` attribute when an error occurs during a ``load``
+  call (:issue:`114`). Thanks :user:`vgavro` for the catch and patch.
+
 0.13.1 (2017-04-06)
 +++++++++++++++++++
 

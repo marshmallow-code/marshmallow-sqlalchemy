@@ -28,3 +28,12 @@ before_script:
   - flake8 .
 
 script: py.test
+
+deploy:
+  provider: pypi
+  user: sloria
+  on:
+    tags: true
+  distributions: sdist bdist_wheel
+  password:
+    secure: ADzISZrLbLwb665Ax5ob7srcjI2t6rqEhhiLNxLvqNtuDSCFZOXoevpKX2Omha0HWuPDAOWbNq2rkY7BpfXArYmNQ+k0ZlvGzkrqYAG8EiwlzWcOH5BMZHI8MiQxslCu1c1H9MC5HHqOiEekpc4CNl7viNkxmzF36ZiU77y+JKM=

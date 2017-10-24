@@ -23,3 +23,4 @@ Contributors
 - Yuri Heupa `@YuriHeupa <https://github.com/YuriHeupa>`_
 - Jeremy Muhlich `@jmuhlich <https://github.com/jmuhlich>`_
 - Ilya Chistyakov `@ilya-chistyakov <https://github.com/ilya-chistyakov>`_
+- Victor Gavro `@vgavro <https://github.com/vgavro>`_
