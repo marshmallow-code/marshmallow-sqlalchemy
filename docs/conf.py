@@ -6,9 +6,12 @@ import os
 import sys
 
 import alabaster
-from marshmallow.compat import OrderedDict
+try:
+    from marshmallow.compat import OrderedDict
+except ImportError:
+    from collections import OrderedDict
 sys.path.insert(0, os.path.abspath('..'))
-import marshmallow_sqlalchemy
+import marshmallow_sqlalchemy  # noqa
 
 extensions = [
     'sphinx.ext.autodoc',
@@ -51,7 +54,6 @@ html_theme_options = {
     'github_repo': 'marshmallow-sqlalchemy',
     'github_banner': True,
     'github_button': False,
-    'gratipay_user': 'sloria',
     'code_font_size': '0.85em',
     'warn_bg': '#FFC',
     'warn_border': '#EEE',
@@ -68,8 +70,8 @@ html_theme_options = {
 
 html_sidebars = {
     'index': [
-        'about.html', 'useful-links.html', 'searchbox.html', 'donate.html',
+        'about.html', 'useful-links.html', 'searchbox.html'
     ],
     '**': ['about.html', 'useful-links.html',
-           'localtoc.html', 'relations.html', 'searchbox.html', 'donate.html']
+           'localtoc.html', 'relations.html', 'searchbox.html']
 }
