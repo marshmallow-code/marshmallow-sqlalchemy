@@ -180,12 +180,13 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         :param instance: Optional existing instance to modify.
         """
         self.session = session or self.session
-        self.instance = instance or self.instance
         if not self.session:
             raise ValueError('Deserialization requires a session')
-        ret = super(ModelSchema, self).load(data, *args, **kwargs)
-        self.instance = None
-        return ret
+        self.instance = instance or self.instance
+        try:
+            return super(ModelSchema, self).load(data, *args, **kwargs)
+        finally:
+            self.instance = None
 
     def validate(self, data, session=None, *args, **kwargs):
         self.session = session or self.session
