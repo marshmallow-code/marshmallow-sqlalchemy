@@ -183,6 +183,10 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         if not self.session:
             raise ValueError('Deserialization requires a session')
         self.instance = instance or self.instance
+        if instance is not None:
+            instance_data = self.dump(instance).data
+            instance_data.update(data)
+            data = instance_data
         try:
             return super(ModelSchema, self).load(data, *args, **kwargs)
         finally:
