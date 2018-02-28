@@ -45,7 +45,6 @@ def engine():
 
 @pytest.fixture()
 def session(Base, models, engine):
-    engine = sa.create_engine('sqlite:///:memory:', echo=False)
     Session = sessionmaker(bind=engine)
     Base.metadata.create_all(bind=engine)
     return Session()
