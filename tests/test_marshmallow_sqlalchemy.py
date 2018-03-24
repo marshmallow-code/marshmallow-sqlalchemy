@@ -10,7 +10,8 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
 from sqlalchemy.dialects import postgresql
 
-from marshmallow import Schema, fields, validate, post_load
+import marshmallow
+from marshmallow import Schema, fields, validate, post_load, ValidationError
 
 import pytest
 from marshmallow_sqlalchemy import (
@@ -18,6 +19,15 @@ from marshmallow_sqlalchemy import (
     field_for, ModelConversionError
 )
 from marshmallow_sqlalchemy.fields import Related
+
+MARSHMALLOW_VERSION_INFO = tuple(
+    [int(part) for part in marshmallow.__version__.split('.') if part.isdigit()]
+)
+
+
+def unpack(return_value):
+    return return_value.data if MARSHMALLOW_VERSION_INFO[0] < 3 else return_value
+
 
 def contains_validator(field, v_type):
     for v in field.validators:
@@ -195,16 +205,19 @@ def schemas(models, session):
         class Meta:
             model = models.Course
             sqla_session = session
+            strict = True  # for testing marshmallow 2
 
     class SchoolSchema(ModelSchema):
         class Meta:
             model = models.School
             sqla_session = session
+            strict = True  # for testing marshmallow 2
 
     class StudentSchema(ModelSchema):
         class Meta:
             model = models.Student
             sqla_session = session
+            strict = True  # for testing marshmallow 2
 
     class StudentSchemaWithCustomTypeMapping(ModelSchema):
         TYPE_MAPPING = Schema.TYPE_MAPPING.copy()
@@ -215,41 +228,49 @@ def schemas(models, session):
         class Meta:
             model = models.Student
             sqla_session = session
+            strict = True  # for testing marshmallow 2
 
     class TeacherSchema(ModelSchema):
         class Meta:
             model = models.Teacher
             sqla_session = session
+            strict = True  # for testing marshmallow 2
 
     class SubstituteTeacherSchema(ModelSchema):
         class Meta:
             model = models.SubstituteTeacher
+            strict = True  # for testing marshmallow 2
 
     class PaperSchema(ModelSchema):
         class Meta:
             model = models.Paper
             sqla_session = session
+            strict = True  # for testing marshmallow 2
 
     class GradedPaperSchema(ModelSchema):
         class Meta:
             model = models.GradedPaper
             sqla_session = session
+            strict = True  # for testing marshmallow 2
 
     class HyperlinkStudentSchema(ModelSchema):
         class Meta:
             model = models.Student
             sqla_session = session
+            strict = True  # for testing marshmallow 2
 
     class SeminarSchema(ModelSchema):
         class Meta:
             model = models.Seminar
             sqla_session = session
+            strict = True  # for testing marshmallow 2
         label = fields.Str()
 
     class LectureSchema(ModelSchema):
         class Meta:
             model = models.Lecture
             sqla_session = session
+            strict = True  # for testing marshmallow 2
 
     # Again, so we can use dot-notation
     class _schemas(object):
@@ -543,8 +564,8 @@ class TestTableSchema:
             class Meta:
                 table = models.School.__table__
         schema = SchoolSchema()
-        dump = schema.dump(school).data
-        assert dump == {'name': 'Univ. of Whales', 'school_id': 1}
+        data = unpack(schema.dump(school))
+        assert data == {'name': 'Univ. of Whales', 'school_id': 1}
 
 class TestModelSchema:
 
@@ -636,49 +657,46 @@ class TestModelSchema:
 
     def test_model_schema_dumping(self, schemas, student):
         schema = schemas.StudentSchema()
-        result = schema.dump(student)
+        data = unpack(schema.dump(student))
         # fk excluded by default
-        assert 'current_school_id' not in result.data
+        assert 'current_school_id' not in data
         # related field dumps to pk
-        assert result.data['current_school'] == student.current_school.id
+        assert data['current_school'] == student.current_school.id
 
     def test_model_schema_loading(self, models, schemas, student, session):
         schema = schemas.StudentSchema()
-        dump_data = schema.dump(student).data
-        result = schema.load(dump_data)
+        dump_data = unpack(schema.dump(student))
+        load_data = unpack(schema.load(dump_data))
 
-        assert result.data is student
-        assert result.data.current_school == student.current_school
+        assert load_data is student
+        assert load_data.current_school == student.current_school
 
     def test_model_schema_loading_missing_field(self, models, schemas, student, session):
         schema = schemas.StudentSchema()
-        dump_data = schema.dump(student).data
+        dump_data = unpack(schema.dump(student))
         dump_data.pop('full_name')
-        result = schema.load(dump_data)
-
-        assert result.errors['full_name'] == ['Missing data for required field.']
+        with pytest.raises(ValidationError) as excinfo:
+            schema.load(dump_data)
+        err = excinfo.value
+        assert err.messages['full_name'] == ['Missing data for required field.']
 
     def test_model_schema_loading_custom_instance(self, models, schemas, student, session):
         schema = schemas.StudentSchema(instance=student)
-        dump_data = schema.dump(student).data
+        dump_data = unpack(schema.dump(student))
         dump_data['full_name'] = 'Terry Gilliam'
-        result = schema.load(dump_data)
+        load_data = unpack(schema.load(dump_data))
 
-        assert result.data is student
-        assert result.data.current_school == student.current_school
+        assert load_data is student
+        assert load_data.current_school == student.current_school
 
     # Regression test for https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/78
     def test_model_schema_loading_resets_instance(self, models, schemas, student):
         schema = schemas.StudentSchema()
-        result1 = schema.load({'full_name': 'new name'}, instance=student)
-        assert not result1.errors
-        data1 = result1.data
+        data1 = unpack(schema.load({'full_name': 'new name'}, instance=student))
         assert data1.id == student.id
         assert data1.full_name == student.full_name
 
-        result2 = schema.load({'full_name': 'new name2'})
-        assert not result2.errors
-        data2 = result2.data
+        data2 = unpack(schema.load({'full_name': 'new name2'}))
         assert isinstance(data2, models.Student)
         # loaded data is different from first instance (student)
         assert data2 != student
@@ -687,35 +705,36 @@ class TestModelSchema:
     def test_model_schema_loading_no_instance_or_pk(self, models, schemas, student, session):
         schema = schemas.StudentSchema()
         dump_data = {'full_name': 'Terry Gilliam'}
-        result = schema.load(dump_data)
+        load_data = unpack(schema.load(dump_data))
 
-        assert result.data is not student
+        assert load_data is not student
 
     def test_model_schema_compound_key(self, schemas, seminar):
         schema = schemas.SeminarSchema()
-        dump_data = schema.dump(seminar).data
-        result = schema.load(dump_data)
+        dump_data = unpack(schema.dump(seminar))
+        load_data = unpack(schema.load(dump_data))
 
-        assert result.data is seminar
+        assert load_data is seminar
 
     def test_model_schema_compound_key_relationship(self, schemas, lecture):
         schema = schemas.LectureSchema()
-        dump_data = schema.dump(lecture).data
+        dump_data = unpack(schema.dump(lecture))
         assert dump_data['seminar'] == {
             'title': lecture.seminar_title,
             'semester': lecture.seminar_semester,
         }
-        result = schema.load(dump_data)
+        load_data = unpack(schema.load(dump_data))
 
-        assert result.data is lecture
+        assert load_data is lecture
 
     def test_model_schema_compound_key_relationship_invalid_key(self, schemas, lecture):
         schema = schemas.LectureSchema()
-        dump_data = schema.dump(lecture).data
+        dump_data = unpack(schema.dump(lecture))
         dump_data['seminar'] = 'scalar'
-        result = schema.load(dump_data)
-        assert result.errors
-        assert 'seminar' in result.errors
+        with pytest.raises(ValidationError) as excinfo:
+            schema.load(dump_data)
+        err = excinfo.value
+        assert 'seminar' in err.messages
 
     def test_model_schema_loading_passing_session_to_load(self, models, schemas, student, session):
         class StudentSchemaNoSession(ModelSchema):
@@ -723,10 +742,10 @@ class TestModelSchema:
                 model = models.Student
 
         schema = StudentSchemaNoSession()
-        dump_data = schema.dump(student).data
-        result = schema.load(dump_data, session=session)
-        assert type(result.data) == models.Student
-        assert result.data.current_school == student.current_school
+        dump_data = unpack(schema.dump(student))
+        load_data = unpack(schema.load(dump_data, session=session))
+        assert type(load_data) == models.Student
+        assert load_data.current_school == student.current_school
 
     def test_model_schema_validation_passing_session_to_validate(self, models,
             schemas, student, session):
@@ -735,7 +754,7 @@ class TestModelSchema:
                 model = models.Student
 
         schema = StudentSchemaNoSession()
-        dump_data = schema.dump(student).data
+        dump_data = unpack(schema.dump(student))
         assert type(schema.validate(dump_data, session=session)) is dict
 
     def test_model_schema_loading_passing_session_to_constructor(self,
@@ -745,10 +764,10 @@ class TestModelSchema:
                 model = models.Student
 
         schema = StudentSchemaNoSession(session=session)
-        dump_data = schema.dump(student).data
-        result = schema.load(dump_data)
-        assert type(result.data) == models.Student
-        assert result.data.current_school == student.current_school
+        dump_data = unpack(schema.dump(student))
+        load_data = unpack(schema.load(dump_data))
+        assert type(load_data) == models.Student
+        assert load_data.current_school == student.current_school
 
     def test_model_schema_validation_passing_session_to_constructor(self,
             models, schemas, student, session):
@@ -757,7 +776,7 @@ class TestModelSchema:
                 model = models.Student
 
         schema = StudentSchemaNoSession(session=session)
-        dump_data = schema.dump(student).data
+        dump_data = unpack(schema.dump(student))
         assert type(schema.validate(dump_data)) is dict
 
     def test_model_schema_loading_and_validation_with_no_session_raises_error(self,
@@ -767,7 +786,7 @@ class TestModelSchema:
                 model = models.Student
 
         schema = StudentSchemaNoSession()
-        dump_data = schema.dump(student).data
+        dump_data = unpack(schema.dump(student))
         with pytest.raises(ValueError) as excinfo:
             schema.load(dump_data)
         assert excinfo.value.args[0] == 'Deserialization requires a session'
@@ -784,22 +803,22 @@ class TestModelSchema:
             current_school = Related(column='name')
 
         schema = StudentSchema()
-        dump_data = schema.dump(student).data
-        result = schema.load(dump_data)
+        dump_data = unpack(schema.dump(student))
+        load_data = unpack(schema.load(dump_data))
 
-        assert type(result.data) == models.Student
-        assert result.data.current_school == student.current_school
+        assert type(load_data) == models.Student
+        assert load_data.current_school == student.current_school
 
     def test_dump_many_to_one_relationship(self, models, schemas, school, student):
         schema = schemas.SchoolSchema()
-        dump_data = schema.dump(school).data
+        dump_data = unpack(schema.dump(school))
 
         assert dump_data['students'] == [student.id]
 
     def test_load_many_to_one_relationship(self, models, schemas, school, student):
         schema = schemas.SchoolSchema()
-        dump_data = schema.dump(school).data
-        load_data = schema.load(dump_data).data
+        dump_data = unpack(schema.dump(school))
+        load_data = unpack(schema.load(dump_data))
         assert type(load_data.students[0]) is models.Student
         assert load_data.students[0] == student
 
@@ -812,7 +831,7 @@ class TestModelSchema:
 
         session.commit()
         schema = StudentSchema()
-        data, errors = schema.dump(student)
+        data = unpack(schema.dump(student))
 
         assert 'full_name' in data
         assert 'date_created' in data
@@ -828,7 +847,7 @@ class TestModelSchema:
 
         session.commit()
         schema = StudentSchema()
-        data, errors = schema.dump(student)
+        data = unpack(schema.dump(student))
 
         assert 'full_name' in data
         assert 'date_created' not in data
@@ -853,7 +872,7 @@ class TestModelSchema:
 
         session.commit()
         schema = StudentSchema()
-        data, errors = schema.dump(student)
+        data = unpack(schema.dump(student))
         assert 'full_name' in data
         assert 'uppername' in data
         assert data['uppername'] == student.full_name.upper()
@@ -872,7 +891,7 @@ class TestModelSchema:
 
         session.commit()
         schema = StudentSchema()
-        data, errors = schema.dump(student)
+        data = unpack(schema.dump(student))
         assert 'full_name' in data
         assert data['full_name'] == student.full_name.upper()
 
@@ -880,11 +899,10 @@ class TestModelSchema:
                                            subteacher, session):
         session.commit()
         schema = schemas.TeacherSchema()
-        data, errors = schema.dump(teacher)
-        result = schema.load(data)
+        data = unpack(schema.dump(teacher))
+        load_data = unpack(schema.load(data))
 
-        assert not result.errors
-        assert type(result.data) is models.Teacher
+        assert type(load_data) is models.Teacher
         assert 'substitute' in data
         assert data['substitute'] == subteacher.id
 
@@ -903,9 +921,9 @@ class TestModelSchema:
         students_field = sch.fields['students']
 
         assert students_field.dump_only is True
-        dump_data = sch.dump(school).data
-        result = sch.load(dump_data, session=session)
-        assert 'students' not in result.data
+        dump_data = unpack(sch.dump(school))
+        load_data = unpack(sch.load(dump_data, session=session))
+        assert 'students' not in load_data
 
 class TestNullForeignKey:
     @pytest.fixture()
@@ -925,22 +943,20 @@ class TestNullForeignKey:
     def test_a_teacher_with_no_school(self, models, schemas, teacher, session):
         session.commit()
         schema = schemas.TeacherSchema()
-        dump_data = schema.dump(teacher).data
-        result = schema.load(dump_data)
+        dump_data = unpack(schema.dump(teacher))
+        load_data = unpack(schema.load(dump_data))
 
-        assert type(result.data) == models.Teacher
-        assert result.data.current_school is None
+        assert type(load_data) == models.Teacher
+        assert load_data.current_school is None
 
     def test_a_teacher_who_is_not_a_substitute(self, models, schemas, teacher,
                                                session):
         session.commit()
         schema = schemas.TeacherSchema()
-        data, errors = schema.dump(teacher)
-        result = schema.load(data)
+        data = unpack(schema.dump(teacher))
+        load_data = unpack(schema.load(data))
 
-        assert not result.errors
-
-        assert type(result.data) is models.Teacher
+        assert type(load_data) is models.Teacher
         assert 'substitute' in data
         assert data['substitute'] is None
 
@@ -964,7 +980,7 @@ class TestDeserializeObjectThatDNE:
                 }
             ]
         }
-        deserialized_seminar_object = seminar_schema.load(seminar_dict, session).data
+        deserialized_seminar_object = unpack(seminar_schema.load(seminar_dict, session))
         # Ensure both nested lecture objects weren't forgotten...
 
         assert(len(deserialized_seminar_object.lectures) == 2)
