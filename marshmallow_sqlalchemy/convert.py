@@ -134,6 +134,11 @@ class ModelConverter(object):
             prop.uselist is True
         ):
             ret = fields.List(ret, **kwargs)
+
+        if hasattr(prop, 'columns'):
+            for column in prop.columns:
+                if column.unique:
+                    self.schema_cls.opts.unique_fields.add(column.name)
         return ret
 
     def column2field(self, column, instance=True, **kwargs):

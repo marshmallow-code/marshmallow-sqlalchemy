@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import marshmallow as ma
 from marshmallow.compat import with_metaclass, iteritems
+from sqlalchemy.inspection import inspect
 
 from .convert import ModelConverter
 from .fields import get_primary_keys
@@ -40,6 +41,7 @@ class ModelSchemaOpts(ma.SchemaOpts):
         self.sqla_session = getattr(meta, 'sqla_session', None)
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)
         self.include_fk = getattr(meta, 'include_fk', False)
+        self.unique_fields = set(getattr(meta, 'unique_fields', []))
 
 class SchemaMeta(ma.schema.SchemaMeta):
     """Metaclass for `ModelSchema`."""
@@ -172,6 +174,28 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
                 setattr(instance, key, value)
             return instance
         return self.opts.model(**data)
+
+    @ma.pre_load
+    def check_unique_fields(self, data):
+        if self.opts.unique_fields:
+            error_fields = []
+            q = self.opts.sqla_session.query(self.opts.model)
+            if self.instance:
+                primary_keys_comparator = [
+                    key != getattr(self.instance, key.name)
+                    for key in inspect(self.opts.model).primary_key
+                ]
+                q = q.filter(*primary_keys_comparator)
+            for field_name in self.opts.unique_fields:
+                value = data.get(field_name)
+                if value:
+                    q = q.filter(
+                        getattr(self.opts.model, field_name) == value,
+                    )
+                    if q.count():
+                        error_fields.append(field_name)
+            if error_fields:
+                raise ma.ValidationError('Must be unique', error_fields)
 
     def load(self, data, session=None, instance=None, *args, **kwargs):
         """Deserialize data to internal representation.
