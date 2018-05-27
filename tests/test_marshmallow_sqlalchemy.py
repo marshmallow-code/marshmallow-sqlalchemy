@@ -1009,14 +1009,14 @@ class TestMarshmallowContext:
             'school': {'name': 'one school'},
             'schools': [{'name': 'another school'}, {'name': 'yet, another school'}],
         }
-        result = schema.load(data)
-        session.add(result.data['school'])
-        session.add_all(result.data['schools'])
+        result = unpack(schema.load(data))
+        session.add(result['school'])
+        session.add_all(result['schools'])
         session.flush()
-        assert isinstance(result.data['school'], models.School)
-        assert isinstance(result.data['school'].id, int)
-        for school in result.data['schools']:
+        assert isinstance(result['school'], models.School)
+        assert isinstance(result['school'].id, int)
+        for school in result['schools']:
             assert isinstance(school, models.School)
             assert isinstance(school.id, int)
-        dump_result = schema.dump(result.data)
-        assert dump_result.data == data
+        dump_result = unpack(schema.dump(result))
+        assert dump_result == data
