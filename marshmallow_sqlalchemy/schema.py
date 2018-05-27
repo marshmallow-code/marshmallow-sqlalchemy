@@ -137,11 +137,14 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
     """
     OPTIONS_CLASS = ModelSchemaOpts
 
+    @property
+    def session(self):
+        return self._session or self.opts.sqla_session
+
     def __init__(self, *args, **kwargs):
-        session = kwargs.pop('session', None)
+        self._session = kwargs.pop('session', None)
         self.instance = kwargs.pop('instance', None)
         super(ModelSchema, self).__init__(*args, **kwargs)
-        self.session = session or self.opts.sqla_session
 
     def get_instance(self, data):
         """Retrieve an existing record by primary key(s)."""
@@ -179,7 +182,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         :param session: Optional SQLAlchemy session.
         :param instance: Optional existing instance to modify.
         """
-        self.session = session or self.session
+        self._session = session or self._session
         if not self.session:
             raise ValueError('Deserialization requires a session')
         self.instance = instance or self.instance
@@ -189,7 +192,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
             self.instance = None
 
     def validate(self, data, session=None, *args, **kwargs):
-        self.session = session or self.session
+        self._session = session or self._session
         if not self.session:
             raise ValueError('Validation requires a session')
         return super(ModelSchema, self).validate(data, *args, **kwargs)
