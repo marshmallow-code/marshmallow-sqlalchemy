@@ -141,6 +141,10 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
     def session(self):
         return self._session or self.opts.sqla_session
 
+    @session.setter
+    def session(self, session):
+        self._session = session
+
     def __init__(self, *args, **kwargs):
         self._session = kwargs.pop('session', None)
         self.instance = kwargs.pop('instance', None)
