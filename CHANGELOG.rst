@@ -9,6 +9,10 @@ Features:
 - Make ``ModelSchema.session`` a property, which allows session to be
   retrieved from ``context`` (:issue:`129`). Thanks :user:`gtxm`.
 
+Other changes:
+
+- Drop official support for Python 3.4. Python>=3.5 and Python 2.7 are supported.
+
 0.13.2 (2017-10-23)
 +++++++++++++++++++
 
