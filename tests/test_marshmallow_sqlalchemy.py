@@ -987,3 +987,36 @@ class TestDeserializeObjectThatDNE:
         # Assume that if 1 lecture has a field with the correct String value, all strings
         # were successfully deserialized in nested objects
         assert(deserialized_seminar_object.lectures[0].topic == "Intro to Ter'Angreal")
+
+class TestMarshmallowContext:
+    def test_getting_session_from_marshmallow_context(self, session, models):
+        class SchoolSchema(ModelSchema):
+
+            @property
+            def session(self):
+                return self.context.get('session', None) or self._session or self.opts.sqla_session
+
+            class Meta:
+                model = models.School
+                fields = ('name',)
+
+        class SchoolWrapperSchema(Schema):
+            school = fields.Nested(SchoolSchema)
+            schools = fields.Nested(SchoolSchema, many=True)
+
+        schema = SchoolWrapperSchema(context=dict(session=session))
+        data = {
+            'school': {'name': 'one school'},
+            'schools': [{'name': 'another school'}, {'name': 'yet, another school'}],
+        }
+        result = unpack(schema.load(data))
+        session.add(result['school'])
+        session.add_all(result['schools'])
+        session.flush()
+        assert isinstance(result['school'], models.School)
+        assert isinstance(result['school'].id, int)
+        for school in result['schools']:
+            assert isinstance(school, models.School)
+            assert isinstance(school.id, int)
+        dump_result = unpack(schema.dump(result))
+        assert dump_result == data
