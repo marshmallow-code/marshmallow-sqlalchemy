@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.14.0 (unreleased)
++++++++++++++++++++
+
+Features:
+
+- Make ``ModelSchema.session`` a property, which allows session to be
+  retrieved from ``context`` (:issue:`129`). Thanks :user:`gtxm`.
+
 0.13.2 (2017-10-23)
 +++++++++++++++++++
 
