@@ -92,6 +92,8 @@ class ModelConverter(object):
         base_fields = base_fields or {}
         for prop in model.__mapper__.iterate_properties:
             if _should_exclude_field(prop, fields=fields, exclude=exclude):
+                # Allow marshmallow to validate and exclude the field key.
+                result[prop.key] = None
                 continue
             if hasattr(prop, 'columns'):
                 if not include_fk:
