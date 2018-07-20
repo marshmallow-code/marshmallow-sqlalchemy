@@ -303,7 +303,7 @@ class TestModelFieldConversion:
         fields_ = fields_for_model(models.Student, exclude=('dob', ))
         assert type(fields_['id']) is fields.Int
         assert type(fields_['full_name']) is fields.Str
-        assert 'dob' not in fields_
+        assert fields_['dob'] is None
 
     def test_fields_for_model_handles_custom_types(self, models):
         fields_ = fields_for_model(models.Course, include_fk=True)

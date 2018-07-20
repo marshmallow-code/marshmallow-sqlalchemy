@@ -25,3 +25,4 @@ Contributors
 - Ilya Chistyakov `@ilya-chistyakov <https://github.com/ilya-chistyakov>`_
 - Victor Gavro `@vgavro <https://github.com/vgavro>`_
 - Maciej Barański `@gtxm <https://github.com/gtxm>`_
+- Jared Deckard `@deckar01 <https://github.com/deckar01>`_
