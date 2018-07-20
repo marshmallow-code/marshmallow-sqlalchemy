@@ -25,6 +25,7 @@ pip-log.txt
 .coverage
 .tox
 nosetests.xml
+.pytest_cache
 
 # Translations
 *.mo
@@ -42,5 +43,5 @@ output/*/index.html
 docs/_build
 README.html
 
-_sandbox
+# konch
 .konchrc

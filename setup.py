@@ -60,7 +60,7 @@ setup(
     ],
     test_suite='tests',
     project_urls={
-        'Bug Reports': 'https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues',
+        'Issues': 'https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues',
         'Funding': 'https://opencollective.com/marshmallow',
     }
 )

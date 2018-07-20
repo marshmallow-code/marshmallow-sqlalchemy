@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.14.1 (unreleased)
++++++++++++++++++++
+
+Bug fixes:
+
+- Fix behavior of ``exclude`` with marshmallow 3.0 (:issue:`131`).
+  Thanks :user:`yaheath` for reporting and thanks :user:`deckar01` for
+  the fix.
+
 0.14.0 (2018-05-28)
 +++++++++++++++++++
 
