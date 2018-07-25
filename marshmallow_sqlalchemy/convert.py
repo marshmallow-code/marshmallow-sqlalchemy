@@ -186,15 +186,33 @@ class ModelConverter(object):
             field_cls = self._get_field_class_for_column(column)
         return field_cls
 
+    def _merge_validators(self, defaults, new):
+        new_classes = [validator.__class__ for validator in new]
+        return [
+            validator
+            for validator in defaults
+            if validator.__class__ not in new_classes
+        ] + new
+
     def _get_field_kwargs_for_property(self, prop):
         kwargs = self.get_base_kwargs()
         if hasattr(prop, 'columns'):
             column = prop.columns[0]
             self._add_column_kwargs(kwargs, column)
+            prop = column
         if hasattr(prop, 'direction'):  # Relationship property
             self._add_relationship_kwargs(kwargs, prop)
         if getattr(prop, 'doc', None):  # Useful for documentation generation
             kwargs['description'] = prop.doc
+        info = getattr(prop, 'info', dict())
+        overrides = info.get('marshmallow')
+        if overrides is not None:
+            validate = overrides.pop('validate', [])
+            kwargs['validate'] = self._merge_validators(
+                kwargs['validate'],
+                validate,
+            )  # Ensure we do not override the generated validators.
+            kwargs.update(overrides)  # Override other kwargs.
         return kwargs
 
     def _add_column_kwargs(self, kwargs, column):

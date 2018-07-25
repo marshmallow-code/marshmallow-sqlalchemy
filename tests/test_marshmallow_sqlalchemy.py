@@ -76,7 +76,16 @@ def models(Base):
         name = sa.Column(sa.String(255), nullable=False)
         # These are for better model form testing
         cost = sa.Column(sa.Numeric(5, 2), nullable=False)
-        description = sa.Column(sa.Text, nullable=False)
+        description = sa.Column(
+            sa.Text,
+            nullable=True,
+            info=dict(
+                marshmallow=dict(
+                    validate=[validate.Length(max=1000)],
+                    required=True,
+                ),
+            ),
+        )
         level = sa.Column(sa.Enum('Primary', 'Secondary'))
         has_prereqs = sa.Column(sa.Boolean, nullable=False)
         started = sa.Column(sa.DateTime, nullable=False)
@@ -367,6 +376,13 @@ class TestModelFieldConversion:
             include_fk=False,
         )
         assert 'id' in graded_paper_fields
+
+    def test_info_overrides(self, models):
+        fields_ = fields_for_model(models.Course)
+        field = fields_['description']
+        validator = contains_validator(field, validate.Length)
+        assert validator.max == 1000
+        assert field.required
 
 def make_property(*column_args, **column_kwargs):
     return column_property(sa.Column(*column_args, **column_kwargs))
@@ -1104,3 +1120,32 @@ class TestMarshmallowContext:
             assert isinstance(school.id, int)
         dump_result = unpack(schema.dump(result))
         assert dump_result == data
+
+
+def _repr_validator_list(validators):
+    return sorted([repr(validator) for validator in validators])
+
+
+@pytest.mark.parametrize(
+    'defaults,new,expected', [
+        (
+            [validate.Length()], [], [validate.Length()],
+        ), (
+            [validate.Range(max=100), validate.Length(min=3)],
+            [validate.Range(max=1000)],
+            [validate.Range(max=1000), validate.Length(min=3)],
+        ), (
+            [validate.Range(max=1000)],
+            [validate.Length(min=3)],
+            [validate.Range(max=1000), validate.Length(min=3)],
+        ), (
+            [],
+            [validate.Length(min=3)],
+            [validate.Length(min=3)],
+        ),
+    ],
+)
+def test_merge_validators(defaults, new, expected):
+    converter = ModelConverter()
+    validators = converter._merge_validators(defaults, new)
+    assert _repr_validator_list(validators) == _repr_validator_list(expected)
