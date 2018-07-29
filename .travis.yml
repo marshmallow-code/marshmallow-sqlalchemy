@@ -19,15 +19,11 @@ python:
   - "pypy"
 
 install:
-  - travis_retry pip install -U .
   - travis_retry pip install -r dev-requirements.txt
   # Install lowest supported sqlalchemy version
   - travis_retry pip install sqlalchemy==0.9.7
   - travis_retry pip install -U marshmallow"$MARSHMALLOW_VERSION" --pre
-before_script:
-  - flake8 .
-
-script: pytest
+script: invoke test
 
 jobs:
   include:
