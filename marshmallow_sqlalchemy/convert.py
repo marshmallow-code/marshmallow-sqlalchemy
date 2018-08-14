@@ -36,13 +36,6 @@ def _postgres_array_factory(converter, data_type):
         converter._get_field_class_for_data_type(data_type.item_type),
     )
 
-def _should_exclude_field(column, fields=None, exclude=None):
-    if fields and column.key not in fields:
-        return True
-    if exclude and column.key in exclude:
-        return True
-    return False
-
 class ModelConverter(object):
     """Class that converts a SQLAlchemy model into a dictionary of corresponding
     marshmallow `Fields <marshmallow.fields.Field>`.
@@ -91,7 +84,7 @@ class ModelConverter(object):
         result = dict_cls()
         base_fields = base_fields or {}
         for prop in model.__mapper__.iterate_properties:
-            if _should_exclude_field(prop, fields=fields, exclude=exclude):
+            if self._should_exclude_field(prop, fields=fields, exclude=exclude):
                 # Allow marshmallow to validate and exclude the field key.
                 result[prop.key] = None
                 continue
@@ -114,7 +107,7 @@ class ModelConverter(object):
         result = dict_cls()
         base_fields = base_fields or {}
         for column in table.columns:
-            if _should_exclude_field(column, fields=fields, exclude=exclude):
+            if self._should_exclude_field(column, fields=fields, exclude=exclude):
                 continue
             if not include_fk and column.foreign_keys:
                 continue
@@ -238,6 +231,13 @@ class ModelConverter(object):
             'allow_none': nullable,
             'required': not nullable,
         })
+
+    def _should_exclude_field(self, column, fields=None, exclude=None):
+        if fields and column.key not in fields:
+            return True
+        if exclude and column.key in exclude:
+            return True
+        return False
 
     def get_base_kwargs(self):
         return {
