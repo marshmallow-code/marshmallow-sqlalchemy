@@ -1,5 +1,5 @@
 marshmallow>=2.0.0b4
 SQLAlchemy>=0.7
-sphinx==1.7.6
+sphinx==1.7.9
 git+https://github.com/sloria/alabaster.git@sloria
 sphinx-issues==1.0.0
