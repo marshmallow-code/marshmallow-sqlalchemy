@@ -9,7 +9,7 @@ from sqlalchemy.dialects import postgresql, mysql, mssql
 import sqlalchemy as sa
 
 from .exceptions import ModelConversionError
-from .fields import Related
+from .fields import Related, RelatedList
 
 def _is_field(value):
     return (
@@ -135,7 +135,7 @@ class ModelConverter(object):
             self.DIRECTION_MAPPING[prop.direction.name] and
             prop.uselist is True
         ):
-            ret = fields.List(ret, **kwargs)
+            ret = RelatedList(ret, **kwargs)
         return ret
 
     def column2field(self, column, instance=True, **kwargs):
