@@ -4,6 +4,7 @@ from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
 
 from sqlalchemy.orm.exc import NoResultFound
+from sqlalchemy.ext.associationproxy import AssociationProxy
 
 def get_primary_keys(model):
     """Get primary key properties for a SQLAlchemy model.
@@ -50,7 +51,10 @@ class Related(fields.Field):
 
     @property
     def related_model(self):
-        return getattr(self.model, self.attribute or self.name).property.mapper.class_
+        model_attr = getattr(self.model, self.attribute or self.name)
+        if isinstance(model_attr, AssociationProxy):
+            model_attr = model_attr.remote_attr
+        return model_attr.property.mapper.class_
 
     @property
     def related_keys(self):
