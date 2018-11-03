@@ -811,29 +811,48 @@ class TestModelSchema:
 
     def test_model_schema_with_attribute(
             self, models, schemas, school, student, session):
+
+        class StudentSchema(Schema):
+            id = fields.Int()
+
         class SchoolSchema(ModelSchema):
             class Meta:
                 model = models.School
                 sqla_session = session
 
-            related_students = RelatedList(
+            students = RelatedList(
                 Related(attribute='students'),
                 attribute='students')
 
-            related_students_from_field = field_for(
+        class SchoolSchema2(ModelSchema):
+            class Meta:
+                model = models.School
+                sqla_session = session
+
+            students = field_for(
                 models.School, 'students', attribute='students')
 
-            related_students_from_field_name = field_for(
+        class SchoolSchema3(ModelSchema):
+            class Meta:
+                model = models.School
+                sqla_session = session
+
+            students = field_for(
                 models.School, 'students', attribute='students', column='full_name')
 
         schema = SchoolSchema()
+        schema2 = SchoolSchema2()
+        schema3 = SchoolSchema3()
+
         dump_data = unpack(schema.dump(school))
+        dump_data2 = unpack(schema2.dump(school))
+        dump_data3 = unpack(schema3.dump(school))
         load_data = unpack(schema.load(dump_data))
 
-        assert dump_data['students'] == dump_data['related_students']
-        assert dump_data['students'] == dump_data['related_students_from_field']
+        assert dump_data['students'] == dump_data['students']
+        assert dump_data['students'] == dump_data2['students']
         assert [i.full_name for i in school.students] == \
-            dump_data['related_students_from_field_name']
+            dump_data3['students']
 
         assert type(load_data) == models.School
         assert load_data.students == school.students
@@ -951,8 +970,14 @@ class TestModelSchema:
 
         assert students_field.dump_only is True
         dump_data = unpack(sch.dump(school))
-        load_data = unpack(sch.load(dump_data, session=session))
-        assert 'students' not in load_data
+        if MARSHMALLOW_VERSION_INFO[0] < 3:
+            load_data = unpack(sch.load(dump_data, session=session))
+            assert 'students' not in load_data
+        else:
+            with pytest.raises(ValidationError) as excinfo:
+                sch.load(dump_data, session=session)
+            err = excinfo.value
+            assert err.messages == {'students': ['Unknown field.']}
 
 class TestNullForeignKey:
     @pytest.fixture()
