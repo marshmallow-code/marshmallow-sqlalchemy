@@ -6,12 +6,12 @@ Leads
 =====
 
 - Steven Loria `@sloria <https://github.com/sloria>`_
-- Josh Carp `@jmcarp <https://github.com/jmcarp>`_
 
 Contributors
 ============
 
 - Rob MacKinnon `@rmackinnon <https://github.com/rmackinnon>`_
+- Josh Carp `@jmcarp <https://github.com/jmcarp>`_
 - Jason Mitchell `@mitchej123 <https://github.com/mitchej123>`_
 - Douglas Russell `@dpwrussell <https://github.com/dpwrussell>`_
 - Rudá Porto Filgueiras `@rudaporto <https://github.com/rudaporto>`_
@@ -26,3 +26,4 @@ Contributors
 - Victor Gavro `@vgavro <https://github.com/vgavro>`_
 - Maciej Barański `@gtxm <https://github.com/gtxm>`_
 - Jared Deckard `@deckar01 <https://github.com/deckar01>`_
+- AbdealiJK `@AbdealiJK <https://github.com/AbdealiJK>`_
