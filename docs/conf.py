@@ -59,19 +59,27 @@ html_theme_options = {
     'warn_border': '#EEE',
     # Used to populate the useful-links.html template
     'extra_nav_links': OrderedDict([
-        ('marshmallow-sqlalchemy @ PyPI',
-            'http://pypi.python.org/pypi/marshmallow-sqlalchemy'),
-        ('marshmallow-sqlalchemy @ GitHub',
-            'http://github.com/marshmallow-code/marshmallow-sqlalchemy'),
-        ('Issue Tracker',
-            'http://github.com/marshmallow-code/marshmallow-sqlalchemy/issues'),
-    ])
+        (
+            'marshmallow-sqlalchemy @ PyPI',
+            'http://pypi.python.org/pypi/marshmallow-sqlalchemy',
+        ),
+        (
+            'marshmallow-sqlalchemy @ GitHub',
+            'http://github.com/marshmallow-code/marshmallow-sqlalchemy',
+        ),
+        (
+            'Issue Tracker',
+            'http://github.com/marshmallow-code/marshmallow-sqlalchemy/issues',
+        ),
+    ]),
 }
 
 html_sidebars = {
     'index': [
-        'about.html', 'useful-links.html', 'searchbox.html'
+        'about.html', 'useful-links.html', 'searchbox.html',
     ],
-    '**': ['about.html', 'useful-links.html',
-           'localtoc.html', 'relations.html', 'searchbox.html']
+    '**': [
+        'about.html', 'useful-links.html',
+        'localtoc.html', 'relations.html', 'searchbox.html',
+    ],
 }

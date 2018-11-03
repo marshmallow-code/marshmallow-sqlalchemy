@@ -113,4 +113,3 @@ MIT licensed. See the bundled `LICENSE <https://github.com/marshmallow-code/mars
 .. |marshmallow3| image:: https://img.shields.io/badge/marshmallow-3-blue.svg
     :target: https://marshmallow.readthedocs.io/en/latest/upgrading.html
     :alt: marshmallow 3 compatible
-

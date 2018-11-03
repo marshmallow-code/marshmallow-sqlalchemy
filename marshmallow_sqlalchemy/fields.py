@@ -46,7 +46,7 @@ class Related(fields.Field):
 
     default_error_messages = {
         'invalid': 'Could not deserialize related value {value!r}; '
-                   'expected a dictionary with keys {keys!r}'
+                   'expected a dictionary with keys {keys!r}',
     }
 
     def __init__(self, column=None, **kwargs):

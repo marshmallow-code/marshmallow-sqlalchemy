@@ -11,6 +11,11 @@ Bug fixes:
 - ``Related`` now works with ``AssociationProxy`` fields (:issue:`151`).
   Thanks :user:`AbdealiJK` for the catch and patch.
 
+Other changes:
+
+- Test against Python 3.7.
+- Bring development environment in line with marshmallow.
+
 0.14.1 (2018-07-19)
 +++++++++++++++++++
 
