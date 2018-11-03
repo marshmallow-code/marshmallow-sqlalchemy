@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.14.2 (unreleased)
++++++++++++++++++++
+
+Bug fixes:
+
+- Fix behavior of ``Related`` field (:issue:`150`). Thanks :user:`zezic`
+  for reporting and thanks :user:`AbdealiJK` for the PR.
+
 0.14.1 (2018-07-19)
 +++++++++++++++++++
 
