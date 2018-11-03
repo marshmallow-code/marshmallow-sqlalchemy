@@ -76,6 +76,7 @@ setup(
     ],
     test_suite='tests',
     project_urls={
+        'Changelog': 'https://marshmallow-sqlalchemy.readthedocs.io/en/latest/changelog.html',
         'Issues': 'https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues',
         'Funding': 'https://opencollective.com/marshmallow',
     },
