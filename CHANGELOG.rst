@@ -8,6 +8,8 @@ Bug fixes:
 
 - Fix behavior of ``Related`` field (:issue:`150`). Thanks :user:`zezic`
   for reporting and thanks :user:`AbdealiJK` for the PR.
+- ``Related`` now works with ``AssociationProxy`` fields (:issue:`151`).
+  Thanks :user:`AbdealiJK` for the catch and patch.
 
 0.14.1 (2018-07-19)
 +++++++++++++++++++
