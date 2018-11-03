@@ -18,7 +18,7 @@ from marshmallow_sqlalchemy import (
     fields_for_model, TableSchema, ModelSchema, ModelConverter, property2field, column2field,
     field_for, ModelConversionError
 )
-from marshmallow_sqlalchemy.fields import Related
+from marshmallow_sqlalchemy.fields import Related, RelatedList
 
 MARSHMALLOW_VERSION_INFO = tuple(
     [int(part) for part in marshmallow.__version__.split('.') if part.isdigit()]
@@ -332,17 +332,17 @@ class TestModelFieldConversion:
 
     def test_many_to_many_relationship(self, models):
         student_fields = fields_for_model(models.Student)
-        assert type(student_fields['courses']) is fields.List
+        assert type(student_fields['courses']) is RelatedList
 
         course_fields = fields_for_model(models.Course)
-        assert type(course_fields['students']) is fields.List
+        assert type(course_fields['students']) is RelatedList
 
     def test_many_to_one_relationship(self, models):
         student_fields = fields_for_model(models.Student)
         assert type(student_fields['current_school']) is Related
 
         school_fields = fields_for_model(models.School)
-        assert type(school_fields['students']) is fields.List
+        assert type(school_fields['students']) is RelatedList
 
     def test_include_fk(self, models):
         student_fields = fields_for_model(models.Student, include_fk=False)
@@ -808,6 +808,35 @@ class TestModelSchema:
 
         assert type(load_data) == models.Student
         assert load_data.current_school == student.current_school
+
+    def test_model_schema_with_attribute(
+            self, models, schemas, school, student, session):
+        class SchoolSchema(ModelSchema):
+            class Meta:
+                model = models.School
+                sqla_session = session
+
+            related_students = RelatedList(
+                Related(attribute='students'),
+                attribute='students')
+
+            related_students_from_field = field_for(
+                models.School, 'students', attribute='students')
+
+            related_students_from_field_name = field_for(
+                models.School, 'students', attribute='students', column='full_name')
+
+        schema = SchoolSchema()
+        dump_data = unpack(schema.dump(school))
+        load_data = unpack(schema.load(dump_data))
+
+        assert dump_data['students'] == dump_data['related_students']
+        assert dump_data['students'] == dump_data['related_students_from_field']
+        assert [i.full_name for i in school.students] == \
+            dump_data['related_students_from_field_name']
+
+        assert type(load_data) == models.School
+        assert load_data.students == school.students
 
     def test_dump_many_to_one_relationship(self, models, schemas, school, student):
         schema = schemas.SchoolSchema()

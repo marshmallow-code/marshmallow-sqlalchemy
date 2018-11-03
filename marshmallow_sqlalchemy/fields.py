@@ -25,6 +25,15 @@ def get_schema_for_field(field):
 def ensure_list(value):
     return value if is_iterable_but_not_string(value) else [value]
 
+class RelatedList(fields.List):
+
+    def get_value(self, obj, attr, accessor=None):
+        # Do not call `fields.List`'s get_value as it calls the container's
+        # `get_value` if the container has `attribute`.
+        # Instead call the `get_value` from the parent of `fields.List`
+        # so the special handling is avoided.
+        return super(fields.List, self).get_value(obj, attr, accessor=accessor)
+
 class Related(fields.Field):
     """Related data represented by a SQLAlchemy `relationship`. Must be attached
     to a :class:`Schema` class whose options includes a SQLAlchemy `model`, such
