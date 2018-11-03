@@ -23,15 +23,28 @@ Questions, Feature Requests, Bug Reports, and Feedback. . .
 Setting Up for Local Development
 ++++++++++++++++++++++++++++++++
 
-1. Fork marshmallow-sqlalchemy_ on Github. ::
+1. Fork marshmallow-sqlalchemy_ on Github.
+
+::
 
     $ git clone https://github.com/marshmallow-code/marshmallow-sqlalchemy.git
     $ cd marshmallow-sqlalchemy
 
-2. Install development requirements. It is highly recommended that you use a virtualenv. ::
+2. Install development requirements. **It is highly recommended that you use a virtualenv.**
+   Use the following command to install an editable version of
+   marshmallow-sqlalchemy along with its development requirements.
+
+::
 
     # After activating your virtualenv
-    $ pip install -r dev-requirements.txt
+    $ pip install -e '.[dev]'
+
+3. Install the pre-commit hooks, which will format and lint your git staged files.
+
+::
+
+    # The pre-commit CLI was installed above
+    $ pre-commit install --allow-missing-config
 
 Git Branch Structure
 ++++++++++++++++++++
@@ -74,11 +87,15 @@ Pull Requests
 Running Tests
 +++++++++++++
 
-To run all tests: ::
+To run all To run all tests: ::
 
-    $ invoke test
+    $ pytest
 
-To run tests on Python 2.7, 3.5, and 3.6 virtual environments (must have each interpreter installed): ::
+To run syntax checks: ::
+
+    $ tox -e lint
+
+(Optional) To run tests on Python 2.7, 3.5, 3.6, and 3.7 virtual environments (must have each interpreter installed): ::
 
     $ tox
 
@@ -87,15 +104,12 @@ Documentation
 
 Contributions to the documentation are welcome. Documentation is written in `reStructured Text`_ (rST). A quick rST reference can be found `here <http://docutils.sourceforge.net/docs/user/rst/quickref.html>`_. Builds are powered by Sphinx_.
 
-To install the packages for building the docs: ::
+To build the docs in "watch" mode: ::
 
-    $ pip install -r docs/requirements.txt
+   $ tox -e watch-docs
 
-To build the docs: ::
+Changes in the `docs/` directory will automatically trigger a rebuild.
 
-    $ invoke docs -b
-
-The ``-b`` (for "browse") automatically opens up the docs in your browser after building.
 
 .. _Sphinx: http://sphinx.pocoo.org/
 .. _`reStructured Text`: http://docutils.sourceforge.net/rst.html

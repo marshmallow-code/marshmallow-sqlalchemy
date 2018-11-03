@@ -55,7 +55,7 @@ class SchemaMeta(ma.schema.SchemaMeta):
         Converter = opts.model_converter
         converter = Converter(schema_cls=klass)
         base_fields = super(SchemaMeta, mcs).get_declared_fields(
-            klass, cls_fields, inherited_fields, dict_cls
+            klass, cls_fields, inherited_fields, dict_cls,
         )
         declared_fields = mcs.get_fields(converter, opts, base_fields, dict_cls)
         declared_fields.update(base_fields)
@@ -159,7 +159,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         }
         if None not in filters.values():
             return self.session.query(
-                self.opts.model
+                self.opts.model,
             ).filter_by(
                 **filters
             ).first()

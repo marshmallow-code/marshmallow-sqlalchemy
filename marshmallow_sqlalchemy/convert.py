@@ -86,8 +86,10 @@ class ModelConverter(object):
         else:
             return ma.Schema.TYPE_MAPPING
 
-    def fields_for_model(self, model, include_fk=False, fields=None, exclude=None, base_fields=None,
-                         dict_cls=dict):
+    def fields_for_model(
+        self, model, include_fk=False, fields=None, exclude=None, base_fields=None,
+        dict_cls=dict,
+    ):
         result = dict_cls()
         base_fields = base_fields or {}
         for prop in model.__mapper__.iterate_properties:
@@ -109,8 +111,10 @@ class ModelConverter(object):
                 result[prop.key] = field
         return result
 
-    def fields_for_table(self, table, include_fk=False, fields=None, exclude=None, base_fields=None,
-                         dict_cls=dict):
+    def fields_for_table(
+        self, table, include_fk=False, fields=None, exclude=None, base_fields=None,
+        dict_cls=dict,
+    ):
         result = dict_cls()
         base_fields = base_fields or {}
         for column in table.columns:
@@ -177,7 +181,8 @@ class ModelConverter(object):
                 if hasattr(data_type, 'impl'):
                     return self._get_field_class_for_data_type(data_type.impl)
                 raise ModelConversionError(
-                    'Could not find field column of type {0}.'.format(types[0]))
+                    'Could not find field column of type {0}.'.format(types[0]),
+                )
         return field_cls
 
     def _get_field_class_for_property(self, prop):
@@ -241,7 +246,7 @@ class ModelConverter(object):
 
     def get_base_kwargs(self):
         return {
-            'validate': []
+            'validate': [],
         }
 
 

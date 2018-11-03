@@ -3,9 +3,24 @@ import re
 from setuptools import setup, find_packages
 
 
-REQUIRES = (
+INSTALL_REQUIRES = (
     'marshmallow>=2.0.0',
     'SQLAlchemy>=0.9.7',
+)
+EXTRAS_REQUIRE = {
+    'tests': [
+        'pytest',
+        'mock',
+    ],
+    'lint': [
+        'flake8==3.6.0',
+        'pre-commit==1.12.0',
+    ],
+}
+EXTRAS_REQUIRE['dev'] = (
+    EXTRAS_REQUIRE['tests'] +
+    EXTRAS_REQUIRE['lint'] +
+    ['tox']
 )
 
 
@@ -40,10 +55,11 @@ setup(
     author='Steven Loria',
     author_email='sloria1@gmail.com',
     url='https://github.com/marshmallow-code/marshmallow-sqlalchemy',
-    packages=find_packages(exclude=("test*", )),
+    packages=find_packages(exclude=('test*', )),
     package_dir={'marshmallow-sqlalchemy': 'marshmallow-sqlalchemy'},
     include_package_data=True,
-    install_requires=REQUIRES,
+    install_requires=INSTALL_REQUIRES,
+    extras_require=EXTRAS_REQUIRE,
     license='MIT',
     zip_safe=False,
     keywords='sqlalchemy marshmallow',
@@ -56,10 +72,11 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
     ],
     test_suite='tests',
     project_urls={
         'Issues': 'https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues',
         'Funding': 'https://opencollective.com/marshmallow',
-    }
+    },
 )

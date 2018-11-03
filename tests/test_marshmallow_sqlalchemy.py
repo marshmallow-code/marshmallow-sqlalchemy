@@ -16,12 +16,12 @@ from marshmallow import Schema, fields, validate, post_load, ValidationError
 import pytest
 from marshmallow_sqlalchemy import (
     fields_for_model, TableSchema, ModelSchema, ModelConverter, property2field, column2field,
-    field_for, ModelConversionError
+    field_for, ModelConversionError,
 )
 from marshmallow_sqlalchemy.fields import Related, RelatedList
 
 MARSHMALLOW_VERSION_INFO = tuple(
-    [int(part) for part in marshmallow.__version__.split('.') if part.isdigit()]
+    [int(part) for part in marshmallow.__version__.split('.') if part.isdigit()],
 )
 
 
@@ -67,7 +67,7 @@ def models(Base):
     student_course = sa.Table(
         'student_course', Base.metadata,
         sa.Column('student_id', sa.Integer, sa.ForeignKey('student.id')),
-        sa.Column('course_id', sa.Integer, sa.ForeignKey('course.id'))
+        sa.Column('course_id', sa.Integer, sa.ForeignKey('course.id')),
     )
 
     class Course(Base):
@@ -101,8 +101,10 @@ def models(Base):
         id = sa.Column(sa.Integer, primary_key=True)
         full_name = sa.Column(sa.String(255), nullable=False, unique=True)
         dob = sa.Column(sa.Date(), nullable=True)
-        date_created = sa.Column(sa.DateTime, default=dt.datetime.utcnow,
-                doc='date the student was created')
+        date_created = sa.Column(
+            sa.DateTime, default=dt.datetime.utcnow,
+            doc='date the student was created',
+        )
 
         current_school_id = sa.Column(sa.Integer, sa.ForeignKey(School.id), nullable=False)
         current_school = relationship(School, backref=backref('students'))
@@ -110,7 +112,7 @@ def models(Base):
         courses = relationship(
             'Course',
             secondary=student_course,
-            backref=backref("students", lazy='dynamic')
+            backref=backref('students', lazy='dynamic'),
         )
 
         @property
@@ -126,13 +128,17 @@ def models(Base):
         current_school_id = sa.Column(sa.Integer, sa.ForeignKey(School.id), nullable=True)
         current_school = relationship(School, backref=backref('teachers'))
 
-        substitute = relationship('SubstituteTeacher', uselist=False,
-                                  backref='teacher')
+        substitute = relationship(
+            'SubstituteTeacher', uselist=False,
+            backref='teacher',
+        )
 
     class SubstituteTeacher(Base):
         __tablename__ = 'substituteteacher'
-        id = sa.Column(sa.Integer, sa.ForeignKey('teacher.id'),
-                       primary_key=True)
+        id = sa.Column(
+            sa.Integer, sa.ForeignKey('teacher.id'),
+            primary_key=True,
+        )
 
     class Paper(Base):
         __tablename__ = 'paper'
@@ -140,7 +146,7 @@ def models(Base):
         satype = sa.Column(sa.String(50))
         __mapper_args__ = {
             'polymorphic_identity': 'paper',
-            'polymorphic_on': satype
+            'polymorphic_on': satype,
         }
 
         id = sa.Column(sa.Integer, primary_key=True)
@@ -150,11 +156,13 @@ def models(Base):
         __tablename__ = 'gradedpaper'
 
         __mapper_args__ = {
-            'polymorphic_identity': 'gradedpaper'
+            'polymorphic_identity': 'gradedpaper',
         }
 
-        id = sa.Column(sa.Integer, sa.ForeignKey('paper.id'),
-                       primary_key=True)
+        id = sa.Column(
+            sa.Integer, sa.ForeignKey('paper.id'),
+            primary_key=True,
+        )
 
         marks_available = sa.Column(sa.Integer)
 
@@ -171,7 +179,7 @@ def models(Base):
         __table_args__ = (
             sa.ForeignKeyConstraint(
                 ['seminar_title', 'seminar_semester'],
-                ['seminar.title', 'seminar.semester']
+                ['seminar.title', 'seminar.semester'],
             ),
         )
 
@@ -179,8 +187,10 @@ def models(Base):
         topic = sa.Column(sa.String)
         seminar_title = sa.Column(sa.String, sa.ForeignKey(Seminar.title))
         seminar_semester = sa.Column(sa.String, sa.ForeignKey(Seminar.semester))
-        seminar = relationship(Seminar, foreign_keys=[seminar_title, seminar_semester],
-                               backref='lectures')
+        seminar = relationship(
+            Seminar, foreign_keys=[seminar_title, seminar_semester],
+            backref='lectures',
+        )
 
     # So that we can access models with dot-notation, e.g. models.Course
     class _models(object):
@@ -222,7 +232,7 @@ def schemas(models, session):
     class StudentSchemaWithCustomTypeMapping(ModelSchema):
         TYPE_MAPPING = Schema.TYPE_MAPPING.copy()
         TYPE_MAPPING.update({
-            dt.date: MyDateField
+            dt.date: MyDateField,
         })
 
         class Meta:
@@ -352,8 +362,10 @@ class TestModelFieldConversion:
         assert 'current_school_id' in student_fields2
 
     def test_overridden_with_fk(self, models):
-        graded_paper_fields = fields_for_model(models.GradedPaper,
-                                               include_fk=False)
+        graded_paper_fields = fields_for_model(
+            models.GradedPaper,
+            include_fk=False,
+        )
         assert 'id' in graded_paper_fields
 
 def make_property(*column_args, **column_kwargs):
@@ -372,7 +384,7 @@ class TestPropertyFieldConversion:
         class MySchema(Schema):
             TYPE_MAPPING = Schema.TYPE_MAPPING.copy()
             TYPE_MAPPING.update({
-                dt.datetime: MyDateTimeField
+                dt.datetime: MyDateTimeField,
             })
 
         converter = ModelConverter(schema_cls=MySchema)
@@ -747,8 +759,10 @@ class TestModelSchema:
         assert type(load_data) == models.Student
         assert load_data.current_school == student.current_school
 
-    def test_model_schema_validation_passing_session_to_validate(self, models,
-            schemas, student, session):
+    def test_model_schema_validation_passing_session_to_validate(
+        self, models,
+        schemas, student, session,
+    ):
         class StudentSchemaNoSession(ModelSchema):
             class Meta:
                 model = models.Student
@@ -757,8 +771,10 @@ class TestModelSchema:
         dump_data = unpack(schema.dump(student))
         assert type(schema.validate(dump_data, session=session)) is dict
 
-    def test_model_schema_loading_passing_session_to_constructor(self,
-            models, schemas, student, session):
+    def test_model_schema_loading_passing_session_to_constructor(
+        self,
+        models, schemas, student, session,
+    ):
         class StudentSchemaNoSession(ModelSchema):
             class Meta:
                 model = models.Student
@@ -769,8 +785,10 @@ class TestModelSchema:
         assert type(load_data) == models.Student
         assert load_data.current_school == student.current_school
 
-    def test_model_schema_validation_passing_session_to_constructor(self,
-            models, schemas, student, session):
+    def test_model_schema_validation_passing_session_to_constructor(
+        self,
+        models, schemas, student, session,
+    ):
         class StudentSchemaNoSession(ModelSchema):
             class Meta:
                 model = models.Student
@@ -779,8 +797,10 @@ class TestModelSchema:
         dump_data = unpack(schema.dump(student))
         assert type(schema.validate(dump_data)) is dict
 
-    def test_model_schema_loading_and_validation_with_no_session_raises_error(self,
-            models, schemas, student, session):
+    def test_model_schema_loading_and_validation_with_no_session_raises_error(
+        self,
+        models, schemas, student, session,
+    ):
         class StudentSchemaNoSession(ModelSchema):
             class Meta:
                 model = models.Student
@@ -810,7 +830,8 @@ class TestModelSchema:
         assert load_data.current_school == student.current_school
 
     def test_model_schema_with_attribute(
-            self, models, schemas, school, student, session):
+            self, models, schemas, school, student, session,
+    ):
 
         class StudentSchema(Schema):
             id = fields.Int()
@@ -822,7 +843,8 @@ class TestModelSchema:
 
             students = RelatedList(
                 Related(attribute='students'),
-                attribute='students')
+                attribute='students',
+            )
 
         class SchoolSchema2(ModelSchema):
             class Meta:
@@ -830,7 +852,8 @@ class TestModelSchema:
                 sqla_session = session
 
             students = field_for(
-                models.School, 'students', attribute='students')
+                models.School, 'students', attribute='students',
+            )
 
         class SchoolSchema3(ModelSchema):
             class Meta:
@@ -838,7 +861,8 @@ class TestModelSchema:
                 sqla_session = session
 
             students = field_for(
-                models.School, 'students', attribute='students', column='full_name')
+                models.School, 'students', attribute='students', column='full_name',
+            )
 
         schema = SchoolSchema()
         schema2 = SchoolSchema2()
@@ -943,8 +967,10 @@ class TestModelSchema:
         assert 'full_name' in data
         assert data['full_name'] == student.full_name.upper()
 
-    def test_a_teacher_who_is_a_substitute(self, models, schemas, teacher,
-                                           subteacher, session):
+    def test_a_teacher_who_is_a_substitute(
+        self, models, schemas, teacher,
+        subteacher, session,
+    ):
         session.commit()
         schema = schemas.TeacherSchema()
         data = unpack(schema.dump(teacher))
@@ -1003,8 +1029,10 @@ class TestNullForeignKey:
         assert type(load_data) == models.Teacher
         assert load_data.current_school is None
 
-    def test_a_teacher_who_is_not_a_substitute(self, models, schemas, teacher,
-                                               session):
+    def test_a_teacher_who_is_not_a_substitute(
+        self, models, schemas, teacher,
+        session,
+    ):
         session.commit()
         schema = schemas.TeacherSchema()
         data = unpack(schema.dump(teacher))
@@ -1015,8 +1043,10 @@ class TestNullForeignKey:
         assert data['substitute'] is None
 
 class TestDeserializeObjectThatDNE:
-    def test_deserialization_of_seminar_with_many_lectures_that_DNE(self, models,
-                                                                   schemas, session):
+    def test_deserialization_of_seminar_with_many_lectures_that_DNE(
+        self, models,
+        schemas, session,
+    ):
         seminar_schema = schemas.SeminarSchema()
         seminar_dict = {
             'title': 'Novice Training',
@@ -1024,15 +1054,15 @@ class TestDeserializeObjectThatDNE:
             'lectures': [
                 {
                     'topic': "Intro to Ter'Angreal",
-                    "seminar_title": "Novice Training",
-                    "seminar_semester": "First"
+                    'seminar_title': 'Novice Training',
+                    'seminar_semester': 'First',
                 },
                 {
-                    'topic': "History of the Ajahs",
-                    "seminar_title": "Novice Training",
-                    "seminar_semester": "First"
-                }
-            ]
+                    'topic': 'History of the Ajahs',
+                    'seminar_title': 'Novice Training',
+                    'seminar_semester': 'First',
+                },
+            ],
         }
         deserialized_seminar_object = unpack(seminar_schema.load(seminar_dict, session))
         # Ensure both nested lecture objects weren't forgotten...
