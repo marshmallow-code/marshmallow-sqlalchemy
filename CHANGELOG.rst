@@ -1,6 +1,18 @@
 Changelog
 ---------
 
+0.15.0 (unreleased)
++++++++++++++++++++
+
+Features:
+
+* Add ``ModelConverter._should_exclude_field`` hook (:pr:`139`).
+  Thanks :user:`jeanphix` for the PR.
+* Allow field ``kwargs`` to be overriden by passing
+  ``info['marshmallow']`` to column properties (:issue:`21`).
+  Thanks :user:`dpwrussell` for the suggestion and PR.
+  Thanks :user:`jeanphix` for the final implementation.
+
 0.14.2 (2018-11-03)
 +++++++++++++++++++
 
