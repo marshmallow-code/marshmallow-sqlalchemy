@@ -40,6 +40,7 @@ class ModelSchemaOpts(ma.SchemaOpts):
         self.sqla_session = getattr(meta, 'sqla_session', None)
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)
         self.include_fk = getattr(meta, 'include_fk', False)
+        self.transient = getattr(meta, 'transient', False)
 
 class SchemaMeta(ma.schema.SchemaMeta):
     """Metaclass for `ModelSchema`."""
@@ -145,13 +146,28 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
     def session(self, session):
         self._session = session
 
+    @property
+    def transient(self):
+        return self._transient or self.opts.transient
+
+    @transient.setter
+    def transient(self, transient):
+        self._transient = transient
+
     def __init__(self, *args, **kwargs):
         self._session = kwargs.pop('session', None)
         self.instance = kwargs.pop('instance', None)
+        self._transient = kwargs.pop('transient', None)
         super(ModelSchema, self).__init__(*args, **kwargs)
 
     def get_instance(self, data):
-        """Retrieve an existing record by primary key(s)."""
+        """Retrieve an existing record by primary key(s). If the schema instance
+        is transient, return None.
+
+        :param data: Serialized data to inform lookup.
+        """
+        if self.transient:
+            return None
         props = get_primary_keys(self.opts.model)
         filters = {
             prop.key: data.get(prop.key)
@@ -180,14 +196,16 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
             return instance
         return self.opts.model(**data)
 
-    def load(self, data, session=None, instance=None, *args, **kwargs):
+    def load(self, data, session=None, instance=None, transient=False, *args, **kwargs):
         """Deserialize data to internal representation.
 
         :param session: Optional SQLAlchemy session.
         :param instance: Optional existing instance to modify.
+        :param transient: Optional switch to allow tranient instantiation.
         """
         self._session = session or self._session
-        if not self.session:
+        self._transient = transient or self._transient
+        if not (self.transient or self.session):
             raise ValueError('Deserialization requires a session')
         self.instance = instance or self.instance
         try:

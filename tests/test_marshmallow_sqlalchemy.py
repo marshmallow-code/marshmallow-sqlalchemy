@@ -1021,6 +1021,33 @@ class TestModelSchema:
             err = excinfo.value
             assert err.messages == {'students': ['Unknown field.']}
 
+    def test_transient_schema(self, models, school):
+        class SchoolSchemaTransient(ModelSchema):
+            class Meta:
+                model = models.School
+                transient = True
+
+        sch = SchoolSchemaTransient()
+        dump_data = unpack(sch.dump(school))
+        load_data = unpack(sch.load(dump_data))
+        assert isinstance(load_data, models.School)
+        state = sa.inspect(load_data)
+        assert state.transient
+
+    def test_transient_load(self, models, session, school):
+        class SchoolSchemaTransient(ModelSchema):
+            class Meta:
+                model = models.School
+                sqla_session = session
+
+        sch = SchoolSchemaTransient()
+        dump_data = unpack(sch.dump(school))
+        load_data = unpack(sch.load(dump_data, transient=True))
+        assert isinstance(load_data, models.School)
+        state = sa.inspect(load_data)
+        assert state.transient
+
+
 class TestNullForeignKey:
     @pytest.fixture()
     def school(self, models, session):

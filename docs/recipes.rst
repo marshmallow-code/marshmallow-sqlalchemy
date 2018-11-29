@@ -273,3 +273,36 @@ An example of then using this:
     book = Book.query.options(joinedload('author')).get(1)
     print(BookSchema().dump(book).data['author'])
     # {'id': 1, 'name': 'Chuck Paluhniuk'}
+
+Transient Object Creation
+=========================
+
+Sometimes it might be desirable to deserialize instances that are transient (not attached to a session). In these cases you can specify an option in the `Meta <marshmallow_sqlalchemy.ModelSchemaOpts>` class of a `ModelSchema <marshmallow_sqlalchemy.ModelSchema>`.
+
+.. code-block:: python
+
+    from marshmallow_sqlalchemy import ModelSchema
+
+    class AuthorSchema(ModelSchema):
+        class Meta:
+            model = Author
+            transient = True
+
+    dump_data = {'id': 1, 'name': 'John Steinbeck'}
+    print(AuthorSchema().load(dump_data).data)
+    # <Author(name='John Steinbeck')>
+
+You may also explicitly specify an override by passing the same argument to `load <marshmallow_sqlalchemy.ModelSchema.load>`.
+
+.. code-block:: python
+
+    from marshmallow_sqlalchemy import ModelSchema
+
+    class AuthorSchema(ModelSchema):
+        class Meta:
+            model = Author
+            sqla_session = Session
+
+    dump_data = {'id': 1, 'name': 'John Steinbeck'}
+    print(AuthorSchema().load(dump_data, transient=True).data)
+    # <Author(name='John Steinbeck')>
