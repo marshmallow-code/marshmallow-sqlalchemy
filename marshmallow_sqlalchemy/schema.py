@@ -32,6 +32,8 @@ class ModelSchemaOpts(ma.SchemaOpts):
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
         marshmallow fields.
     - ``include_fk``: Whether to include foreign fields; defaults to `False`.
+    - ``transient``: Whether load model instances in a transient state (effectively ignoring
+        the session).
     """
 
     def __init__(self, meta, *args, **kwargs):

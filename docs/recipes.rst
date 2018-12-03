@@ -277,7 +277,8 @@ An example of then using this:
 Transient Object Creation
 =========================
 
-Sometimes it might be desirable to deserialize instances that are transient (not attached to a session). In these cases you can specify an option in the `Meta <marshmallow_sqlalchemy.ModelSchemaOpts>` class of a `ModelSchema <marshmallow_sqlalchemy.ModelSchema>`.
+Sometimes it might be desirable to deserialize instances that are transient (not attached to a session). In these cases you can specify the `transient` option in the `Meta <marshmallow_sqlalchemy.ModelSchemaOpts>` class of a `ModelSchema <marshmallow_sqlalchemy.ModelSchema>`.
+
 
 .. code-block:: python
 
@@ -301,8 +302,10 @@ You may also explicitly specify an override by passing the same argument to `loa
     class AuthorSchema(ModelSchema):
         class Meta:
             model = Author
-            sqla_session = Session
+            sqla_session = session
 
     dump_data = {'id': 1, 'name': 'John Steinbeck'}
     print(AuthorSchema().load(dump_data, transient=True).data)
     # <Author(name='John Steinbeck')>
+
+See `State Management <https://docs.sqlalchemy.org/en/latest/orm/session_state_management.html>`_ to understand session state management.
