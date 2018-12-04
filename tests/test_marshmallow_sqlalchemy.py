@@ -1047,6 +1047,19 @@ class TestModelSchema:
         state = sa.inspect(load_data)
         assert state.transient
 
+    def test_transient_schema_with_relationship(self, models, student):
+        class StudentSchemaTransient(ModelSchema):
+            class Meta:
+                model = models.Student
+                transient = True
+
+        sch = StudentSchemaTransient()
+        dump_data = unpack(sch.dump(student))
+        load_data = unpack(sch.load(dump_data))
+        assert isinstance(load_data, models.Student)
+        state = sa.inspect(load_data)
+        assert state.transient
+
 
 class TestNullForeignKey:
     @pytest.fixture()
