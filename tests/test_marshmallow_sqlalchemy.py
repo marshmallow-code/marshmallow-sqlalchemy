@@ -1059,6 +1059,10 @@ class TestModelSchema:
         assert isinstance(load_data, models.Student)
         state = sa.inspect(load_data)
         assert state.transient
+        school = load_data.current_school
+        assert isinstance(school, models.School)
+        school_state = sa.inspect(school)
+        assert school_state.transient
 
 
 class TestNullForeignKey:
