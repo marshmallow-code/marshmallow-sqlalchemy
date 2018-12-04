@@ -308,4 +308,6 @@ You may also explicitly specify an override by passing the same argument to `loa
     print(AuthorSchema().load(dump_data, transient=True).data)
     # <Author(name='John Steinbeck')>
 
+Note that this transience will propagate to across relationships (i.e. auto-generated schemas for nested items will also be transient).
+
 See `State Management <https://docs.sqlalchemy.org/en/latest/orm/session_state_management.html>`_ to understand session state management.
