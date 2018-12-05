@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from collections import OrderedDict
-
 import marshmallow as ma
 from marshmallow.compat import with_metaclass, iteritems
 from sqlalchemy.ext.associationproxy import AssociationProxy
@@ -199,7 +197,11 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
             for key, value in iteritems(data):
                 setattr(instance, key, value)
             return instance
-        return self.opts.model(**self._sort_keys(data))
+        kwargs, association_attrs = self._split_model_kwargs_association(data)
+        instance = self.opts.model(**kwargs)
+        for attr, value in iteritems(association_attrs):
+            setattr(instance, attr, value)
+        return instance
 
     def load(self, data, session=None, instance=None, transient=False, *args, **kwargs):
         """Deserialize data to internal representation.
@@ -224,18 +226,23 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
             raise ValueError('Validation requires a session')
         return super(ModelSchema, self).validate(data, *args, **kwargs)
 
-    def _sort_keys(self, data):
-        """Sort serialized keys to ensure association proxies are passed last.
+    def _split_model_kwargs_association(self, data):
+        """Split serialized attrs to ensure association proxies are passed separately.
 
-        :param data: serialized dictionary to sort.
+        This is necessary for Python < 3.6.0, as the order in which kwargs are passed
+        is non-deterministic, and associations must be parsed by sqlalchemy after their
+        intermediate relationship, unless their `creator` has been set.
+
+        :param data: serialized dictionary of attrs to split on association_proxy.
         """
-        return OrderedDict({
+        association_attrs = {
             key: value
-            for key, value in sorted(
-                iteritems(data),
-                key=lambda attr_tpl: isinstance(
-                    getattr(self.opts.model, attr_tpl[0]),
-                    AssociationProxy,
-                ),
-            )
-        })
+            for key, value in iteritems(data)
+            if isinstance(getattr(self.opts.model, key), AssociationProxy)
+        }
+        kwargs = {
+            key: value
+            for key, value in iteritems(data)
+            if key not in association_attrs
+        }
+        return kwargs, association_attrs
