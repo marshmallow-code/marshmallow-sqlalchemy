@@ -6,6 +6,7 @@ import decimal
 from collections import OrderedDict
 
 import sqlalchemy as sa
+from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
 from sqlalchemy.dialects import postgresql
@@ -117,6 +118,10 @@ def models(Base):
 
         current_school_id = sa.Column(sa.Integer, sa.ForeignKey(School.id), nullable=False)
         current_school = relationship(School, backref=backref('students'))
+        possible_teachers = association_proxy(
+            'current_school',
+            'teachers',
+        )
 
         courses = relationship(
             'Course',
@@ -183,6 +188,19 @@ def models(Base):
 
         label = column_property(title + ': ' + semester)
 
+    lecturekeywords_table = sa.Table(
+        'lecturekeywords',
+        Base.metadata,
+        sa.Column('keyword_id', sa.Integer, sa.ForeignKey('keyword.id')),
+        sa.Column('lecture_id', sa.Integer, sa.ForeignKey('lecture.id')),
+    )
+
+    class Keyword(Base):
+        __tablename__ = 'keyword'
+
+        id = sa.Column(sa.Integer, primary_key=True)
+        keyword = sa.Column(sa.String)
+
     class Lecture(Base):
         __tablename__ = 'lecture'
         __table_args__ = (
@@ -200,6 +218,10 @@ def models(Base):
             Seminar, foreign_keys=[seminar_title, seminar_semester],
             backref='lectures',
         )
+        kw = relationship('Keyword', secondary=lecturekeywords_table)
+        keywords = association_proxy(
+            'kw', 'keyword', creator=lambda kw: Keyword(keyword=kw),
+        )
 
     # So that we can access models with dot-notation, e.g. models.Course
     class _models(object):
@@ -213,6 +235,7 @@ def models(Base):
             self.GradedPaper = GradedPaper
             self.Seminar = Seminar
             self.Lecture = Lecture
+            self.Keyword = Keyword
     return _models()
 
 class MyDateField(fields.Date):
@@ -605,8 +628,32 @@ class TestModelSchema:
         return school_
 
     @pytest.fixture()
+    def school_with_teachers(self, models, session):
+        school_with_teachers_ = models.School(name='School of Hard Knocks')
+        school_with_teachers_.teachers = [
+            models.Teacher(full_name='Teachy McTeachFace'),
+            models.Teacher(full_name='Another Teacher'),
+        ]
+        session.add(school_with_teachers_)
+        session.flush()
+        return school_with_teachers_
+
+    @pytest.fixture()
     def student(self, models, school, session):
-        student_ = models.Student(full_name='Monty Python', current_school=school)
+        student_ = models.Student(
+            full_name='Monty Python',
+            current_school=school,
+        )
+        session.add(student_)
+        session.flush()
+        return student_
+
+    @pytest.fixture()
+    def student_with_teachers(self, models, school_with_teachers, session):
+        student_ = models.Student(
+            full_name='Monty Python',
+            current_school=school_with_teachers,
+        )
         session.add(student_)
         session.flush()
         return student_
@@ -635,6 +682,7 @@ class TestModelSchema:
     @pytest.fixture()
     def lecture(self, models, session, seminar):
         lecture_ = models.Lecture(topic='force', seminar=seminar)
+        lecture_.keywords.extend(['Newton\'s Laws', 'Friction'])
         session.add(lecture_)
         session.flush()
         return lecture_
@@ -1047,22 +1095,84 @@ class TestModelSchema:
         state = sa.inspect(load_data)
         assert state.transient
 
-    def test_transient_schema_with_relationship(self, models, student):
+    def test_transient_schema_with_relationship(self, models, student_with_teachers, session):
         class StudentSchemaTransient(ModelSchema):
             class Meta:
                 model = models.Student
                 transient = True
 
         sch = StudentSchemaTransient()
-        dump_data = unpack(sch.dump(student))
+        dump_data = unpack(sch.dump(student_with_teachers))
         load_data = unpack(sch.load(dump_data))
         assert isinstance(load_data, models.Student)
         state = sa.inspect(load_data)
         assert state.transient
+
         school = load_data.current_school
         assert isinstance(school, models.School)
         school_state = sa.inspect(school)
         assert school_state.transient
+
+    def test_transient_schema_with_association(self, models, student_with_teachers):
+        class StudentSchemaTransient(ModelSchema):
+            class Meta:
+                model = models.Student
+                transient = True
+
+            possible_teachers = field_for(
+                models.School,
+                'teachers',
+                attribute='possible_teachers',
+            )
+
+        sch = StudentSchemaTransient()
+        dump_data = unpack(sch.dump(student_with_teachers))
+        load_data = unpack(sch.load(dump_data))
+        assert isinstance(load_data, models.Student)
+        state = sa.inspect(load_data)
+        assert state.transient
+
+        school = load_data.current_school
+        assert isinstance(school, models.School)
+        school_state = sa.inspect(school)
+        assert school_state.transient
+
+        possible_teachers = load_data.possible_teachers
+        assert possible_teachers
+        assert school.teachers == load_data.possible_teachers
+        assert sa.inspect(possible_teachers[0]).transient
+
+    def test_transient_schema_with_implicit_association(self, models, lecture):
+        """Test for transient implicit creation of associated objects."""
+        class LectureSchemaTransient(ModelSchema):
+            class Meta:
+                model = models.Lecture
+                transient = True
+
+            keywords = field_for(
+                models.Keyword,
+                'keyword',
+                attribute='keywords',
+                field_class=fields.List,
+                cls_or_instance=fields.Str,
+            )
+
+        sch = LectureSchemaTransient()
+        dump_data = unpack(sch.dump(lecture))
+        del dump_data['kw']
+        load_data = unpack(sch.load(dump_data))
+        assert isinstance(load_data, models.Lecture)
+        state = sa.inspect(load_data)
+        assert state.transient
+
+        kw_objects = load_data.kw
+        assert kw_objects
+        for keyword in kw_objects:
+            assert isinstance(keyword, models.Keyword)
+            assert sa.inspect(keyword).transient
+
+        keywords = set([kw.keyword for kw in kw_objects])
+        assert keywords == set(load_data.keywords)
 
 
 class TestNullForeignKey:

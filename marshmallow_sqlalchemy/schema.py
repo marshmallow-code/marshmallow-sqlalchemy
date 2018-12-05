@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+from collections import OrderedDict
+
 import marshmallow as ma
 from marshmallow.compat import with_metaclass, iteritems
+from sqlalchemy.ext.associationproxy import AssociationProxy
 
 from .convert import ModelConverter
 from .fields import get_primary_keys
@@ -196,7 +199,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
             for key, value in iteritems(data):
                 setattr(instance, key, value)
             return instance
-        return self.opts.model(**data)
+        return self.opts.model(**self._sort_keys(data))
 
     def load(self, data, session=None, instance=None, transient=False, *args, **kwargs):
         """Deserialize data to internal representation.
@@ -220,3 +223,19 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         if not self.session:
             raise ValueError('Validation requires a session')
         return super(ModelSchema, self).validate(data, *args, **kwargs)
+
+    def _sort_keys(self, data):
+        """Sort serialized keys to ensure association proxies are passed last.
+
+        :param data: serialized dictionary to sort.
+        """
+        return OrderedDict({
+            key: value
+            for key, value in sorted(
+                iteritems(data),
+                key=lambda attr_tpl: isinstance(
+                    getattr(self.opts.model, attr_tpl[0]),
+                    AssociationProxy,
+                ),
+            )
+        })
