@@ -1,22 +1,28 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
-import uuid
+
 import datetime as dt
 import decimal
+import uuid
 from collections import OrderedDict
 
-import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
-from sqlalchemy.dialects import postgresql
-
 import marshmallow
-from marshmallow import Schema, fields, validate, post_load, ValidationError
-
 import pytest
+import sqlalchemy as sa
+from marshmallow import Schema, ValidationError, fields, post_load, validate
+from sqlalchemy.dialects import postgresql
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import backref, column_property, relationship, sessionmaker
+
 from marshmallow_sqlalchemy import (
-    fields_for_model, TableSchema, ModelSchema, ModelConverter, property2field, column2field,
-    field_for, ModelConversionError,
+    ModelConversionError,
+    ModelConverter,
+    ModelSchema,
+    TableSchema,
+    column2field,
+    field_for,
+    fields_for_model,
+    property2field,
 )
 from marshmallow_sqlalchemy.fields import Related, RelatedList
 
@@ -35,13 +41,16 @@ def contains_validator(field, v_type):
             return v
     return False
 
+
 class AnotherInteger(sa.Integer):
     """Use me to test if MRO works like we want"""
     pass
 
+
 class AnotherText(sa.types.TypeDecorator):
     """Use me to test if MRO and `impl` virtual type works like we want"""
     impl = sa.UnicodeText
+
 
 @pytest.fixture()
 def Base():
@@ -62,7 +71,6 @@ def session(Base, models, engine):
 
 @pytest.fixture()
 def models(Base):
-
     # models adapted from https://github.com/wtforms/wtforms-sqlalchemy/blob/master/tests/tests.py
     student_course = sa.Table(
         'student_course', Base.metadata,
@@ -213,10 +221,13 @@ def models(Base):
             self.GradedPaper = GradedPaper
             self.Seminar = Seminar
             self.Lecture = Lecture
+
     return _models()
+
 
 class MyDateField(fields.Date):
     pass
+
 
 @pytest.fixture()
 def schemas(models, session):
@@ -283,6 +294,7 @@ def schemas(models, session):
             model = models.Seminar
             sqla_session = session
             strict = True  # for testing marshmallow 2
+
         label = fields.Str()
 
     class LectureSchema(ModelSchema):
@@ -305,6 +317,7 @@ def schemas(models, session):
             self.HyperlinkStudentSchema = HyperlinkStudentSchema
             self.SeminarSchema = SeminarSchema
             self.LectureSchema = LectureSchema
+
     return _schemas()
 
 
@@ -319,7 +332,7 @@ class TestModelFieldConversion:
         assert type(fields_['date_created']) is fields.DateTime
 
     def test_fields_for_model_handles_exclude(self, models):
-        fields_ = fields_for_model(models.Student, exclude=('dob', ))
+        fields_ = fields_for_model(models.Student, exclude=('dob',))
         assert type(fields_['id']) is fields.Int
         assert type(fields_['full_name']) is fields.Str
         assert fields_['dob'] is None
@@ -384,8 +397,10 @@ class TestModelFieldConversion:
         assert validator.max == 1000
         assert field.required
 
+
 def make_property(*column_args, **column_kwargs):
     return column_property(sa.Column(*column_args, **column_kwargs))
+
 
 class TestPropertyFieldConversion:
 
@@ -511,6 +526,7 @@ class TestPropertyFieldConversion:
         field = converter.property2field(prop)
         assert field.required is False
 
+
 class TestPropToFieldClass:
 
     def test_property2field(self):
@@ -526,6 +542,7 @@ class TestPropToFieldClass:
         prop = make_property(sa.String())
         field = property2field(prop, instance=True, description='just a string')
         assert field.metadata['description'] == 'just a string'
+
 
 class TestColumnToFieldClass:
 
@@ -547,6 +564,7 @@ class TestColumnToFieldClass:
         class UUIDType(sa.types.TypeDecorator):
             python_type = uuid.UUID
             impl = sa.BINARY(16)
+
         column = sa.Column(UUIDType)
         assert issubclass(column.type.python_type, uuid.UUID)  # Test against test check
         assert hasattr(column.type, 'length')  # Test against test check
@@ -555,6 +573,7 @@ class TestColumnToFieldClass:
 
         uuid_val = uuid.uuid4()
         assert field.deserialize(str(uuid_val)) == uuid_val
+
 
 class TestFieldFor:
 
@@ -576,6 +595,7 @@ class TestFieldFor:
         field = field_for(models.Student, 'full_name', validate=[])
         assert field.validators == []
 
+
 class TestTableSchema:
 
     @pytest.fixture
@@ -591,9 +611,11 @@ class TestTableSchema:
         class SchoolSchema(TableSchema):
             class Meta:
                 table = models.School.__table__
+
         schema = SchoolSchema()
         data = unpack(schema.dump(school))
         assert data == {'name': 'Univ. of Whales', 'school_id': 1}
+
 
 class TestModelSchema:
 
@@ -836,6 +858,7 @@ class TestModelSchema:
             class Meta:
                 model = models.Student
                 sqla_session = session
+
             current_school = Related(column='name')
 
         schema = StudentSchema()
@@ -891,8 +914,7 @@ class TestModelSchema:
 
         assert dump_data['students'] == dump_data['students']
         assert dump_data['students'] == dump_data2['students']
-        assert [i.full_name for i in school.students] == \
-            dump_data3['students']
+        assert [i.full_name for i in school.students] == dump_data3['students']
 
         assert type(load_data) == models.School
         assert load_data.students == school.students
@@ -931,7 +953,7 @@ class TestModelSchema:
             class Meta:
                 model = models.Student
                 sqla_session = session
-                exclude = ('date_created', )
+                exclude = ('date_created',)
 
         session.commit()
         schema = StudentSchema()
@@ -956,7 +978,7 @@ class TestModelSchema:
             class Meta:
                 model = models.Student
                 sqla_session = session
-                additional = ('date_created', )
+                additional = ('date_created',)
 
         session.commit()
         schema = StudentSchema()
@@ -1000,6 +1022,7 @@ class TestModelSchema:
         class SchoolSchema2(ModelSchema):
             class Meta:
                 model = models.School
+
             students = field_for(models.School, 'students', dump_only=True)
 
             # override for easier testing
@@ -1020,6 +1043,7 @@ class TestModelSchema:
                 sch.load(dump_data, session=session)
             err = excinfo.value
             assert err.messages == {'students': ['Unknown field.']}
+
 
 class TestNullForeignKey:
     @pytest.fixture()
@@ -1058,6 +1082,7 @@ class TestNullForeignKey:
         assert 'substitute' in data
         assert data['substitute'] is None
 
+
 class TestDeserializeObjectThatDNE:
     def test_deserialization_of_seminar_with_many_lectures_that_DNE(
         self, models,
@@ -1081,12 +1106,13 @@ class TestDeserializeObjectThatDNE:
             ],
         }
         deserialized_seminar_object = unpack(seminar_schema.load(seminar_dict, session))
-        # Ensure both nested lecture objects weren't forgotten...
 
-        assert(len(deserialized_seminar_object.lectures) == 2)
+        # Ensure both nested lecture objects weren't forgotten...
+        assert len(deserialized_seminar_object.lectures) == 2
         # Assume that if 1 lecture has a field with the correct String value, all strings
         # were successfully deserialized in nested objects
-        assert(deserialized_seminar_object.lectures[0].topic == "Intro to Ter'Angreal")
+        assert deserialized_seminar_object.lectures[0].topic == "Intro to Ter'Angreal"
+
 
 class TestMarshmallowContext:
     def test_getting_session_from_marshmallow_context(self, session, models):

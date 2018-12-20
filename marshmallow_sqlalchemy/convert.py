@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
-import inspect
 import functools
-
+import inspect
 import uuid
+
 import marshmallow as ma
-from marshmallow import validate, fields
-from sqlalchemy.dialects import postgresql, mysql, mssql
 import sqlalchemy as sa
+from marshmallow import fields, validate
+from sqlalchemy.dialects import mssql, mysql, postgresql
 
 from .exceptions import ModelConversionError
 from .fields import Related, RelatedList
+
 
 def _is_field(value):
     return (
         isinstance(value, type) and
         issubclass(value, fields.Field)
     )
+
 
 def _has_default(column):
     return (
@@ -24,17 +26,20 @@ def _has_default(column):
         _is_auto_increment(column)
     )
 
+
 def _is_auto_increment(column):
     return (
         column.table is not None and
         column is column.table._autoincrement_column
     )
 
+
 def _postgres_array_factory(converter, data_type):
     return functools.partial(
         fields.List,
         converter._get_field_class_for_data_type(data_type.item_type),
     )
+
 
 class ModelConverter(object):
     """Class that converts a SQLAlchemy model into a dictionary of corresponding

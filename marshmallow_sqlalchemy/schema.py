@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import marshmallow as ma
-from marshmallow.compat import with_metaclass, iteritems
+from marshmallow.compat import iteritems, with_metaclass
 
 from .convert import ModelConverter
 from .fields import get_primary_keys
@@ -22,6 +22,7 @@ class TableSchemaOpts(ma.SchemaOpts):
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)
         self.include_fk = getattr(meta, 'include_fk', False)
 
+
 class ModelSchemaOpts(ma.SchemaOpts):
     """Options class for `ModelSchema`.
     Adds the following options:
@@ -40,6 +41,7 @@ class ModelSchemaOpts(ma.SchemaOpts):
         self.sqla_session = getattr(meta, 'sqla_session', None)
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)
         self.include_fk = getattr(meta, 'include_fk', False)
+
 
 class SchemaMeta(ma.schema.SchemaMeta):
     """Metaclass for `ModelSchema`."""
@@ -65,6 +67,7 @@ class SchemaMeta(ma.schema.SchemaMeta):
     def get_fields(mcs, converter, base_fields, opts):
         pass
 
+
 class TableSchemaMeta(SchemaMeta):
 
     @classmethod
@@ -80,6 +83,7 @@ class TableSchemaMeta(SchemaMeta):
             )
         return dict_cls()
 
+
 class ModelSchemaMeta(SchemaMeta):
 
     @classmethod
@@ -94,6 +98,7 @@ class ModelSchemaMeta(SchemaMeta):
                 dict_cls=dict_cls,
             )
         return dict_cls()
+
 
 class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):
     """Base class for SQLAlchemy model-based Schemas.
@@ -114,6 +119,7 @@ class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):
         serialized = schema.dump(user).data
     """
     OPTIONS_CLASS = TableSchemaOpts
+
 
 class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
     """Base class for SQLAlchemy model-based Schemas.

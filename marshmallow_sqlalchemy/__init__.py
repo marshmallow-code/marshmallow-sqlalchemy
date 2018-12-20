@@ -1,13 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
 
-from .schema import (
-    TableSchemaOpts,
-    ModelSchemaOpts,
-    TableSchema,
-    ModelSchema,
-)
-
 from .convert import (
     ModelConverter,
     fields_for_model,
@@ -15,6 +8,14 @@ from .convert import (
     column2field,
     field_for,
 )
+
+from .schema import (
+    TableSchemaOpts,
+    ModelSchemaOpts,
+    TableSchema,
+    ModelSchema,
+)
+
 from .exceptions import ModelConversionError
 
 __version__ = '0.15.0'

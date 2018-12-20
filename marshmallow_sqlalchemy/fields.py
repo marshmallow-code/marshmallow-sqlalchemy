@@ -2,9 +2,9 @@
 
 from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
-
-from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.associationproxy import AssociationProxy
+from sqlalchemy.orm.exc import NoResultFound
+
 
 def get_primary_keys(model):
     """Get primary key properties for a SQLAlchemy model.
@@ -17,14 +17,17 @@ def get_primary_keys(model):
         for column in mapper.primary_key
     ]
 
+
 def get_schema_for_field(field):
     if hasattr(field, 'root'):  # marshmallow>=2.1
         return field.root
     else:
         return field.parent
 
+
 def ensure_list(value):
     return value if is_iterable_but_not_string(value) else [value]
+
 
 class RelatedList(fields.List):
 
@@ -34,6 +37,7 @@ class RelatedList(fields.List):
         # Instead call the `get_value` from the parent of `fields.List`
         # so the special handling is avoided.
         return super(fields.List, self).get_value(obj, attr, accessor=accessor)
+
 
 class Related(fields.Field):
     """Related data represented by a SQLAlchemy `relationship`. Must be attached
