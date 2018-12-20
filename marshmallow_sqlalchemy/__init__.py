@@ -4,6 +4,7 @@ from __future__ import absolute_import
 from .convert import (
     ModelConverter,
     fields_for_model,
+    fields_for_table,
     property2field,
     column2field,
     field_for,
@@ -28,6 +29,7 @@ __all__ = [
     'ModelSchemaOpts',
     'ModelConverter',
     'fields_for_model',
+    'fields_for_table',
     'property2field',
     'column2field',
     'ModelConversionError',

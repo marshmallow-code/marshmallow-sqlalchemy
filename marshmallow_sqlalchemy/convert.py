@@ -284,6 +284,15 @@ given model.
 :return: dict of field_name: Field instance pairs
 """
 
+fields_for_table = default_converter.fields_for_table
+"""Generate a dict of field_name: `marshmallow.fields.Field` pairs for the
+given table.
+
+:param table: The SQLAlchemy table
+:param bool include_fk: Whether to include foreign key fields in the output.
+:return: dict of field_name: Field instance pairs
+"""
+
 property2field = default_converter.property2field
 """Convert a SQLAlchemy `Property` to a field instance or class.
 
