@@ -146,6 +146,7 @@ class ModelConverter(object):
             return field_class
         field_kwargs = self.get_base_kwargs()
         self._add_column_kwargs(field_kwargs, column)
+        self._apply_field_kwargs_overrides(field_kwargs, column)
         field_kwargs.update(kwargs)
         return field_class(**field_kwargs)
 
@@ -209,7 +210,11 @@ class ModelConverter(object):
             self._add_relationship_kwargs(kwargs, prop)
         if getattr(prop, 'doc', None):  # Useful for documentation generation
             kwargs['description'] = prop.doc
-        info = getattr(prop, 'info', dict())
+        self._apply_field_kwargs_overrides(kwargs, prop)
+        return kwargs
+
+    def _apply_field_kwargs_overrides(self, kwargs, prop_or_column):
+        info = getattr(prop_or_column, 'info', dict())
         overrides = info.get('marshmallow')
         if overrides is not None:
             validate = overrides.pop('validate', [])
@@ -218,7 +223,6 @@ class ModelConverter(object):
                 validate,
             )  # Ensure we do not override the generated validators.
             kwargs.update(overrides)  # Override other kwargs.
-        return kwargs
 
     def _add_column_kwargs(self, kwargs, column):
         """Add keyword arguments to kwargs (in-place) based on the passed in

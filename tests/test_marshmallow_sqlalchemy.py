@@ -22,6 +22,7 @@ from marshmallow_sqlalchemy import (
     column2field,
     field_for,
     fields_for_model,
+    fields_for_table,
     property2field,
 )
 from marshmallow_sqlalchemy.fields import Related, RelatedList
@@ -615,6 +616,13 @@ class TestTableSchema:
         schema = SchoolSchema()
         data = unpack(schema.dump(school))
         assert data == {'name': 'Univ. of Whales', 'school_id': 1}
+
+    def test_info_overrides(self, models):
+        fields_ = fields_for_table(models.Course.__table__)
+        field = fields_['description']
+        validator = contains_validator(field, validate.Length)
+        assert validator.max == 1000
+        assert field.required
 
 
 class TestModelSchema:

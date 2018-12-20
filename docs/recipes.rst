@@ -156,6 +156,25 @@ You can customize the keyword arguments passed to a column property's correspond
             ),
         )
 
+or
+
+.. code-block:: python
+
+    import sqlalchemy as sa
+
+    books = sa.Table('books',
+        # ...
+
+        sa.Column(
+            'abstract',
+            sa.Text(),
+            info=dict(
+                marshmallow=dict(required=True),
+            ),
+        )
+    )
+
+
 
 Automatically Generating Schemas For SQLAlchemy Models
 ======================================================
