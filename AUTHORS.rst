@@ -28,3 +28,4 @@ Contributors
 - Jared Deckard `@deckar01 <https://github.com/deckar01>`_
 - AbdealiJK `@AbdealiJK <https://github.com/AbdealiJK>`_
 - jean-philippe serafin `@jeanphix <https://github.com/jeanphix>`_
+- Nikita Koshelev `@nkoshell <http://github.com/nkohsell>`_
