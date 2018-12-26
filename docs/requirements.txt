@@ -1,5 +1,5 @@
 marshmallow>=2.0.0b4
 SQLAlchemy>=0.7
-sphinx==1.8.2
+sphinx==1.8.3
 alabaster==0.7.12
 sphinx-issues==1.1.0
