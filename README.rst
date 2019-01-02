@@ -2,7 +2,7 @@
 marshmallow-sqlalchemy
 **********************
 
-|pypi-package| |build-status| |docs| |marshmallow3|
+|pypi-package| |build-status| |docs| |marshmallow23|
 
 Homepage: https://marshmallow-sqlalchemy.readthedocs.io/
 
@@ -101,15 +101,15 @@ License
 MIT licensed. See the bundled `LICENSE <https://github.com/marshmallow-code/marshmallow-sqlalchemy/blob/dev/LICENSE>`_ file for more details.
 
 
-.. |pypi-package| image:: https://badge.fury.io/py/marshmallow-sqlalchemy.svg
+.. |pypi-package| image:: https://badgen.net/pypi/v/marshmallow-sqlalchemy
     :target: http://badge.fury.io/py/marshmallow-sqlalchemy
     :alt: Latest version
-.. |build-status| image:: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy.svg?branch=dev
+.. |build-status| image:: https://badgen.net/travis/marshmallow-code/marshmallow-sqlalchemy/dev
     :target: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy
     :alt: Travis-CI
 .. |docs| image:: https://readthedocs.org/projects/marshmallow-sqlalchemy/badge/
    :target: http://marshmallow-sqlalchemy.readthedocs.io/
    :alt: Documentation
-.. |marshmallow3| image:: https://img.shields.io/badge/marshmallow-3-blue.svg
+.. |marshmallow23| image:: https://badgen.net/badge/marshmallow/2,3?list=1
     :target: https://marshmallow.readthedocs.io/en/latest/upgrading.html
     :alt: marshmallow 3 compatible
