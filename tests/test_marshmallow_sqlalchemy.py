@@ -692,7 +692,8 @@ class TestModelSchema:
         assert data['current_school'] == student.current_school.id
 
     def test_model_schema_loading(self, models, schemas, student, session):
-        schema = schemas.StudentSchema(unknown=marshmallow.INCLUDE)
+        schema_kwargs = {'unknown': marshmallow.INCLUDE} if MARSHMALLOW_VERSION_INFO[0] >= 3 else {}
+        schema = schemas.StudentSchema(**schema_kwargs)
         dump_data = unpack(schema.dump(student))
         load_data = unpack(schema.load(dump_data))
 
