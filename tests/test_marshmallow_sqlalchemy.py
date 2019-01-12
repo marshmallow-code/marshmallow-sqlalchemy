@@ -1095,6 +1095,25 @@ class TestModelSchema:
         state = sa.inspect(load_data)
         assert state.transient
 
+    def test_transient_load_with_unknown_include(self, models, session, school):
+        if MARSHMALLOW_VERSION_INFO[0] < 3:
+            return
+
+        class SchoolSchemaTransient(ModelSchema):
+            class Meta:
+                model = models.School
+                sqla_session = session
+                unknown = marshmallow.INCLUDE
+
+        sch = SchoolSchemaTransient()
+        dump_data = unpack(sch.dump(school))
+        dump_data['foo'] = 'bar'
+        load_data = unpack(sch.load(dump_data, transient=True))
+
+        assert isinstance(load_data, models.School)
+        state = sa.inspect(load_data)
+        assert state.transient
+
     def test_transient_schema_with_relationship(self, models, student_with_teachers, session):
         class StudentSchemaTransient(ModelSchema):
             class Meta:

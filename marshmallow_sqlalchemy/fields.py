@@ -104,8 +104,6 @@ class Related(fields.Field):
             value = {self.related_keys[0].key: value}
         if self.transient:
             return self.related_model(**value)
-        if not self.session:
-            raise ValueError('Deserialization requires a session!')
         try:
             result = self._get_existing_instance(
                 self.session.query(self.related_model),

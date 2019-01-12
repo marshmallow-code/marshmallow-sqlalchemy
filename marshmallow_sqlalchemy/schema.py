@@ -208,7 +208,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
 
         :param session: Optional SQLAlchemy session.
         :param instance: Optional existing instance to modify.
-        :param transient: Optional switch to allow tranient instantiation.
+        :param transient: Optional switch to allow transient instantiation.
         """
         self._session = session or self._session
         self._transient = transient or self._transient
@@ -222,7 +222,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
 
     def validate(self, data, session=None, *args, **kwargs):
         self._session = session or self._session
-        if not self.session:
+        if not (self.transient or self.session):
             raise ValueError('Validation requires a session')
         return super(ModelSchema, self).validate(data, *args, **kwargs)
 
@@ -233,16 +233,21 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         is non-deterministic, and associations must be parsed by sqlalchemy after their
         intermediate relationship, unless their `creator` has been set.
 
+        Ignore invalid keys at this point - behaviour for unknowns should be
+        handled elsewhere.
+
         :param data: serialized dictionary of attrs to split on association_proxy.
         """
         association_attrs = {
             key: value
             for key, value in iteritems(data)
-            if isinstance(getattr(self.opts.model, key), AssociationProxy)
+            if isinstance(getattr(self.opts.model, key, None), AssociationProxy)
         }
         kwargs = {
             key: value
             for key, value in iteritems(data)
-            if key not in association_attrs
+            if (
+                hasattr(self.opts.model, key) and key not in association_attrs
+            )
         }
         return kwargs, association_attrs
