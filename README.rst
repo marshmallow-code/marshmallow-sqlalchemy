@@ -102,7 +102,7 @@ MIT licensed. See the bundled `LICENSE <https://github.com/marshmallow-code/mars
 
 
 .. |pypi-package| image:: https://badgen.net/pypi/v/marshmallow-sqlalchemy
-    :target: http://badge.fury.io/py/marshmallow-sqlalchemy
+    :target: https://pypi.org/project/marshmallow-sqlalchemy/
     :alt: Latest version
 .. |build-status| image:: https://badgen.net/travis/marshmallow-code/marshmallow-sqlalchemy/dev
     :target: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy
