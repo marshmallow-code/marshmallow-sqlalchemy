@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.16.0 (unreleased)
++++++++++++++++++++
+
+Features:
+
+* Add support for deserializing transient objects (:issue:`62`).
+  Thanks :user:`jacksmith15` for the PR.
+
 0.15.0 (2018-11-05)
 +++++++++++++++++++
 
