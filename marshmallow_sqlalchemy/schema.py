@@ -19,9 +19,10 @@ class TableSchemaOpts(ma.SchemaOpts):
 
     def __init__(self, meta, *args, **kwargs):
         super(TableSchemaOpts, self).__init__(meta, *args, **kwargs)
-        self.table = getattr(meta, 'table', None)
-        self.model_converter = getattr(meta, 'model_converter', ModelConverter)
-        self.include_fk = getattr(meta, 'include_fk', False)
+        self.table = getattr(meta, "table", None)
+        self.model_converter = getattr(meta, "model_converter", ModelConverter)
+        self.include_fk = getattr(meta, "include_fk", False)
+
 
 class ModelSchemaOpts(ma.SchemaOpts):
     """Options class for `ModelSchema`.
@@ -39,11 +40,12 @@ class ModelSchemaOpts(ma.SchemaOpts):
 
     def __init__(self, meta, *args, **kwargs):
         super(ModelSchemaOpts, self).__init__(meta, *args, **kwargs)
-        self.model = getattr(meta, 'model', None)
-        self.sqla_session = getattr(meta, 'sqla_session', None)
-        self.model_converter = getattr(meta, 'model_converter', ModelConverter)
-        self.include_fk = getattr(meta, 'include_fk', False)
-        self.transient = getattr(meta, 'transient', False)
+        self.model = getattr(meta, "model", None)
+        self.sqla_session = getattr(meta, "sqla_session", None)
+        self.model_converter = getattr(meta, "model_converter", ModelConverter)
+        self.include_fk = getattr(meta, "include_fk", False)
+        self.transient = getattr(meta, "transient", False)
+
 
 class SchemaMeta(ma.schema.SchemaMeta):
     """Metaclass for `ModelSchema`."""
@@ -59,7 +61,7 @@ class SchemaMeta(ma.schema.SchemaMeta):
         Converter = opts.model_converter
         converter = Converter(schema_cls=klass)
         base_fields = super(SchemaMeta, mcs).get_declared_fields(
-            klass, cls_fields, inherited_fields, dict_cls,
+            klass, cls_fields, inherited_fields, dict_cls
         )
         declared_fields = mcs.get_fields(converter, opts, base_fields, dict_cls)
         declared_fields.update(base_fields)
@@ -69,8 +71,8 @@ class SchemaMeta(ma.schema.SchemaMeta):
     def get_fields(mcs, converter, base_fields, opts):
         pass
 
-class TableSchemaMeta(SchemaMeta):
 
+class TableSchemaMeta(SchemaMeta):
     @classmethod
     def get_fields(mcs, converter, opts, base_fields, dict_cls):
         if opts.table is not None:
@@ -84,8 +86,8 @@ class TableSchemaMeta(SchemaMeta):
             )
         return dict_cls()
 
-class ModelSchemaMeta(SchemaMeta):
 
+class ModelSchemaMeta(SchemaMeta):
     @classmethod
     def get_fields(mcs, converter, opts, base_fields, dict_cls):
         if opts.model is not None:
@@ -98,6 +100,7 @@ class ModelSchemaMeta(SchemaMeta):
                 dict_cls=dict_cls,
             )
         return dict_cls()
+
 
 class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):
     """Base class for SQLAlchemy model-based Schemas.
@@ -117,7 +120,9 @@ class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):
         user = engine.execute(select).fetchone()
         serialized = schema.dump(user).data
     """
+
     OPTIONS_CLASS = TableSchemaOpts
+
 
 class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
     """Base class for SQLAlchemy model-based Schemas.
@@ -139,6 +144,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
     :param session: Optional SQLAlchemy session; may be overridden in `load.`
     :param instance: Optional existing instance to modify; may be overridden in `load`.
     """
+
     OPTIONS_CLASS = ModelSchemaOpts
 
     @property
@@ -158,9 +164,9 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         self._transient = transient
 
     def __init__(self, *args, **kwargs):
-        self._session = kwargs.pop('session', None)
-        self.instance = kwargs.pop('instance', None)
-        self._transient = kwargs.pop('transient', None)
+        self._session = kwargs.pop("session", None)
+        self.instance = kwargs.pop("instance", None)
+        self._transient = kwargs.pop("transient", None)
         super(ModelSchema, self).__init__(*args, **kwargs)
 
     def get_instance(self, data):
@@ -172,16 +178,9 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         if self.transient:
             return None
         props = get_primary_keys(self.opts.model)
-        filters = {
-            prop.key: data.get(prop.key)
-            for prop in props
-        }
+        filters = {prop.key: data.get(prop.key) for prop in props}
         if None not in filters.values():
-            return self.session.query(
-                self.opts.model,
-            ).filter_by(
-                **filters
-            ).first()
+            return self.session.query(self.opts.model).filter_by(**filters).first()
         return None
 
     @ma.post_load
@@ -213,7 +212,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         self._session = session or self._session
         self._transient = transient or self._transient
         if not (self.transient or self.session):
-            raise ValueError('Deserialization requires a session')
+            raise ValueError("Deserialization requires a session")
         self.instance = instance or self.instance
         try:
             return super(ModelSchema, self).load(data, *args, **kwargs)
@@ -223,7 +222,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
     def validate(self, data, session=None, *args, **kwargs):
         self._session = session or self._session
         if not (self.transient or self.session):
-            raise ValueError('Validation requires a session')
+            raise ValueError("Validation requires a session")
         return super(ModelSchema, self).validate(data, *args, **kwargs)
 
     def _split_model_kwargs_association(self, data):
@@ -246,8 +245,6 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         kwargs = {
             key: value
             for key, value in iteritems(data)
-            if (
-                hasattr(self.opts.model, key) and key not in association_attrs
-            )
+            if (hasattr(self.opts.model, key) and key not in association_attrs)
         }
         return kwargs, association_attrs

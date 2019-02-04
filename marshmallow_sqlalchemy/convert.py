@@ -11,30 +11,28 @@ import sqlalchemy as sa
 from .exceptions import ModelConversionError
 from .fields import Related, RelatedList
 
+
 def _is_field(value):
-    return (
-        isinstance(value, type) and
-        issubclass(value, fields.Field)
-    )
+    return isinstance(value, type) and issubclass(value, fields.Field)
+
 
 def _has_default(column):
     return (
-        column.default is not None or
-        column.server_default is not None or
-        _is_auto_increment(column)
+        column.default is not None
+        or column.server_default is not None
+        or _is_auto_increment(column)
     )
 
+
 def _is_auto_increment(column):
-    return (
-        column.table is not None and
-        column is column.table._autoincrement_column
-    )
+    return column.table is not None and column is column.table._autoincrement_column
+
 
 def _postgres_array_factory(converter, data_type):
     return functools.partial(
-        fields.List,
-        converter._get_field_class_for_data_type(data_type.item_type),
+        fields.List, converter._get_field_class_for_data_type(data_type.item_type)
     )
+
 
 class ModelConverter(object):
     """Class that converts a SQLAlchemy model into a dictionary of corresponding
@@ -43,7 +41,6 @@ class ModelConverter(object):
 
     SQLA_TYPE_MAPPING = {
         sa.Enum: fields.Field,
-
         postgresql.BIT: fields.Integer,
         postgresql.UUID: fields.UUID,
         postgresql.MACADDR: fields.String,
@@ -52,22 +49,16 @@ class ModelConverter(object):
         postgresql.JSONB: fields.Raw,
         postgresql.HSTORE: fields.Raw,
         postgresql.ARRAY: _postgres_array_factory,
-
         mysql.BIT: fields.Integer,
         mysql.YEAR: fields.Integer,
         mysql.SET: fields.List,
         mysql.ENUM: fields.Field,
-
         mssql.BIT: fields.Integer,
     }
-    if hasattr(sa, 'JSON'):
+    if hasattr(sa, "JSON"):
         SQLA_TYPE_MAPPING[sa.JSON] = fields.Raw
 
-    DIRECTION_MAPPING = {
-        'MANYTOONE': False,
-        'MANYTOMANY': True,
-        'ONETOMANY': True,
-    }
+    DIRECTION_MAPPING = {"MANYTOONE": False, "MANYTOMANY": True, "ONETOMANY": True}
 
     def __init__(self, schema_cls=None):
         self.schema_cls = schema_cls
@@ -80,7 +71,12 @@ class ModelConverter(object):
             return ma.Schema.TYPE_MAPPING
 
     def fields_for_model(
-        self, model, include_fk=False, fields=None, exclude=None, base_fields=None,
+        self,
+        model,
+        include_fk=False,
+        fields=None,
+        exclude=None,
+        base_fields=None,
         dict_cls=dict,
     ):
         result = dict_cls()
@@ -90,7 +86,7 @@ class ModelConverter(object):
                 # Allow marshmallow to validate and exclude the field key.
                 result[prop.key] = None
                 continue
-            if hasattr(prop, 'columns'):
+            if hasattr(prop, "columns"):
                 if not include_fk:
                     # Only skip a column if there is no overriden column
                     # which does not have a Foreign Key.
@@ -105,7 +101,12 @@ class ModelConverter(object):
         return result
 
     def fields_for_table(
-        self, table, include_fk=False, fields=None, exclude=None, base_fields=None,
+        self,
+        table,
+        include_fk=False,
+        fields=None,
+        exclude=None,
+        base_fields=None,
         dict_cls=dict,
     ):
         result = dict_cls()
@@ -128,9 +129,9 @@ class ModelConverter(object):
         field_kwargs.update(kwargs)
         ret = field_class(**field_kwargs)
         if (
-            hasattr(prop, 'direction') and
-            self.DIRECTION_MAPPING[prop.direction.name] and
-            prop.uselist is True
+            hasattr(prop, "direction")
+            and self.DIRECTION_MAPPING[prop.direction.name]
+            and prop.uselist is True
         ):
             ret = RelatedList(ret, **kwargs)
         return ret
@@ -171,15 +172,15 @@ class ModelConverter(object):
             if python_type in self.type_mapping:
                 field_cls = self.type_mapping[python_type]
             else:
-                if hasattr(data_type, 'impl'):
+                if hasattr(data_type, "impl"):
                     return self._get_field_class_for_data_type(data_type.impl)
                 raise ModelConversionError(
-                    'Could not find field column of type {0}.'.format(types[0]),
+                    "Could not find field column of type {}.".format(types[0])
                 )
         return field_cls
 
     def _get_field_class_for_property(self, prop):
-        if hasattr(prop, 'direction'):
+        if hasattr(prop, "direction"):
             field_cls = Related
         else:
             column = prop.columns[0]
@@ -196,21 +197,20 @@ class ModelConverter(object):
 
     def _get_field_kwargs_for_property(self, prop):
         kwargs = self.get_base_kwargs()
-        if hasattr(prop, 'columns'):
+        if hasattr(prop, "columns"):
             column = prop.columns[0]
             self._add_column_kwargs(kwargs, column)
             prop = column
-        if hasattr(prop, 'direction'):  # Relationship property
+        if hasattr(prop, "direction"):  # Relationship property
             self._add_relationship_kwargs(kwargs, prop)
-        if getattr(prop, 'doc', None):  # Useful for documentation generation
-            kwargs['description'] = prop.doc
-        info = getattr(prop, 'info', dict())
-        overrides = info.get('marshmallow')
+        if getattr(prop, "doc", None):  # Useful for documentation generation
+            kwargs["description"] = prop.doc
+        info = getattr(prop, "info", dict())
+        overrides = info.get("marshmallow")
         if overrides is not None:
-            validate = overrides.pop('validate', [])
-            kwargs['validate'] = self._merge_validators(
-                kwargs['validate'],
-                validate,
+            validate = overrides.pop("validate", [])
+            kwargs["validate"] = self._merge_validators(
+                kwargs["validate"], validate
             )  # Ensure we do not override the generated validators.
             kwargs.update(overrides)  # Override other kwargs.
         return kwargs
@@ -220,25 +220,25 @@ class ModelConverter(object):
         `Column <sqlalchemy.schema.Column>`.
         """
         if column.nullable:
-            kwargs['allow_none'] = True
-        kwargs['required'] = not column.nullable and not _has_default(column)
+            kwargs["allow_none"] = True
+        kwargs["required"] = not column.nullable and not _has_default(column)
 
-        if hasattr(column.type, 'enums'):
-            kwargs['validate'].append(validate.OneOf(choices=column.type.enums))
+        if hasattr(column.type, "enums"):
+            kwargs["validate"].append(validate.OneOf(choices=column.type.enums))
 
         # Add a length validator if a max length is set on the column
         # Skip UUID columns
         # (see https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/54)
-        if hasattr(column.type, 'length'):
+        if hasattr(column.type, "length"):
             try:
                 python_type = column.type.python_type
             except (AttributeError, NotImplementedError):
                 python_type = None
             if not python_type or not issubclass(python_type, uuid.UUID):
-                kwargs['validate'].append(validate.Length(max=column.type.length))
+                kwargs["validate"].append(validate.Length(max=column.type.length))
 
-        if hasattr(column.type, 'scale'):
-            kwargs['places'] = getattr(column.type, 'scale', None)
+        if hasattr(column.type, "scale"):
+            kwargs["places"] = getattr(column.type, "scale", None)
 
     def _add_relationship_kwargs(self, kwargs, prop):
         """Add keyword arguments to kwargs (in-place) based on the passed in
@@ -250,10 +250,7 @@ class ModelConverter(object):
                 if prop.uselist is True:
                     nullable = False
                 break
-        kwargs.update({
-            'allow_none': nullable,
-            'required': not nullable,
-        })
+        kwargs.update({"allow_none": nullable, "required": not nullable})
 
     def _should_exclude_field(self, column, fields=None, exclude=None):
         if fields and column.key not in fields:
@@ -263,9 +260,7 @@ class ModelConverter(object):
         return False
 
     def get_base_kwargs(self):
-        return {
-            'validate': [],
-        }
+        return {"validate": []}
 
 
 default_converter = ModelConverter()
