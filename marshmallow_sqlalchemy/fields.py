@@ -79,6 +79,11 @@ class Related(fields.Field):
         schema = get_schema_for_field(self)
         return schema.session
 
+    @property
+    def transient(self):
+        schema = get_schema_for_field(self)
+        return schema.transient
+
     def _serialize(self, value, attr, obj):
         ret = {
             prop.key: getattr(value, prop.key, None)
@@ -87,26 +92,46 @@ class Related(fields.Field):
         return ret if len(ret) > 1 else list(ret.values())[0]
 
     def _deserialize(self, value, *args, **kwargs):
+        """Deserialize a serialized value to a model instance.
+
+        If the parent schema is transient, create a new (transient) instance.
+        Otherwise, attempt to find an existing instance in the database.
+        :param value: The value to deserialize.
+        """
         if not isinstance(value, dict):
             if len(self.related_keys) != 1:
                 self.fail('invalid', value=value, keys=[prop.key for prop in self.related_keys])
             value = {self.related_keys[0].key: value}
-        query = self.session.query(self.related_model)
+        if self.transient:
+            return self.related_model(**value)
         try:
-            if self.columns:
-                result = query.filter_by(**{
-                    prop.key: value.get(prop.key)
-                    for prop in self.related_keys
-                }).one()
-            else:
-                # Use a faster path if the related key is the primary key.
-                result = query.get([
-                    value.get(prop.key) for prop in self.related_keys
-                ])
-                if result is None:
-                    raise NoResultFound
+            result = self._get_existing_instance(
+                self.session.query(self.related_model),
+                value,
+            )
         except NoResultFound:
             # The related-object DNE in the DB, but we still want to deserialize it
             # ...perhaps we want to add it to the DB later
             return self.related_model(**value)
+        return result
+
+    def _get_existing_instance(self, query, value):
+        """Retrieve the related object from an existing instance in the DB.
+
+        :param query: A SQLAlchemy `Query <sqlalchemy.orm.query.Query>` object.
+        :param value: The serialized value to mapto an existing instance.
+        :raises NoResultFound: if there is no matching record.
+        """
+        if self.columns:
+            result = query.filter_by(**{
+                prop.key: value.get(prop.key)
+                for prop in self.related_keys
+            }).one()
+        else:
+            # Use a faster path if the related key is the primary key.
+            result = query.get([
+                value.get(prop.key) for prop in self.related_keys
+            ])
+            if result is None:
+                raise NoResultFound
         return result

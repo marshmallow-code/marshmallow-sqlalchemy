@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import marshmallow as ma
 from marshmallow.compat import with_metaclass, iteritems
+from sqlalchemy.ext.associationproxy import AssociationProxy
 
 from .convert import ModelConverter
 from .fields import get_primary_keys
@@ -32,6 +33,8 @@ class ModelSchemaOpts(ma.SchemaOpts):
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
         marshmallow fields.
     - ``include_fk``: Whether to include foreign fields; defaults to `False`.
+    - ``transient``: Whether load model instances in a transient state (effectively ignoring
+        the session).
     """
 
     def __init__(self, meta, *args, **kwargs):
@@ -40,6 +43,7 @@ class ModelSchemaOpts(ma.SchemaOpts):
         self.sqla_session = getattr(meta, 'sqla_session', None)
         self.model_converter = getattr(meta, 'model_converter', ModelConverter)
         self.include_fk = getattr(meta, 'include_fk', False)
+        self.transient = getattr(meta, 'transient', False)
 
 class SchemaMeta(ma.schema.SchemaMeta):
     """Metaclass for `ModelSchema`."""
@@ -145,13 +149,28 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
     def session(self, session):
         self._session = session
 
+    @property
+    def transient(self):
+        return self._transient or self.opts.transient
+
+    @transient.setter
+    def transient(self, transient):
+        self._transient = transient
+
     def __init__(self, *args, **kwargs):
         self._session = kwargs.pop('session', None)
         self.instance = kwargs.pop('instance', None)
+        self._transient = kwargs.pop('transient', None)
         super(ModelSchema, self).__init__(*args, **kwargs)
 
     def get_instance(self, data):
-        """Retrieve an existing record by primary key(s)."""
+        """Retrieve an existing record by primary key(s). If the schema instance
+        is transient, return None.
+
+        :param data: Serialized data to inform lookup.
+        """
+        if self.transient:
+            return None
         props = get_primary_keys(self.opts.model)
         filters = {
             prop.key: data.get(prop.key)
@@ -178,16 +197,22 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
             for key, value in iteritems(data):
                 setattr(instance, key, value)
             return instance
-        return self.opts.model(**data)
+        kwargs, association_attrs = self._split_model_kwargs_association(data)
+        instance = self.opts.model(**kwargs)
+        for attr, value in iteritems(association_attrs):
+            setattr(instance, attr, value)
+        return instance
 
-    def load(self, data, session=None, instance=None, *args, **kwargs):
+    def load(self, data, session=None, instance=None, transient=False, *args, **kwargs):
         """Deserialize data to internal representation.
 
         :param session: Optional SQLAlchemy session.
         :param instance: Optional existing instance to modify.
+        :param transient: Optional switch to allow transient instantiation.
         """
         self._session = session or self._session
-        if not self.session:
+        self._transient = transient or self._transient
+        if not (self.transient or self.session):
             raise ValueError('Deserialization requires a session')
         self.instance = instance or self.instance
         try:
@@ -197,6 +222,32 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
 
     def validate(self, data, session=None, *args, **kwargs):
         self._session = session or self._session
-        if not self.session:
+        if not (self.transient or self.session):
             raise ValueError('Validation requires a session')
         return super(ModelSchema, self).validate(data, *args, **kwargs)
+
+    def _split_model_kwargs_association(self, data):
+        """Split serialized attrs to ensure association proxies are passed separately.
+
+        This is necessary for Python < 3.6.0, as the order in which kwargs are passed
+        is non-deterministic, and associations must be parsed by sqlalchemy after their
+        intermediate relationship, unless their `creator` has been set.
+
+        Ignore invalid keys at this point - behaviour for unknowns should be
+        handled elsewhere.
+
+        :param data: serialized dictionary of attrs to split on association_proxy.
+        """
+        association_attrs = {
+            key: value
+            for key, value in iteritems(data)
+            if isinstance(getattr(self.opts.model, key, None), AssociationProxy)
+        }
+        kwargs = {
+            key: value
+            for key, value in iteritems(data)
+            if (
+                hasattr(self.opts.model, key) and key not in association_attrs
+            )
+        }
+        return kwargs, association_attrs
