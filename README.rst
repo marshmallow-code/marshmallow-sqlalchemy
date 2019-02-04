@@ -2,7 +2,7 @@
 marshmallow-sqlalchemy
 **********************
 
-|pypi-package| |build-status| |docs| |marshmallow23|
+|pypi-package| |build-status| |docs| |marshmallow23| |black|
 
 Homepage: https://marshmallow-sqlalchemy.readthedocs.io/
 
@@ -17,24 +17,27 @@ Declare your models
     from sqlalchemy.ext.declarative import declarative_base
     from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
 
-    engine = sa.create_engine('sqlite:///:memory:')
+    engine = sa.create_engine("sqlite:///:memory:")
     session = scoped_session(sessionmaker(bind=engine))
     Base = declarative_base()
 
+
     class Author(Base):
-        __tablename__ = 'authors'
+        __tablename__ = "authors"
         id = sa.Column(sa.Integer, primary_key=True)
         name = sa.Column(sa.String)
 
         def __repr__(self):
-            return '<Author(name={self.name!r})>'.format(self=self)
+            return "<Author(name={self.name!r})>".format(self=self)
+
 
     class Book(Base):
-        __tablename__ = 'books'
+        __tablename__ = "books"
         id = sa.Column(sa.Integer, primary_key=True)
         title = sa.Column(sa.String)
-        author_id = sa.Column(sa.Integer, sa.ForeignKey('authors.id'))
-        author = relationship("Author", backref=backref('books'))
+        author_id = sa.Column(sa.Integer, sa.ForeignKey("authors.id"))
+        author = relationship("Author", backref=backref("books"))
+
 
     Base.metadata.create_all(engine)
 
@@ -45,9 +48,11 @@ Generate marshmallow schemas
 
     from marshmallow_sqlalchemy import ModelSchema
 
+
     class AuthorSchema(ModelSchema):
         class Meta:
             model = Author
+
 
     class BookSchema(ModelSchema):
         class Meta:
@@ -56,6 +61,7 @@ Generate marshmallow schemas
             # to use for deserialization
             sqla_session = session
 
+
     author_schema = AuthorSchema()
 
 (De)serialize your data
@@ -63,8 +69,8 @@ Generate marshmallow schemas
 
 .. code-block:: python
 
-    author = Author(name='Chuck Paluhniuk')
-    book = Book(title='Fight Club', author=author)
+    author = Author(name="Chuck Paluhniuk")
+    book = Book(title="Fight Club", author=author)
     session.add(author)
     session.add(book)
     session.commit()
@@ -113,3 +119,6 @@ MIT licensed. See the bundled `LICENSE <https://github.com/marshmallow-code/mars
 .. |marshmallow23| image:: https://badgen.net/badge/marshmallow/2,3?list=1
     :target: https://marshmallow.readthedocs.io/en/latest/upgrading.html
     :alt: marshmallow 3 compatible
+.. |black| image:: https://badgen.net/badge/code%20style/black/000
+    :target: https://github.com/ambv/black
+    :alt: code style: black

@@ -6,34 +6,35 @@ from marshmallow.utils import is_iterable_but_not_string
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.ext.associationproxy import AssociationProxy
 
+
 def get_primary_keys(model):
     """Get primary key properties for a SQLAlchemy model.
 
     :param model: SQLAlchemy model class
     """
     mapper = model.__mapper__
-    return [
-        mapper.get_property_by_column(column)
-        for column in mapper.primary_key
-    ]
+    return [mapper.get_property_by_column(column) for column in mapper.primary_key]
+
 
 def get_schema_for_field(field):
-    if hasattr(field, 'root'):  # marshmallow>=2.1
+    if hasattr(field, "root"):  # marshmallow>=2.1
         return field.root
     else:
         return field.parent
 
+
 def ensure_list(value):
     return value if is_iterable_but_not_string(value) else [value]
 
-class RelatedList(fields.List):
 
+class RelatedList(fields.List):
     def get_value(self, obj, attr, accessor=None):
         # Do not call `fields.List`'s get_value as it calls the container's
         # `get_value` if the container has `attribute`.
         # Instead call the `get_value` from the parent of `fields.List`
         # so the special handling is avoided.
         return super(fields.List, self).get_value(obj, attr, accessor=accessor)
+
 
 class Related(fields.Field):
     """Related data represented by a SQLAlchemy `relationship`. Must be attached
@@ -45,8 +46,8 @@ class Related(fields.Field):
     """
 
     default_error_messages = {
-        'invalid': 'Could not deserialize related value {value!r}; '
-                   'expected a dictionary with keys {keys!r}',
+        "invalid": "Could not deserialize related value {value!r}; "
+        "expected a dictionary with keys {keys!r}"
     }
 
     def __init__(self, column=None, **kwargs):
@@ -69,8 +70,7 @@ class Related(fields.Field):
     def related_keys(self):
         if self.columns:
             return [
-                self.related_model.__mapper__.columns[column]
-                for column in self.columns
+                self.related_model.__mapper__.columns[column] for column in self.columns
             ]
         return get_primary_keys(self.related_model)
 
@@ -85,10 +85,7 @@ class Related(fields.Field):
         return schema.transient
 
     def _serialize(self, value, attr, obj):
-        ret = {
-            prop.key: getattr(value, prop.key, None)
-            for prop in self.related_keys
-        }
+        ret = {prop.key: getattr(value, prop.key, None) for prop in self.related_keys}
         return ret if len(ret) > 1 else list(ret.values())[0]
 
     def _deserialize(self, value, *args, **kwargs):
@@ -100,14 +97,17 @@ class Related(fields.Field):
         """
         if not isinstance(value, dict):
             if len(self.related_keys) != 1:
-                self.fail('invalid', value=value, keys=[prop.key for prop in self.related_keys])
+                self.fail(
+                    "invalid",
+                    value=value,
+                    keys=[prop.key for prop in self.related_keys],
+                )
             value = {self.related_keys[0].key: value}
         if self.transient:
             return self.related_model(**value)
         try:
             result = self._get_existing_instance(
-                self.session.query(self.related_model),
-                value,
+                self.session.query(self.related_model), value
             )
         except NoResultFound:
             # The related-object DNE in the DB, but we still want to deserialize it
@@ -123,15 +123,12 @@ class Related(fields.Field):
         :raises NoResultFound: if there is no matching record.
         """
         if self.columns:
-            result = query.filter_by(**{
-                prop.key: value.get(prop.key)
-                for prop in self.related_keys
-            }).one()
+            result = query.filter_by(
+                **{prop.key: value.get(prop.key) for prop in self.related_keys}
+            ).one()
         else:
             # Use a faster path if the related key is the primary key.
-            result = query.get([
-                value.get(prop.key) for prop in self.related_keys
-            ])
+            result = query.get([value.get(prop.key) for prop in self.related_keys])
             if result is None:
                 raise NoResultFound
         return result
