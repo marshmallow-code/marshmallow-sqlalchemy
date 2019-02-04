@@ -1095,10 +1095,11 @@ class TestModelSchema:
         state = sa.inspect(load_data)
         assert state.transient
 
+    @pytest.mark.skipif(
+        MARSHMALLOW_VERSION_INFO[0] < 3,
+        reason='`unknown` was added in marshmallow 3',
+    )
     def test_transient_load_with_unknown_include(self, models, session, school):
-        if MARSHMALLOW_VERSION_INFO[0] < 3:
-            return
-
         class SchoolSchemaTransient(ModelSchema):
             class Meta:
                 model = models.School
