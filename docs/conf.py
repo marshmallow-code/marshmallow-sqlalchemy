@@ -35,9 +35,7 @@ issues_github_path = "marshmallow-code/marshmallow-sqlalchemy"
 source_suffix = ".rst"
 master_doc = "index"
 project = "marshmallow-sqlalchemy"
-copyright = "Steven Loria, Joshua Carp, and contributors {:%Y}".format(
-    dt.datetime.utcnow()
-)
+copyright = "Steven Loria and contributors {:%Y}".format(dt.datetime.utcnow())
 
 version = release = marshmallow_sqlalchemy.__version__
 
