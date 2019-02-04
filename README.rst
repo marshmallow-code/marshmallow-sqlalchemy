@@ -2,7 +2,7 @@
 marshmallow-sqlalchemy
 **********************
 
-|pypi-package| |build-status| |docs| |marshmallow23|
+|pypi-package| |build-status| |docs| |marshmallow23| |black|
 
 Homepage: https://marshmallow-sqlalchemy.readthedocs.io/
 
@@ -113,3 +113,6 @@ MIT licensed. See the bundled `LICENSE <https://github.com/marshmallow-code/mars
 .. |marshmallow23| image:: https://badgen.net/badge/marshmallow/2,3?list=1
     :target: https://marshmallow.readthedocs.io/en/latest/upgrading.html
     :alt: marshmallow 3 compatible
+.. |black| image:: https://badgen.net/badge/code%20style/black/000
+    :target: https://github.com/ambv/black
+    :alt: code style: black
