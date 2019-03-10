@@ -475,7 +475,7 @@ class TestPropertyFieldConversion:
         assert field.places == decimal.Decimal((0, (1,), -2))
 
     def test_convert_Float(self, converter):
-        prop = make_property(sa.Float(scale=2))
+        prop = make_property(sa.Float())
         field = converter.property2field(prop)
         assert type(field) == fields.Float
 

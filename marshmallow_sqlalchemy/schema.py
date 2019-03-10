@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import marshmallow as ma
 from marshmallow.compat import with_metaclass, iteritems
-from sqlalchemy.ext.associationproxy import AssociationProxy
 
 from .convert import ModelConverter
 from .fields import get_primary_keys
@@ -239,7 +238,8 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         association_attrs = {
             key: value
             for key, value in iteritems(data)
-            if isinstance(getattr(self.opts.model, key, None), AssociationProxy)
+            # association proxy
+            if hasattr(getattr(self.opts.model, key, None), "remote_attr")
         }
         kwargs = {
             key: value

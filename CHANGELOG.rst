@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.16.1 (unreleased)
++++++++++++++++++++
+
+Bug fixes:
+
+* Fix compatibility with SQLAlchemy 1.3 (:issue:`185`).
+
 0.16.0 (2019-02-03)
 +++++++++++++++++++
 
