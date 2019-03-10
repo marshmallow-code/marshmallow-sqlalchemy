@@ -56,16 +56,15 @@ class SchemaMeta(ma.schema.SchemaMeta):
         """Updates declared fields with fields converted from the SQLAlchemy model
         passed as the `model` class Meta option.
         """
-        declared_fields = dict_cls()
         opts = klass.opts
         Converter = opts.model_converter
         converter = Converter(schema_cls=klass)
-        base_fields = super(SchemaMeta, mcs).get_declared_fields(
+        declared_fields = super(SchemaMeta, mcs).get_declared_fields(
             klass, cls_fields, inherited_fields, dict_cls
         )
-        declared_fields = mcs.get_fields(converter, opts, base_fields, dict_cls)
-        declared_fields.update(base_fields)
-        return declared_fields
+        fields = mcs.get_fields(converter, opts, declared_fields, dict_cls)
+        fields.update(declared_fields)
+        return fields
 
     @classmethod
     def get_fields(mcs, converter, base_fields, opts):
