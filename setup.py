@@ -40,14 +40,14 @@ def read(fname):
 
 setup(
     name="marshmallow-sqlalchemy",
-    version=find_version("marshmallow_sqlalchemy/__init__.py"),
+    version=find_version("src/marshmallow_sqlalchemy/__init__.py"),
     description="SQLAlchemy integration with the marshmallow (de)serialization library",
     long_description=read("README.rst"),
     author="Steven Loria",
     author_email="sloria1@gmail.com",
     url="https://github.com/marshmallow-code/marshmallow-sqlalchemy",
-    packages=find_packages(exclude=("test*",)),
-    package_dir={"marshmallow-sqlalchemy": "marshmallow-sqlalchemy"},
+    packages=find_packages("src"),
+    package_dir={"": "src"},
     include_package_data=True,
     install_requires=INSTALL_REQUIRES,
     extras_require=EXTRAS_REQUIRE,

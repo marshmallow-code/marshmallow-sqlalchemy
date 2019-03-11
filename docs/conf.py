@@ -8,8 +8,8 @@ import sys
 
 import alabaster
 
-sys.path.insert(0, os.path.abspath(".."))
-import marshmallow_sqlalchemy  # noqa
+sys.path.insert(0, os.path.abspath(os.path.join("..", "src")))
+import marshmallow_sqlalchemy  # noqa: E402
 
 extensions = [
     "sphinx.ext.autodoc",
