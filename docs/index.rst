@@ -62,6 +62,8 @@ Generate marshmallow schemas
 
     author_schema = AuthorSchema()
 
+Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalchemy.orm.configure_mappers() <https://docs.sqlalchemy.org/en/latest/orm/mapping_api.html>`_ will run too soon and fail.
+
 (De)serialize your data
 =======================
 
