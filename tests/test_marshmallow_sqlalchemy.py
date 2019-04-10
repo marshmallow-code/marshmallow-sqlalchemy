@@ -619,6 +619,16 @@ class TestTableSchema:
         data = unpack(schema.dump(school))
         assert data == {"name": "Univ. of Whales", "school_id": 1}
 
+    def test_exclude(self, models, school):
+        class SchoolSchema(TableSchema):
+            class Meta:
+                table = models.School.__table__
+                exclude = ("name",)
+
+        schema = SchoolSchema()
+        data = unpack(schema.dump(school))
+        assert "name" not in data
+
 
 class TestModelSchema:
     @pytest.fixture()
@@ -1192,6 +1202,16 @@ class TestModelSchema:
 
         keywords = {kw.keyword for kw in kw_objects}
         assert keywords == set(load_data.keywords)
+
+    def test_exclude(self, models, school):
+        class SchoolSchema(ModelSchema):
+            class Meta:
+                model = models.School
+                exclude = ("name",)
+
+        schema = SchoolSchema()
+        data = unpack(schema.dump(school))
+        assert "name" not in data
 
 
 class TestNullForeignKey:
