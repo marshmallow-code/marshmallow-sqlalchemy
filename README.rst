@@ -70,12 +70,13 @@ Generate marshmallow schemas
 .. code-block:: python
 
     author = Author(name="Chuck Paluhniuk")
+    author_schema = AuthorSchema()
     book = Book(title="Fight Club", author=author)
     session.add(author)
     session.add(book)
     session.commit()
 
-    author_schema.dump(author).data
+    dump_data = author_schema.dump(author).data
     # {'books': [123], 'id': 321, 'name': 'Chuck Paluhniuk'}
 
     author_schema.load(dump_data, session=session).data

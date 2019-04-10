@@ -70,15 +70,18 @@ Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalch
 .. code-block:: python
 
     author = Author(name="Chuck Paluhniuk")
+    author_schema = AuthorSchema()
     book = Book(title="Fight Club", author=author)
     session.add(author)
     session.add(book)
     session.commit()
 
     dump_data = author_schema.dump(author).data
+    print(dump_data)
     # {'books': [123], 'id': 321, 'name': 'Chuck Paluhniuk'}
 
-    author_schema.load(dump_data, session=session).data
+    load_data = author_schema.load(dump_data, session=session).data
+    print(load_data)
     # <Author(name='Chuck Paluhniuk')>
 
 Get it now
