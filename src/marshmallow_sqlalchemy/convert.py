@@ -113,6 +113,8 @@ class ModelConverter(object):
         base_fields = base_fields or {}
         for column in table.columns:
             if self._should_exclude_field(column, fields=fields, exclude=exclude):
+                # Allow marshmallow to validate and exclude the field key.
+                result[column.key] = None
                 continue
             if not include_fk and column.foreign_keys:
                 continue
