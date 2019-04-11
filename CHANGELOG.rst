@@ -1,13 +1,13 @@
 Changelog
 ---------
 
-0.16.2 (unreleased)
+0.16.2 (2019-04-10)
 +++++++++++++++++++
 
 Bug fixes:
 
 * Prevent ValueError when using the ``exclude`` class Meta option with
-  ``TableSchema``.
+  ``TableSchema`` (:pr:`202`).
 
 0.16.1 (2019-03-11)
 +++++++++++++++++++
