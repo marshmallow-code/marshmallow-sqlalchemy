@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import marshmallow as ma
-from marshmallow.compat import with_metaclass, iteritems
 
+from .compat import with_metaclass, iteritems
 from .convert import ModelConverter
 from .fields import get_primary_keys
 
