@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.16.3 (unreleased)
++++++++++++++++++++
+
+Bug fixes:
+
+* Compatibility with marshmallow 3.0.0rc6.
+
 0.16.2 (2019-04-10)
 +++++++++++++++++++
 
