@@ -503,13 +503,15 @@ class TestPropertyFieldConversion:
         prop = make_property(postgresql.ARRAY(sa.String()))
         field = converter.property2field(prop)
         assert type(field) == fields.List
-        assert type(field.container) == fields.Str
+        inner_field = getattr(field, "inner", getattr(field, "container", None))
+        assert type(inner_field) == fields.Str
 
     def test_convert_ARRAY_Integer(self, converter):
         prop = make_property(postgresql.ARRAY(sa.Integer))
         field = converter.property2field(prop)
         assert type(field) == fields.List
-        assert type(field.container) == fields.Int
+        inner_field = getattr(field, "inner", getattr(field, "container", None))
+        assert type(inner_field) == fields.Int
 
     def test_convert_TSVECTOR(self, converter):
         prop = make_property(postgresql.TSVECTOR)
@@ -1061,7 +1063,7 @@ class TestModelSchema:
 
             # override for easier testing
             @post_load
-            def make_instance(self, data):
+            def make_instance(self, data, **kwargs):
                 return data
 
         sch = SchoolSchema2()
