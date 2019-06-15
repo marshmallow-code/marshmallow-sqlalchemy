@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.16.4 (2019-06-15)
++++++++++++++++++++
+
+Bug fixes:
+
+* Compatibility with marshmallow 3.0.0rc7. Thanks :user:`heckad` for the catch and patch.
+
 0.16.3 (2019-05-05)
 +++++++++++++++++++
 
