@@ -182,7 +182,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         return None
 
     @ma.post_load
-    def make_instance(self, data):
+    def make_instance(self, data, **kwargs):
         """Deserialize data to an instance of the model. Update an existing row
         if specified in `self.instance` or loaded by primary key(s) in the data;
         else create a new row.
