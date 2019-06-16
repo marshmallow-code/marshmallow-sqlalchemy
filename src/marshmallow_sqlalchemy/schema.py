@@ -173,7 +173,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
 
         :param data: Serialized data to inform lookup.
         """
-        if self.transient:
+        if self.transient or not hasattr(self.session, 'query'):
             return None
         props = get_primary_keys(self.opts.model)
         filters = {prop.key: data.get(prop.key) for prop in props}
