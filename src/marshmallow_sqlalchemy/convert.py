@@ -49,6 +49,7 @@ class ModelConverter(object):
         postgresql.JSONB: fields.Raw,
         postgresql.HSTORE: fields.Raw,
         postgresql.ARRAY: _postgres_array_factory,
+        postgresql.MONEY: fields.Decimal,
         mysql.BIT: fields.Integer,
         mysql.YEAR: fields.Integer,
         mysql.SET: fields.List,
