@@ -49,7 +49,6 @@ class ModelConverter(object):
         postgresql.JSONB: fields.Raw,
         postgresql.HSTORE: fields.Raw,
         postgresql.ARRAY: _postgres_array_factory,
-        postgresql.MONEY: fields.Decimal,
         mysql.BIT: fields.Integer,
         mysql.YEAR: fields.Integer,
         mysql.SET: fields.List,
@@ -58,6 +57,8 @@ class ModelConverter(object):
     }
     if hasattr(sa, "JSON"):
         SQLA_TYPE_MAPPING[sa.JSON] = fields.Raw
+    if hasattr(postgresql, "MONEY"):
+        SQLA_TYPE_MAPPING[postgresql.MONEY] = fields.Decimal
 
     DIRECTION_MAPPING = {"MANYTOONE": False, "MANYTOMANY": True, "ONETOMANY": True}
 
