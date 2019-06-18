@@ -57,6 +57,8 @@ class ModelConverter(object):
     }
     if hasattr(sa, "JSON"):
         SQLA_TYPE_MAPPING[sa.JSON] = fields.Raw
+    if hasattr(postgresql, "MONEY"):
+        SQLA_TYPE_MAPPING[postgresql.MONEY] = fields.Decimal
 
     DIRECTION_MAPPING = {"MANYTOONE": False, "MANYTOMANY": True, "ONETOMANY": True}
 
