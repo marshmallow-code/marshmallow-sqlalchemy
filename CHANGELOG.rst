@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.17.0 (unreleased)
++++++++++++++++++++
+
+Features:
+
+* Add support for ``postgresql.MONEY`` type (:issue:`218`). Thanks :user:`heckad` for the PR.
+
 0.16.4 (2019-06-15)
 +++++++++++++++++++
 
