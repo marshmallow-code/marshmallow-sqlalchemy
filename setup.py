@@ -11,6 +11,7 @@ EXTRAS_REQUIRE = {
         'flake8-bugbear==19.3.0; python_version >= "3.5"',
         "pre-commit~=1.17",
     ],
+    "docs": ["sphinx==2.1.2", "alabaster==0.7.12", "sphinx-issues==1.2.0"],
 }
 EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["lint"] + ["tox"]
 
