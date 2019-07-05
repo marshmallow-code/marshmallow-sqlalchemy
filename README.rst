@@ -111,9 +111,9 @@ MIT licensed. See the bundled `LICENSE <https://github.com/marshmallow-code/mars
 .. |pypi-package| image:: https://badgen.net/pypi/v/marshmallow-sqlalchemy
     :target: https://pypi.org/project/marshmallow-sqlalchemy/
     :alt: Latest version
-.. |build-status| image:: https://badgen.net/travis/marshmallow-code/marshmallow-sqlalchemy/dev
-    :target: https://travis-ci.org/marshmallow-code/marshmallow-sqlalchemy
-    :alt: Travis-CI
+.. |build-status| image:: https://dev.azure.com/sloria/sloria/_apis/build/status/marshmallow-code.marshmallow-sqlalchemy?branchName=dev
+    :target: https://dev.azure.com/sloria/sloria/_build/latest?definitionId=10&branchName=dev
+    :alt: Build status
 .. |docs| image:: https://readthedocs.org/projects/marshmallow-sqlalchemy/badge/
    :target: http://marshmallow-sqlalchemy.readthedocs.io/
    :alt: Documentation
