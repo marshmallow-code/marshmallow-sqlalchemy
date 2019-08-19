@@ -65,10 +65,10 @@ Here is an alternative way to define a BaseSchema class with a common ``Session`
 
 
     class BaseOpts(ModelSchemaOpts):
-        def __init__(self, meta):
+        def __init__(self, meta, ordered=False):
             if not hasattr(meta, "sqla_session"):
                 meta.sqla_session = Session
-            super(BaseOpts, self).__init__(meta)
+            super(BaseOpts, self).__init__(meta, ordered=ordered)
 
 
     class BaseSchema(ModelSchema):
