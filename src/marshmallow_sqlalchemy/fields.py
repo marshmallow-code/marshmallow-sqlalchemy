@@ -131,3 +131,16 @@ class Related(fields.Field):
             if result is None:
                 raise NoResultFound
         return result
+
+
+class Nested(fields.Nested):
+    """Nested field that inherits the session from its parent."""
+
+    def _deserialize(self, value, attr, data, partial=None, many=False, **kwargs):
+        if hasattr(self.schema, "session"):
+            try:
+                self.schema.session = self.root.session
+            except AttributeError:
+                # Marshmallow 2.0.0 has no root property.
+                self.schema.session = self.parent.session
+        return super(Nested, self)._deserialize(value, attr, data, **kwargs)

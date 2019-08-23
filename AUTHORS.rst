@@ -30,3 +30,4 @@ Contributors
 - jean-philippe serafin `@jeanphix <https://github.com/jeanphix>`_
 - Jack Smith `@jacksmith15 <https://github.com/jacksmith15>`_
 - Kazantcev Andrey `@heckad <https://github.com/heckad>`_
+- Samuel Searles-Bryant `@samueljsb <https://github.com/samueljsb>`_
