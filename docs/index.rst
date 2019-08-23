@@ -76,11 +76,11 @@ Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalch
     session.add(book)
     session.commit()
 
-    dump_data = author_schema.dump(author).data
+    dump_data = author_schema.dump(author)
     print(dump_data)
     # {'books': [123], 'id': 321, 'name': 'Chuck Paluhniuk'}
 
-    load_data = author_schema.load(dump_data, session=session).data
+    load_data = author_schema.load(dump_data, session=session)
     print(load_data)
     # <Author(name='Chuck Paluhniuk')>
 

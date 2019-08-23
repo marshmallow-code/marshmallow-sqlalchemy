@@ -116,7 +116,7 @@ class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):
 
         select = users.select().limit(1)
         user = engine.execute(select).fetchone()
-        serialized = schema.dump(user).data
+        serialized = schema.dump(user)
     """
 
     OPTIONS_CLASS = TableSchemaOpts

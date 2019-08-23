@@ -232,7 +232,7 @@ An example of then using this:
     # so remember to instantiate it
     author_schema = Author.__marshmallow__()
 
-    print author_schema.dump(author).data
+    print(author_schema.dump(author))
 
 This is inspired by functionality from ColanderAlchemy.
 
@@ -270,11 +270,11 @@ An example of then using this:
     session.commit()
 
     book = Book.query.get(1)
-    print(BookSchema().dump(book).data["author"])
+    print(BookSchema().dump(book)["author"])
     # {'id': 1}
 
     book = Book.query.options(joinedload("author")).get(1)
-    print(BookSchema().dump(book).data["author"])
+    print(BookSchema().dump(book)["author"])
     # {'id': 1, 'name': 'Chuck Paluhniuk'}
 
 Transient Object Creation
@@ -295,7 +295,7 @@ Sometimes it might be desirable to deserialize instances that are transient (not
 
 
     dump_data = {"id": 1, "name": "John Steinbeck"}
-    print(AuthorSchema().load(dump_data).data)
+    print(AuthorSchema().load(dump_data))
     # <Author(name='John Steinbeck')>
 
 You may also explicitly specify an override by passing the same argument to `load <marshmallow_sqlalchemy.ModelSchema.load>`.
@@ -312,7 +312,7 @@ You may also explicitly specify an override by passing the same argument to `loa
 
 
     dump_data = {"id": 1, "name": "John Steinbeck"}
-    print(AuthorSchema().load(dump_data, transient=True).data)
+    print(AuthorSchema().load(dump_data, transient=True))
     # <Author(name='John Steinbeck')>
 
 Note that transience propagates to relationships (i.e. auto-generated schemas for nested items will also be transient).
