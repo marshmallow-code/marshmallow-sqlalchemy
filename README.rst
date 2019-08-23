@@ -76,10 +76,10 @@ Generate marshmallow schemas
     session.add(book)
     session.commit()
 
-    dump_data = author_schema.dump(author).data
+    dump_data = author_schema.dump(author)
     # {'books': [123], 'id': 321, 'name': 'Chuck Paluhniuk'}
 
-    author_schema.load(dump_data, session=session).data
+    author_schema.load(dump_data, session=session)
     # <Author(name='Chuck Paluhniuk')>
 
 Get it now
