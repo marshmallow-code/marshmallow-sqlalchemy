@@ -1365,7 +1365,6 @@ class TestNestedFieldSession:
     def test_session_is_passed_to_nested_field(
         self, child_schema, parent_model, session
     ):
-
         class ParentSchema(ModelSchema):
             children = Nested(child_schema, many=True)
 

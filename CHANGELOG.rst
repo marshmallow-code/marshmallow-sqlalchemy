@@ -1,6 +1,52 @@
 Changelog
 ---------
 
+0.17.1 (unreleased)
++++++++++++++++++++
+
+Bug fixes:
+
+* Add ``marshmallow_sqlalchemy.fields.Nested`` field that inherits its session from its schema. This fixes a bug where an exception was raised when using ``Nested`` within a ``ModelSchema`` (:issue:`67`). 
+  Thanks :user:`nickw444` for reporting and thanks :user:`samueljsb` for the PR.
+
+User code should be updated to use marshmallow-sqlalchemy's ``Nested`` instead of ``marshmallow.fields.Nested``.
+
+.. code-block:: python
+
+    # Before
+    from marshmallow import fields
+    from marshmallow_sqlalchemy import ModelSchema
+
+
+    class ArtistSchema(ModelSchema):
+        class Meta:
+            model = models.Artist
+
+
+    class AlbumSchema(ModelSchema):
+        class Meta:
+            model = models.Album
+
+        artist = fields.Nested(ArtistSchema)
+
+
+    # After
+    from marshmallow import fields
+    from marshmallow_sqlalchemy import ModelSchema
+    from marshmallow_sqlalchemy.fields import Nested
+
+
+    class ArtistSchema(ModelSchema):
+        class Meta:
+            model = models.Artist
+
+
+    class AlbumSchema(ModelSchema):
+        class Meta:
+            model = models.Album
+
+        artist = Nested(ArtistSchema)
+
 0.17.0 (2019-06-22)
 +++++++++++++++++++
 
