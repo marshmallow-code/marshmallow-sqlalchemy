@@ -25,7 +25,7 @@ from marshmallow_sqlalchemy import (
     field_for,
     ModelConversionError,
 )
-from marshmallow_sqlalchemy.fields import Related, RelatedList
+from marshmallow_sqlalchemy.fields import Related, RelatedList, Nested
 
 MARSHMALLOW_VERSION_INFO = tuple(
     [int(part) for part in marshmallow.__version__.split(".") if part.isdigit()]
@@ -1316,6 +1316,77 @@ class TestMarshmallowContext:
             assert isinstance(school.id, int)
         dump_result = unpack(schema.dump(result))
         assert dump_result == data
+
+
+class TestNestedFieldSession:
+    """Test the session can be passed to nested fields."""
+
+    @pytest.fixture
+    def association_table(self, Base):
+        return sa.Table(
+            "association",
+            Base.metadata,
+            sa.Column("left_id", sa.Integer, sa.ForeignKey("left.id")),
+            sa.Column("right_id", sa.Integer, sa.ForeignKey("right.id")),
+        )
+
+    @pytest.fixture
+    def parent_model(self, Base, association_table):
+        class Parent(Base):
+            __tablename__ = "left"
+            id = sa.Column(sa.Integer, primary_key=True)
+            name = sa.Column(sa.Text)
+            children = relationship(
+                "Child", secondary=association_table, back_populates="parents"
+            )
+
+        return Parent
+
+    @pytest.fixture
+    def child_model(self, Base, parent_model, association_table):
+        class Child(Base):
+            __tablename__ = "right"
+            id = sa.Column(sa.Integer, primary_key=True)
+            name = sa.Column(sa.Text)
+            parents = relationship(
+                "Parent", secondary=association_table, back_populates="children"
+            )
+
+        return Child
+
+    @pytest.fixture
+    def child_schema(self, child_model):
+        class ChildSchema(ModelSchema):
+            class Meta:
+                model = child_model
+
+        return ChildSchema
+
+    def test_session_is_passed_to_nested_field(
+        self, child_schema, parent_model, session
+    ):
+        class ParentSchema(ModelSchema):
+            children = Nested(child_schema, many=True)
+
+            class Meta:
+                model = parent_model
+
+        data = {"name": "Parent1", "children": [{"name": "Child1"}]}
+        ParentSchema().load(data, session=session)
+
+    def test_session_is_passed_to_nested_field_in_list_field(
+        self, parent_model, child_model, child_schema, session
+    ):
+        """The session is passed to a nested field in a List field."""
+
+        class ParentSchema(ModelSchema):
+            children = fields.List(Nested(child_schema))
+
+            class Meta:
+                model = parent_model
+
+        data = {"name": "Jorge", "children": [{"name": "Jose"}]}
+        ParentSchema().load(data, session=session)
 
 
 def _repr_validator_list(validators):
