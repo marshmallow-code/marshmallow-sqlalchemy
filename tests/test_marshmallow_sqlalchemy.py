@@ -2,6 +2,7 @@ import uuid
 import datetime as dt
 import decimal
 from collections import OrderedDict
+from types import SimpleNamespace
 
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -217,21 +218,18 @@ def models(Base):
             "kw", "keyword", creator=lambda kw: Keyword(keyword=kw)
         )
 
-    # So that we can access models with dot-notation, e.g. models.Course
-    class _models:
-        def __init__(self):
-            self.Course = Course
-            self.School = School
-            self.Student = Student
-            self.Teacher = Teacher
-            self.SubstituteTeacher = SubstituteTeacher
-            self.Paper = Paper
-            self.GradedPaper = GradedPaper
-            self.Seminar = Seminar
-            self.Lecture = Lecture
-            self.Keyword = Keyword
-
-    return _models()
+    return SimpleNamespace(
+        Course=Course,
+        School=School,
+        Student=Student,
+        Teacher=Teacher,
+        SubstituteTeacher=SubstituteTeacher,
+        Paper=Paper,
+        GradedPaper=GradedPaper,
+        Seminar=Seminar,
+        Lecture=Lecture,
+        Keyword=Keyword,
+    )
 
 
 class MyDateField(fields.Date):
@@ -310,22 +308,19 @@ def schemas(models, session):
             sqla_session = session
             strict = True  # for testing marshmallow 2
 
-    # Again, so we can use dot-notation
-    class _schemas:
-        def __init__(self):
-            self.CourseSchema = CourseSchema
-            self.SchoolSchema = SchoolSchema
-            self.StudentSchema = StudentSchema
-            self.StudentSchemaWithCustomTypeMapping = StudentSchemaWithCustomTypeMapping
-            self.TeacherSchema = TeacherSchema
-            self.SubstituteTeacherSchema = SubstituteTeacherSchema
-            self.PaperSchema = PaperSchema
-            self.GradedPaperSchema = GradedPaperSchema
-            self.HyperlinkStudentSchema = HyperlinkStudentSchema
-            self.SeminarSchema = SeminarSchema
-            self.LectureSchema = LectureSchema
-
-    return _schemas()
+    return SimpleNamespace(
+        CourseSchema=CourseSchema,
+        SchoolSchema=SchoolSchema,
+        StudentSchema=StudentSchema,
+        StudentSchemaWithCustomTypeMapping=StudentSchemaWithCustomTypeMapping,
+        TeacherSchema=TeacherSchema,
+        SubstituteTeacherSchema=SubstituteTeacherSchema,
+        PaperSchema=PaperSchema,
+        GradedPaperSchema=GradedPaperSchema,
+        HyperlinkStudentSchema=HyperlinkStudentSchema,
+        SeminarSchema=SeminarSchema,
+        LectureSchema=LectureSchema,
+    )
 
 
 class TestModelFieldConversion:
