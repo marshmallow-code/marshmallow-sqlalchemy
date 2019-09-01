@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.17.2 (unreleased)
++++++++++++++++++++
+
+Bug fixes:
+
+* Fix error handling when passing an invalid type to ``Related`` (:issue:`223`).
+  Thanks :user:`heckad` for reporting.
+
 0.17.1 (2019-08-31)
 +++++++++++++++++++
 

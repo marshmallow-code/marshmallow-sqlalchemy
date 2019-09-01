@@ -127,7 +127,15 @@ class Related(fields.Field):
             ).one()
         else:
             # Use a faster path if the related key is the primary key.
-            result = query.get([value.get(prop.key) for prop in self.related_keys])
+            lookup_values = [value.get(prop.key) for prop in self.related_keys]
+            try:
+                result = query.get(lookup_values)
+            except TypeError:
+                keys = [prop.key for prop in self.related_keys]
+                if hasattr(self, "make_error"):
+                    raise self.make_error("invalid", value=value, keys=keys)
+                else:  # marshmallow 2
+                    self.fail("invalid", value=value, keys=keys)
             if result is None:
                 raise NoResultFound
         return result
