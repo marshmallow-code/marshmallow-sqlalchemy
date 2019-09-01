@@ -758,6 +758,17 @@ class TestModelSchema:
         assert load_data is student
         assert load_data.current_school == student.current_school
 
+    def test_model_schema_loading_invalid_related_type(
+        self, models, schemas, student, session
+    ):
+        schema = schemas.StudentSchema()
+        dump_data = unpack(schema.dump(student))
+        dump_data["current_school"] = [1]
+        with pytest.raises(
+            ValidationError, match="Could not deserialize related value"
+        ):
+            schema.load(dump_data)
+
     def test_model_schema_loading_missing_field(
         self, models, schemas, student, session
     ):
