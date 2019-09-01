@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import absolute_import
 import uuid
 import datetime as dt
@@ -104,7 +103,7 @@ def models(Base):
 
         @property
         def url(self):
-            return "/courses/{}".format(self.id)
+            return f"/courses/{self.id}"
 
     class School(Base):
         __tablename__ = "school"
@@ -113,7 +112,7 @@ def models(Base):
 
         @property
         def url(self):
-            return "/schools/{}".format(self.id)
+            return f"/schools/{self.id}"
 
     class Student(Base):
         __tablename__ = "student"
@@ -138,7 +137,7 @@ def models(Base):
 
         @property
         def url(self):
-            return "/students/{}".format(self.id)
+            return f"/students/{self.id}"
 
     class Teacher(Base):
         __tablename__ = "teacher"
@@ -220,7 +219,7 @@ def models(Base):
         )
 
     # So that we can access models with dot-notation, e.g. models.Course
-    class _models(object):
+    class _models:
         def __init__(self):
             self.Course = Course
             self.School = School
@@ -313,7 +312,7 @@ def schemas(models, session):
             strict = True  # for testing marshmallow 2
 
     # Again, so we can use dot-notation
-    class _schemas(object):
+    class _schemas:
         def __init__(self):
             self.CourseSchema = CourseSchema
             self.SchoolSchema = SchoolSchema

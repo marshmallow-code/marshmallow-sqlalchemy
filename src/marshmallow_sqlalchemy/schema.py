@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import marshmallow as ma
 
 from .compat import with_metaclass, iteritems
@@ -17,7 +16,7 @@ class TableSchemaOpts(ma.SchemaOpts):
     """
 
     def __init__(self, meta, *args, **kwargs):
-        super(TableSchemaOpts, self).__init__(meta, *args, **kwargs)
+        super().__init__(meta, *args, **kwargs)
         self.table = getattr(meta, "table", None)
         self.model_converter = getattr(meta, "model_converter", ModelConverter)
         self.include_fk = getattr(meta, "include_fk", False)
@@ -38,7 +37,7 @@ class ModelSchemaOpts(ma.SchemaOpts):
     """
 
     def __init__(self, meta, *args, **kwargs):
-        super(ModelSchemaOpts, self).__init__(meta, *args, **kwargs)
+        super().__init__(meta, *args, **kwargs)
         self.model = getattr(meta, "model", None)
         self.sqla_session = getattr(meta, "sqla_session", None)
         self.model_converter = getattr(meta, "model_converter", ModelConverter)
@@ -58,7 +57,7 @@ class SchemaMeta(ma.schema.SchemaMeta):
         opts = klass.opts
         Converter = opts.model_converter
         converter = Converter(schema_cls=klass)
-        declared_fields = super(SchemaMeta, mcs).get_declared_fields(
+        declared_fields = super().get_declared_fields(
             klass, cls_fields, inherited_fields, dict_cls
         )
         fields = mcs.get_fields(converter, opts, declared_fields, dict_cls)
@@ -165,7 +164,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         self._session = kwargs.pop("session", None)
         self.instance = kwargs.pop("instance", None)
         self._transient = kwargs.pop("transient", None)
-        super(ModelSchema, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_instance(self, data):
         """Retrieve an existing record by primary key(s). If the schema instance
@@ -213,7 +212,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
             raise ValueError("Deserialization requires a session")
         self.instance = instance or self.instance
         try:
-            return super(ModelSchema, self).load(data, *args, **kwargs)
+            return super().load(data, *args, **kwargs)
         finally:
             self.instance = None
 
@@ -221,7 +220,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         self._session = session or self._session
         if not (self.transient or self.session):
             raise ValueError("Validation requires a session")
-        return super(ModelSchema, self).validate(data, *args, **kwargs)
+        return super().validate(data, *args, **kwargs)
 
     def _split_model_kwargs_association(self, data):
         """Split serialized attrs to ensure association proxies are passed separately.

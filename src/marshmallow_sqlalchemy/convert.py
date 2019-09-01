@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import inspect
 import functools
 
@@ -34,7 +33,7 @@ def _postgres_array_factory(converter, data_type):
     )
 
 
-class ModelConverter(object):
+class ModelConverter:
     """Class that converts a SQLAlchemy model into a dictionary of corresponding
     marshmallow `Fields <marshmallow.fields.Field>`.
     """

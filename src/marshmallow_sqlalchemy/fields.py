@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
 
@@ -50,7 +48,7 @@ class Related(fields.Field):
     }
 
     def __init__(self, column=None, **kwargs):
-        super(Related, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.columns = ensure_list(column or [])
 
     @property
@@ -149,4 +147,4 @@ class Nested(fields.Nested):
             schema = get_schema_for_field(self)
             self.schema.session = schema.session
             self.schema.transient = schema.transient
-        return super(Nested, self)._deserialize(*args, **kwargs)
+        return super()._deserialize(*args, **kwargs)
