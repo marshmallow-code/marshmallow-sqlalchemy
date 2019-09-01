@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 import uuid
 import datetime as dt
 import decimal
