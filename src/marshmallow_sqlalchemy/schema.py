@@ -1,6 +1,5 @@
 import marshmallow as ma
 
-from .compat import with_metaclass, iteritems
 from .convert import ModelConverter
 from .fields import get_primary_keys
 
@@ -99,7 +98,7 @@ class ModelSchemaMeta(SchemaMeta):
         return dict_cls()
 
 
-class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):
+class TableSchema(ma.Schema, metaclass=TableSchemaMeta):
     """Base class for SQLAlchemy model-based Schemas.
 
     Example: ::
@@ -121,7 +120,7 @@ class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):
     OPTIONS_CLASS = TableSchemaOpts
 
 
-class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
+class ModelSchema(ma.Schema, metaclass=ModelSchemaMeta):
     """Base class for SQLAlchemy model-based Schemas.
 
     Example: ::
@@ -190,16 +189,16 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         """
         instance = self.instance or self.get_instance(data)
         if instance is not None:
-            for key, value in iteritems(data):
+            for key, value in data.items():
                 setattr(instance, key, value)
             return instance
         kwargs, association_attrs = self._split_model_kwargs_association(data)
         instance = self.opts.model(**kwargs)
-        for attr, value in iteritems(association_attrs):
+        for attr, value in association_attrs.items():
             setattr(instance, attr, value)
         return instance
 
-    def load(self, data, session=None, instance=None, transient=False, *args, **kwargs):
+    def load(self, data, *, session=None, instance=None, transient=False, **kwargs):
         """Deserialize data to internal representation.
 
         :param session: Optional SQLAlchemy session.
@@ -212,15 +211,15 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
             raise ValueError("Deserialization requires a session")
         self.instance = instance or self.instance
         try:
-            return super().load(data, *args, **kwargs)
+            return super().load(data, **kwargs)
         finally:
             self.instance = None
 
-    def validate(self, data, session=None, *args, **kwargs):
+    def validate(self, data, *, session=None, **kwargs):
         self._session = session or self._session
         if not (self.transient or self.session):
             raise ValueError("Validation requires a session")
-        return super().validate(data, *args, **kwargs)
+        return super().validate(data, **kwargs)
 
     def _split_model_kwargs_association(self, data):
         """Split serialized attrs to ensure association proxies are passed separately.
@@ -236,13 +235,13 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         """
         association_attrs = {
             key: value
-            for key, value in iteritems(data)
+            for key, value in data.items()
             # association proxy
             if hasattr(getattr(self.opts.model, key, None), "remote_attr")
         }
         kwargs = {
             key: value
-            for key, value in iteritems(data)
+            for key, value in data.items()
             if (hasattr(self.opts.model, key) and key not in association_attrs)
         }
         return kwargs, association_attrs

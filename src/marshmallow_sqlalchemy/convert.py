@@ -74,6 +74,7 @@ class ModelConverter:
     def fields_for_model(
         self,
         model,
+        *,
         include_fk=False,
         fields=None,
         exclude=None,
@@ -104,6 +105,7 @@ class ModelConverter:
     def fields_for_table(
         self,
         table,
+        *,
         include_fk=False,
         fields=None,
         exclude=None,
@@ -124,7 +126,7 @@ class ModelConverter:
                 result[column.key] = field
         return result
 
-    def property2field(self, prop, instance=True, field_class=None, **kwargs):
+    def property2field(self, prop, *, instance=True, field_class=None, **kwargs):
         field_class = field_class or self._get_field_class_for_property(prop)
         if not instance:
             return field_class
@@ -139,7 +141,7 @@ class ModelConverter:
             ret = RelatedList(ret, **kwargs)
         return ret
 
-    def column2field(self, column, instance=True, **kwargs):
+    def column2field(self, column, *, instance=True, **kwargs):
         field_class = self._get_field_class_for_column(column)
         if not instance:
             return field_class

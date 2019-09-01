@@ -1235,7 +1235,9 @@ class TestDeserializeObjectThatDNE:
                 },
             ],
         }
-        deserialized_seminar_object = unpack(seminar_schema.load(seminar_dict, session))
+        deserialized_seminar_object = unpack(
+            seminar_schema.load(seminar_dict, session=session)
+        )
         # Ensure both nested lecture objects weren't forgotten...
 
         assert len(deserialized_seminar_object.lectures) == 2
