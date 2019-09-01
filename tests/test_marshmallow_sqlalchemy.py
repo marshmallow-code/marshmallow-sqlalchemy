@@ -428,76 +428,35 @@ class TestPropertyFieldConversion:
         field = converter.property2field(prop)
         assert type(field) == MyDateTimeField
 
-    def test_convert_String(self, converter):
-        prop = make_property(sa.String())
+    @pytest.mark.parametrize(
+        ("sa_type", "field_type"),
+        (
+            (sa.String, fields.Str),
+            (sa.Unicode, fields.Str),
+            (sa.Binary, fields.Str),
+            (sa.LargeBinary, fields.Str),
+            (sa.Text, fields.Str),
+            (sa.Date, fields.Date),
+            (sa.DateTime, fields.DateTime),
+            (sa.Boolean, fields.Bool),
+            (sa.Boolean, fields.Bool),
+            (sa.Float, fields.Float),
+            (sa.SmallInteger, fields.Int),
+            (postgresql.UUID, fields.UUID),
+            (postgresql.MACADDR, fields.Str),
+            (postgresql.INET, fields.Str),
+        ),
+    )
+    def test_convert_types(self, converter, sa_type, field_type):
+        prop = make_property(sa_type())
         field = converter.property2field(prop)
-        assert type(field) == fields.Str
-
-    def test_convert_Unicode(self, converter):
-        prop = make_property(sa.Unicode())
-        field = converter.property2field(prop)
-        assert type(field) == fields.Str
-
-    def test_convert_Binary(self, converter):
-        prop = make_property(sa.Binary())
-        field = converter.property2field(prop)
-        assert type(field) == fields.Str
-
-    def test_convert_LargeBinary(self, converter):
-        prop = make_property(sa.LargeBinary())
-        field = converter.property2field(prop)
-        assert type(field) == fields.Str
-
-    def test_convert_Text(self, converter):
-        prop = make_property(sa.types.Text())
-        field = converter.property2field(prop)
-        assert type(field) == fields.Str
-
-    def test_convert_Date(self, converter):
-        prop = make_property(sa.Date())
-        field = converter.property2field(prop)
-        assert type(field) == fields.Date
-
-    def test_convert_DateTime(self, converter):
-        prop = make_property(sa.DateTime())
-        field = converter.property2field(prop)
-        assert type(field) == fields.DateTime
-
-    def test_convert_Boolean(self, converter):
-        prop = make_property(sa.Boolean())
-        field = converter.property2field(prop)
-        assert type(field) == fields.Boolean
+        assert type(field) == field_type
 
     def test_convert_Numeric(self, converter):
         prop = make_property(sa.Numeric(scale=2))
         field = converter.property2field(prop)
         assert type(field) == fields.Decimal
         assert field.places == decimal.Decimal((0, (1,), -2))
-
-    def test_convert_Float(self, converter):
-        prop = make_property(sa.Float())
-        field = converter.property2field(prop)
-        assert type(field) == fields.Float
-
-    def test_convert_SmallInteger(self, converter):
-        prop = make_property(sa.SmallInteger())
-        field = converter.property2field(prop)
-        assert type(field) == fields.Int
-
-    def test_convert_UUID(self, converter):
-        prop = make_property(postgresql.UUID())
-        field = converter.property2field(prop)
-        assert type(field) == fields.UUID
-
-    def test_convert_MACADDR(self, converter):
-        prop = make_property(postgresql.MACADDR())
-        field = converter.property2field(prop)
-        assert type(field) == fields.Str
-
-    def test_convert_INET(self, converter):
-        prop = make_property(postgresql.INET())
-        field = converter.property2field(prop)
-        assert type(field) == fields.Str
 
     def test_convert_ARRAY_String(self, converter):
         prop = make_property(postgresql.ARRAY(sa.String()))
