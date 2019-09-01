@@ -8,6 +8,7 @@ Bug fixes:
 
 * Fix error handling when passing an invalid type to ``Related`` (:issue:`223`).
   Thanks :user:`heckad` for reporting.
+* Address ``DeprecationWarning`` raised when using ``Related`` with marshmallow 3.
 
 0.17.1 (2019-08-31)
 +++++++++++++++++++

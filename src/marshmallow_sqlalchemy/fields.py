@@ -96,11 +96,11 @@ class Related(fields.Field):
         """
         if not isinstance(value, dict):
             if len(self.related_keys) != 1:
-                self.fail(
-                    "invalid",
-                    value=value,
-                    keys=[prop.key for prop in self.related_keys],
-                )
+                keys = [prop.key for prop in self.related_keys]
+                if hasattr(self, "make_error"):
+                    raise self.make_error("invalid", value=value, keys=keys)
+                else:  # marshmallow 2
+                    self.fail("invalid", value=value, keys=keys)
             value = {self.related_keys[0].key: value}
         if self.transient:
             return self.related_model(**value)
