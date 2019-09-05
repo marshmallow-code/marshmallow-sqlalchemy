@@ -4,6 +4,9 @@
 API Reference
 *************
 
+Core
+====
+
 .. automodule:: marshmallow_sqlalchemy
     :members:
 
@@ -18,3 +21,10 @@ API Reference
 
     .. autodata:: marshmallow_sqlalchemy.field_for
         :annotation: =func(...)
+
+Fields
+======
+
+.. automodule:: marshmallow_sqlalchemy.fields
+    :members:
+    :private-members:
