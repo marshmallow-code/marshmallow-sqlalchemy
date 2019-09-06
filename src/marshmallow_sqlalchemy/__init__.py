@@ -12,9 +12,7 @@ from .convert import (
 )
 from .exceptions import ModelConversionError
 
-__version__ = "0.17.2"
-__license__ = "MIT"
-
+__version__ = "0.18.0"
 __all__ = [
     "TableSchema",
     "ModelSchema",
