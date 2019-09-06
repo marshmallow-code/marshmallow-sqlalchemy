@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.18.0 (unreleased)
+*******************
+
+Features:
+
+* ``marshmallow_sqlalchemy.fields.Nested`` propagates the value of ``transient`` on the call to ``load`` (:issue:`177`, :issue:`206`).
+  Thanks :user:`leonidumanskiy` for reporting.
+
 0.17.2 (2019-08-31)
 +++++++++++++++++++
 

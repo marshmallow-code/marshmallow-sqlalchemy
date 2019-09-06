@@ -146,9 +146,7 @@ class Nested(fields.Nested):
 
     def _deserialize(self, *args, **kwargs):
         if hasattr(self.schema, "session"):
-            try:
-                self.schema.session = self.root.session
-            except AttributeError:
-                # Marshmallow 2.0.0 has no root property.
-                self.schema.session = self.parent.session
+            schema = get_schema_for_field(self)
+            self.schema.session = schema.session
+            self.schema.transient = schema.transient
         return super(Nested, self)._deserialize(*args, **kwargs)
