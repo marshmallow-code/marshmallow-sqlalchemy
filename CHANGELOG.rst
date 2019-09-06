@@ -6,6 +6,7 @@ Changelog
 
 * Drop support for Python 2.7 and 3.5 (:issue:`241`).
 * Drop support for marshmallow<2.15.2.
+* Only support sqlalchemy>=1.2.0.
 
 0.18.0 (2019-09-05)
 +++++++++++++++++++

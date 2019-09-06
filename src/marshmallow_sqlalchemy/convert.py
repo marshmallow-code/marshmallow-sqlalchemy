@@ -40,6 +40,7 @@ class ModelConverter:
 
     SQLA_TYPE_MAPPING = {
         sa.Enum: fields.Field,
+        sa.JSON: fields.Raw,
         postgresql.BIT: fields.Integer,
         postgresql.UUID: fields.UUID,
         postgresql.MACADDR: fields.String,
@@ -48,17 +49,13 @@ class ModelConverter:
         postgresql.JSONB: fields.Raw,
         postgresql.HSTORE: fields.Raw,
         postgresql.ARRAY: _postgres_array_factory,
+        postgresql.MONEY: fields.Decimal,
         mysql.BIT: fields.Integer,
         mysql.YEAR: fields.Integer,
         mysql.SET: fields.List,
         mysql.ENUM: fields.Field,
         mssql.BIT: fields.Integer,
     }
-    if hasattr(sa, "JSON"):
-        SQLA_TYPE_MAPPING[sa.JSON] = fields.Raw
-    if hasattr(postgresql, "MONEY"):
-        SQLA_TYPE_MAPPING[postgresql.MONEY] = fields.Decimal
-
     DIRECTION_MAPPING = {"MANYTOONE": False, "MANYTOMANY": True, "ONETOMANY": True}
 
     def __init__(self, schema_cls=None):
