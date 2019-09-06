@@ -1347,8 +1347,6 @@ class TestNestedFieldSession:
     def test_session_is_passed_to_nested_field_in_list_field(
         self, parent_model, child_model, child_schema, session
     ):
-        """The session is passed to a nested field in a List field."""
-
         class ParentSchema(ModelSchema):
             children = fields.List(Nested(child_schema))
 
@@ -1357,6 +1355,20 @@ class TestNestedFieldSession:
 
         data = {"name": "Jorge", "children": [{"name": "Jose"}]}
         ParentSchema().load(data, session=session)
+
+    # regression test for https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/177
+    def test_transient_is_propgated_to_nested_field(self, child_schema, parent_model):
+        class ParentSchema(ModelSchema):
+            children = Nested(child_schema, many=True)
+
+            class Meta:
+                model = parent_model
+
+        data = {"name": "Parent1", "children": [{"name": "Child1"}]}
+        load_data = unpack(ParentSchema().load(data, transient=True))
+        child = load_data.children[0]
+        state = sa.inspect(child)
+        assert state.transient
 
 
 def _repr_validator_list(validators):
