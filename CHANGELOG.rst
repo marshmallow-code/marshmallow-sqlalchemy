@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-0.19.0 (unreleased)
+0.19.0 (2019-09-05)
 +++++++++++++++++++
 
 * Drop support for Python 2.7 and 3.5 (:issue:`241`).
