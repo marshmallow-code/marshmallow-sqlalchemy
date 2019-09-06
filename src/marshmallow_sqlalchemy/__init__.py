@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 from .schema import TableSchemaOpts, ModelSchemaOpts, TableSchema, ModelSchema
 
 from .convert import (
