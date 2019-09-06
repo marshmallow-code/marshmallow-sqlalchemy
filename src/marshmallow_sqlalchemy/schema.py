@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 import marshmallow as ma
 
-from .compat import with_metaclass, iteritems
 from .convert import ModelConverter
 from .fields import get_primary_keys
 
@@ -17,7 +15,7 @@ class TableSchemaOpts(ma.SchemaOpts):
     """
 
     def __init__(self, meta, *args, **kwargs):
-        super(TableSchemaOpts, self).__init__(meta, *args, **kwargs)
+        super().__init__(meta, *args, **kwargs)
         self.table = getattr(meta, "table", None)
         self.model_converter = getattr(meta, "model_converter", ModelConverter)
         self.include_fk = getattr(meta, "include_fk", False)
@@ -38,7 +36,7 @@ class ModelSchemaOpts(ma.SchemaOpts):
     """
 
     def __init__(self, meta, *args, **kwargs):
-        super(ModelSchemaOpts, self).__init__(meta, *args, **kwargs)
+        super().__init__(meta, *args, **kwargs)
         self.model = getattr(meta, "model", None)
         self.sqla_session = getattr(meta, "sqla_session", None)
         self.model_converter = getattr(meta, "model_converter", ModelConverter)
@@ -58,7 +56,7 @@ class SchemaMeta(ma.schema.SchemaMeta):
         opts = klass.opts
         Converter = opts.model_converter
         converter = Converter(schema_cls=klass)
-        declared_fields = super(SchemaMeta, mcs).get_declared_fields(
+        declared_fields = super().get_declared_fields(
             klass, cls_fields, inherited_fields, dict_cls
         )
         fields = mcs.get_fields(converter, opts, declared_fields, dict_cls)
@@ -100,7 +98,7 @@ class ModelSchemaMeta(SchemaMeta):
         return dict_cls()
 
 
-class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):
+class TableSchema(ma.Schema, metaclass=TableSchemaMeta):
     """Base class for SQLAlchemy model-based Schemas.
 
     Example: ::
@@ -122,7 +120,7 @@ class TableSchema(with_metaclass(TableSchemaMeta, ma.Schema)):
     OPTIONS_CLASS = TableSchemaOpts
 
 
-class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
+class ModelSchema(ma.Schema, metaclass=ModelSchemaMeta):
     """Base class for SQLAlchemy model-based Schemas.
 
     Example: ::
@@ -165,7 +163,7 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         self._session = kwargs.pop("session", None)
         self.instance = kwargs.pop("instance", None)
         self._transient = kwargs.pop("transient", None)
-        super(ModelSchema, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def get_instance(self, data):
         """Retrieve an existing record by primary key(s). If the schema instance
@@ -191,16 +189,16 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         """
         instance = self.instance or self.get_instance(data)
         if instance is not None:
-            for key, value in iteritems(data):
+            for key, value in data.items():
                 setattr(instance, key, value)
             return instance
         kwargs, association_attrs = self._split_model_kwargs_association(data)
         instance = self.opts.model(**kwargs)
-        for attr, value in iteritems(association_attrs):
+        for attr, value in association_attrs.items():
             setattr(instance, attr, value)
         return instance
 
-    def load(self, data, session=None, instance=None, transient=False, *args, **kwargs):
+    def load(self, data, *, session=None, instance=None, transient=False, **kwargs):
         """Deserialize data to internal representation.
 
         :param session: Optional SQLAlchemy session.
@@ -213,15 +211,15 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
             raise ValueError("Deserialization requires a session")
         self.instance = instance or self.instance
         try:
-            return super(ModelSchema, self).load(data, *args, **kwargs)
+            return super().load(data, **kwargs)
         finally:
             self.instance = None
 
-    def validate(self, data, session=None, *args, **kwargs):
+    def validate(self, data, *, session=None, **kwargs):
         self._session = session or self._session
         if not (self.transient or self.session):
             raise ValueError("Validation requires a session")
-        return super(ModelSchema, self).validate(data, *args, **kwargs)
+        return super().validate(data, **kwargs)
 
     def _split_model_kwargs_association(self, data):
         """Split serialized attrs to ensure association proxies are passed separately.
@@ -237,13 +235,13 @@ class ModelSchema(with_metaclass(ModelSchemaMeta, ma.Schema)):
         """
         association_attrs = {
             key: value
-            for key, value in iteritems(data)
+            for key, value in data.items()
             # association proxy
             if hasattr(getattr(self.opts.model, key, None), "remote_attr")
         }
         kwargs = {
             key: value
-            for key, value in iteritems(data)
+            for key, value in data.items()
             if (hasattr(self.opts.model, key) and key not in association_attrs)
         }
         return kwargs, association_attrs

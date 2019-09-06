@@ -1,8 +1,14 @@
 Changelog
 ---------
 
+0.19.0 (unreleased)
++++++++++++++++++++
+
+* Drop support for Python 2.7 and 3.5 (:issue:`241`).
+* Drop support for marshmallow<2.15.2.
+
 0.18.0 (2019-09-05)
-*******************
++++++++++++++++++++
 
 Features:
 

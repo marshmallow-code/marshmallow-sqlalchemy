@@ -1,9 +1,8 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
 import uuid
 import datetime as dt
 import decimal
 from collections import OrderedDict
+from types import SimpleNamespace
 
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -104,7 +103,7 @@ def models(Base):
 
         @property
         def url(self):
-            return "/courses/{}".format(self.id)
+            return f"/courses/{self.id}"
 
     class School(Base):
         __tablename__ = "school"
@@ -113,7 +112,7 @@ def models(Base):
 
         @property
         def url(self):
-            return "/schools/{}".format(self.id)
+            return f"/schools/{self.id}"
 
     class Student(Base):
         __tablename__ = "student"
@@ -138,7 +137,7 @@ def models(Base):
 
         @property
         def url(self):
-            return "/students/{}".format(self.id)
+            return f"/students/{self.id}"
 
     class Teacher(Base):
         __tablename__ = "teacher"
@@ -219,21 +218,18 @@ def models(Base):
             "kw", "keyword", creator=lambda kw: Keyword(keyword=kw)
         )
 
-    # So that we can access models with dot-notation, e.g. models.Course
-    class _models(object):
-        def __init__(self):
-            self.Course = Course
-            self.School = School
-            self.Student = Student
-            self.Teacher = Teacher
-            self.SubstituteTeacher = SubstituteTeacher
-            self.Paper = Paper
-            self.GradedPaper = GradedPaper
-            self.Seminar = Seminar
-            self.Lecture = Lecture
-            self.Keyword = Keyword
-
-    return _models()
+    return SimpleNamespace(
+        Course=Course,
+        School=School,
+        Student=Student,
+        Teacher=Teacher,
+        SubstituteTeacher=SubstituteTeacher,
+        Paper=Paper,
+        GradedPaper=GradedPaper,
+        Seminar=Seminar,
+        Lecture=Lecture,
+        Keyword=Keyword,
+    )
 
 
 class MyDateField(fields.Date):
@@ -312,22 +308,19 @@ def schemas(models, session):
             sqla_session = session
             strict = True  # for testing marshmallow 2
 
-    # Again, so we can use dot-notation
-    class _schemas(object):
-        def __init__(self):
-            self.CourseSchema = CourseSchema
-            self.SchoolSchema = SchoolSchema
-            self.StudentSchema = StudentSchema
-            self.StudentSchemaWithCustomTypeMapping = StudentSchemaWithCustomTypeMapping
-            self.TeacherSchema = TeacherSchema
-            self.SubstituteTeacherSchema = SubstituteTeacherSchema
-            self.PaperSchema = PaperSchema
-            self.GradedPaperSchema = GradedPaperSchema
-            self.HyperlinkStudentSchema = HyperlinkStudentSchema
-            self.SeminarSchema = SeminarSchema
-            self.LectureSchema = LectureSchema
-
-    return _schemas()
+    return SimpleNamespace(
+        CourseSchema=CourseSchema,
+        SchoolSchema=SchoolSchema,
+        StudentSchema=StudentSchema,
+        StudentSchemaWithCustomTypeMapping=StudentSchemaWithCustomTypeMapping,
+        TeacherSchema=TeacherSchema,
+        SubstituteTeacherSchema=SubstituteTeacherSchema,
+        PaperSchema=PaperSchema,
+        GradedPaperSchema=GradedPaperSchema,
+        HyperlinkStudentSchema=HyperlinkStudentSchema,
+        SeminarSchema=SeminarSchema,
+        LectureSchema=LectureSchema,
+    )
 
 
 class TestModelFieldConversion:
@@ -1242,7 +1235,9 @@ class TestDeserializeObjectThatDNE:
                 },
             ],
         }
-        deserialized_seminar_object = unpack(seminar_schema.load(seminar_dict, session))
+        deserialized_seminar_object = unpack(
+            seminar_schema.load(seminar_dict, session=session)
+        )
         # Ensure both nested lecture objects weren't forgotten...
 
         assert len(deserialized_seminar_object.lectures) == 2

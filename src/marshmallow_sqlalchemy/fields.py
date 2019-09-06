@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
 
@@ -13,13 +11,6 @@ def get_primary_keys(model):
     """
     mapper = model.__mapper__
     return [mapper.get_property_by_column(column) for column in mapper.primary_key]
-
-
-def get_schema_for_field(field):
-    if hasattr(field, "root"):  # marshmallow>=2.1
-        return field.root
-    else:
-        return field.parent
 
 
 def ensure_list(value):
@@ -50,13 +41,12 @@ class Related(fields.Field):
     }
 
     def __init__(self, column=None, **kwargs):
-        super(Related, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.columns = ensure_list(column or [])
 
     @property
     def model(self):
-        schema = get_schema_for_field(self)
-        return schema.opts.model
+        return self.root.opts.model
 
     @property
     def related_model(self):
@@ -75,13 +65,11 @@ class Related(fields.Field):
 
     @property
     def session(self):
-        schema = get_schema_for_field(self)
-        return schema.session
+        return self.root.session
 
     @property
     def transient(self):
-        schema = get_schema_for_field(self)
-        return schema.transient
+        return self.root.transient
 
     def _serialize(self, value, attr, obj):
         ret = {prop.key: getattr(value, prop.key, None) for prop in self.related_keys}
@@ -146,7 +134,6 @@ class Nested(fields.Nested):
 
     def _deserialize(self, *args, **kwargs):
         if hasattr(self.schema, "session"):
-            schema = get_schema_for_field(self)
-            self.schema.session = schema.session
-            self.schema.transient = schema.transient
-        return super(Nested, self)._deserialize(*args, **kwargs)
+            self.schema.session = self.root.session
+            self.schema.transient = self.root.transient
+        return super()._deserialize(*args, **kwargs)

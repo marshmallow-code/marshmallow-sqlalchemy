@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import inspect
 import functools
 
@@ -34,7 +33,7 @@ def _postgres_array_factory(converter, data_type):
     )
 
 
-class ModelConverter(object):
+class ModelConverter:
     """Class that converts a SQLAlchemy model into a dictionary of corresponding
     marshmallow `Fields <marshmallow.fields.Field>`.
     """
@@ -75,6 +74,7 @@ class ModelConverter(object):
     def fields_for_model(
         self,
         model,
+        *,
         include_fk=False,
         fields=None,
         exclude=None,
@@ -105,6 +105,7 @@ class ModelConverter(object):
     def fields_for_table(
         self,
         table,
+        *,
         include_fk=False,
         fields=None,
         exclude=None,
@@ -125,7 +126,7 @@ class ModelConverter(object):
                 result[column.key] = field
         return result
 
-    def property2field(self, prop, instance=True, field_class=None, **kwargs):
+    def property2field(self, prop, *, instance=True, field_class=None, **kwargs):
         field_class = field_class or self._get_field_class_for_property(prop)
         if not instance:
             return field_class
@@ -140,7 +141,7 @@ class ModelConverter(object):
             ret = RelatedList(ret, **kwargs)
         return ret
 
-    def column2field(self, column, instance=True, **kwargs):
+    def column2field(self, column, *, instance=True, **kwargs):
         field_class = self._get_field_class_for_column(column)
         if not instance:
             return field_class
