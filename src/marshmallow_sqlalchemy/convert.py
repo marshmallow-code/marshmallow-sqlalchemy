@@ -76,7 +76,7 @@ class ModelConverter:
         fields=None,
         exclude=None,
         base_fields=None,
-        dict_cls=dict,
+        dict_cls=dict
     ):
         result = dict_cls()
         base_fields = base_fields or {}
@@ -107,7 +107,7 @@ class ModelConverter:
         fields=None,
         exclude=None,
         base_fields=None,
-        dict_cls=dict,
+        dict_cls=dict
     ):
         result = dict_cls()
         base_fields = base_fields or {}
