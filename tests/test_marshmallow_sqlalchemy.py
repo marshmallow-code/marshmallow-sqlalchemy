@@ -8,7 +8,7 @@ import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
-from sqlalchemy.dialects import postgresql
+from sqlalchemy.dialects import postgresql, mysql
 
 import marshmallow
 from marshmallow import Schema, fields, validate, post_load, ValidationError
@@ -438,6 +438,12 @@ class TestPropertyFieldConversion:
             (postgresql.UUID, fields.UUID),
             (postgresql.MACADDR, fields.Str),
             (postgresql.INET, fields.Str),
+            (postgresql.BIT, fields.Integer),
+            (postgresql.CIDR, fields.String),
+            (postgresql.DATE, fields.Date),
+            (postgresql.TIME, fields.Time),
+            (mysql.INTEGER, fields.Integer),
+            (mysql.DATETIME, fields.DateTime),
         ),
     )
     def test_convert_types(self, converter, sa_type, field_type):
