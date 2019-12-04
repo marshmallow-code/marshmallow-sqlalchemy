@@ -4,6 +4,7 @@ Changelog
 0.20.0 (2019-12-01)
 +++++++++++++++++++
 
+* Add support for ``postgresql.OID`` type.
 * Add support for ``mysql.DATETIME`` and ``mysql.INTEGER`` type (:issue:`204`).
 * Add support for ``postgresql.CIDR`` type (:issue:`183`).
 * Add support for ``postgresql.DATE`` and ``postgresql.TIME`` type.

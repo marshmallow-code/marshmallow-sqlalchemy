@@ -42,6 +42,7 @@ class ModelConverter:
         sa.Enum: fields.Field,
         sa.JSON: fields.Raw,
         postgresql.BIT: fields.Integer,
+        postgresql.OID: fields.Integer,
         postgresql.UUID: fields.UUID,
         postgresql.MACADDR: fields.String,
         postgresql.INET: fields.String,

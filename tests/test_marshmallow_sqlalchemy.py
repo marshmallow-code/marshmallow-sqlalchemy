@@ -439,6 +439,7 @@ class TestPropertyFieldConversion:
             (postgresql.MACADDR, fields.Str),
             (postgresql.INET, fields.Str),
             (postgresql.BIT, fields.Integer),
+            (postgresql.OID, fields.Integer),
             (postgresql.CIDR, fields.String),
             (postgresql.DATE, fields.Date),
             (postgresql.TIME, fields.Time),
