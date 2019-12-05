@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.21.0 (unreleased)
++++++++++++++++++++
+
+* Add support for ``postgresql.OID`` type (:pr:`262`).
+  Thanks :user:`petrus-v` for the PR.
+
 0.20.0 (2019-12-01)
 +++++++++++++++++++
 
