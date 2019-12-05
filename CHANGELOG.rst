@@ -6,6 +6,8 @@ Changelog
 
 * Add support for ``postgresql.OID`` type (:pr:`262`).
   Thanks :user:`petrus-v` for the PR.
+* Remove imprecise Python 3 classifier from PyPI metadata (:pr:`255`).
+  Thanks :user:`ecederstrand`.
 
 0.20.0 (2019-12-01)
 +++++++++++++++++++

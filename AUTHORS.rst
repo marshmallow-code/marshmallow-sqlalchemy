@@ -33,3 +33,4 @@ Contributors
 - Samuel Searles-Bryant `@samueljsb <https://github.com/samueljsb>`_
 - Michaela Ockova `@evelyn9191 <https://github.com/evelyn9191>`_
 - Pierre Verkest `@petrus-v <https://github.com/petrus-v>`_
+- Erik Cederstrand `@ecederstrand <https://github.com/ecederstrand>`_
