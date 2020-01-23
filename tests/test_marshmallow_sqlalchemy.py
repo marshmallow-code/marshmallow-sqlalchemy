@@ -435,6 +435,7 @@ class TestPropertyFieldConversion:
             (sa.Boolean, fields.Bool),
             (sa.Float, fields.Float),
             (sa.SmallInteger, fields.Int),
+            (sa.Interval, fields.TimeDelta),
             (postgresql.UUID, fields.UUID),
             (postgresql.MACADDR, fields.Str),
             (postgresql.INET, fields.Str),
