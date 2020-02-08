@@ -1,24 +1,8 @@
 import marshmallow as ma
 
-from .convert import ModelConverter
-from .fields import get_primary_keys
-
-
-class TableSchemaOpts(ma.SchemaOpts):
-    """Options class for `TableSchema`.
-    Adds the following options:
-
-    - ``table``: The SQLAlchemy table to generate the `Schema` from (required).
-    - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy table to
-        marshmallow fields.
-    - ``include_fk``: Whether to include foreign fields; defaults to `False`.
-    """
-
-    def __init__(self, meta, *args, **kwargs):
-        super().__init__(meta, *args, **kwargs)
-        self.table = getattr(meta, "table", None)
-        self.model_converter = getattr(meta, "model_converter", ModelConverter)
-        self.include_fk = getattr(meta, "include_fk", False)
+from ..convert import ModelConverter
+from ..fields import get_primary_keys
+from .schema_meta import SchemaMeta
 
 
 class ModelSchemaOpts(ma.SchemaOpts):
@@ -44,45 +28,6 @@ class ModelSchemaOpts(ma.SchemaOpts):
         self.transient = getattr(meta, "transient", False)
 
 
-class SchemaMeta(ma.schema.SchemaMeta):
-    """Metaclass for `ModelSchema`."""
-
-    # override SchemaMeta
-    @classmethod
-    def get_declared_fields(mcs, klass, cls_fields, inherited_fields, dict_cls):
-        """Updates declared fields with fields converted from the SQLAlchemy model
-        passed as the `model` class Meta option.
-        """
-        opts = klass.opts
-        Converter = opts.model_converter
-        converter = Converter(schema_cls=klass)
-        declared_fields = super().get_declared_fields(
-            klass, cls_fields, inherited_fields, dict_cls
-        )
-        fields = mcs.get_fields(converter, opts, declared_fields, dict_cls)
-        fields.update(declared_fields)
-        return fields
-
-    @classmethod
-    def get_fields(mcs, converter, base_fields, opts):
-        pass
-
-
-class TableSchemaMeta(SchemaMeta):
-    @classmethod
-    def get_fields(mcs, converter, opts, base_fields, dict_cls):
-        if opts.table is not None:
-            return converter.fields_for_table(
-                opts.table,
-                fields=opts.fields,
-                exclude=opts.exclude,
-                include_fk=opts.include_fk,
-                base_fields=base_fields,
-                dict_cls=dict_cls,
-            )
-        return dict_cls()
-
-
 class ModelSchemaMeta(SchemaMeta):
     @classmethod
     def get_fields(mcs, converter, opts, base_fields, dict_cls):
@@ -96,28 +41,6 @@ class ModelSchemaMeta(SchemaMeta):
                 dict_cls=dict_cls,
             )
         return dict_cls()
-
-
-class TableSchema(ma.Schema, metaclass=TableSchemaMeta):
-    """Base class for SQLAlchemy model-based Schemas.
-
-    Example: ::
-
-        from marshmallow_sqlalchemy import TableSchema
-        from mymodels import engine, users
-
-        class UserSchema(TableSchema):
-            class Meta:
-                table = users
-
-        schema = UserSchema()
-
-        select = users.select().limit(1)
-        user = engine.execute(select).fetchone()
-        serialized = schema.dump(user)
-    """
-
-    OPTIONS_CLASS = TableSchemaOpts
 
 
 class ModelSchema(ma.Schema, metaclass=ModelSchemaMeta):
