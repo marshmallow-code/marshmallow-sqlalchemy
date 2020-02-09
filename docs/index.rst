@@ -23,7 +23,7 @@ Declare your models
     class Author(Base):
         __tablename__ = "authors"
         id = sa.Column(sa.Integer, primary_key=True)
-        name = sa.Column(sa.String)
+        name = sa.Column(sa.String, nullable=False)
 
         def __repr__(self):
             return "<Author(name={self.name!r})>".format(self=self)
@@ -44,23 +44,49 @@ Generate marshmallow schemas
 
 .. code-block:: python
 
-    from marshmallow_sqlalchemy import ModelSchema
+    from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 
 
-    class AuthorSchema(ModelSchema):
+    class AuthorSchema(SQLAlchemySchema):
         class Meta:
             model = Author
+            load_instance = True  # Optional: deserialize to model instances
+
+        id = auto_field()
+        name = auto_field()
+        books = auto_field()
 
 
-    class BookSchema(ModelSchema):
+    class BookSchema(SQLAlchemySchema):
         class Meta:
             model = Book
-            # optionally attach a Session
-            # to use for deserialization
-            sqla_session = session
+            load_instance = True
+
+        id = auto_field()
+        title = auto_field()
+        author_id = auto_field()
+
+You can automatically generate fields for a model's columns using `SQLAlchemyAutoSchema <marshmallow_sqlalchemy.SQLAlchemyAutoSchema>`.
+The following schema classes are equivalent to the above.
+
+.. code-block:: python
+
+    from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
 
-    author_schema = AuthorSchema()
+    class AuthorSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = Author
+            include_relationships = True
+            load_instance = True
+
+
+    class BookSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = Book
+            include_fk = True
+            load_instance = True
+
 
 Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalchemy.orm.configure_mappers() <https://docs.sqlalchemy.org/en/latest/orm/mapping_api.html>`_ will run too soon and fail.
 
@@ -78,7 +104,7 @@ Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalch
 
     dump_data = author_schema.dump(author)
     print(dump_data)
-    # {'books': [123], 'id': 321, 'name': 'Chuck Paluhniuk'}
+    # {'id': 1, 'name': 'Chuck Paluhniuk', 'books': [1]}
 
     load_data = author_schema.load(dump_data, session=session)
     print(load_data)

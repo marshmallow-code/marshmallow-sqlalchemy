@@ -44,13 +44,12 @@ class SQLAlchemySchemaOpts(LoadInstanceMixin.Opts, SchemaOpts):
 
     - ``model``: The SQLAlchemy model to generate the `Schema` from (mutually exclusive with ``table``).
     - ``table``: The SQLAlchemy table to generate the `Schema` from (mutually exclusive with ``model``).
-    - ``sqla_session``: SQLAlchemy session to be used for deserialization. This is optional; you
-        can also pass a session to the Schema's `load` method.
     - ``load_instance``: Whether to load model instances.
-    - ``transient``: Whether to load model instances in a transient state (effectively ignoring
-        the session).
-    - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
-        marshmallow fields.
+    - ``sqla_session``: SQLAlchemy session to be used for deserialization.
+        This is only needed when ``load_instance`` is `True`. You can also pass a session to the Schema's `load` method.
+    - ``transient``: Whether to load model instances in a transient state (effectively ignoring the session).
+        Only relevant when ``load_instance`` is `True`.
+    - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to marshmallow fields.
     """
 
     def __init__(self, meta, *args, **kwargs):
