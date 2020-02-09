@@ -40,7 +40,7 @@ Features:
         created_at = auto_field(dump_only=True)
 
 * Add ``load_instance`` option to configure deserialization to model instances (:issue:`193`, :issue:`270`).
-* Add ``include_relationships`` option to configure generating marshmallow fields for relationship properties (:issue:`98`).
+* Add ``include_relationships`` option to configure generation of marshmallow fields for relationship properties (:issue:`98`).
   Thanks :user:`dusktreader` for the suggestion.
 
 Deprecations:
@@ -82,6 +82,9 @@ Deprecations:
     class AlbumSchema(SQLAlchemyAutoSchema):
         class Meta:
             table = models.Album.__table__
+
+* Passing `info={"marshmallow": ...}` to SQLAlchemy columns is deprecated, as it is redundant with
+  the ``auto_field`` functionality.
 
 Other changes:
 
