@@ -1,5 +1,6 @@
 import inspect
 import functools
+import warnings
 
 import uuid
 import marshmallow as ma
@@ -216,6 +217,11 @@ class ModelConverter:
         info = getattr(prop, "info", dict())
         overrides = info.get("marshmallow")
         if overrides is not None:
+            warnings.warn(
+                'Passing `info={"marshmallow": ...}` is deprecated. '
+                "Use `SQLAlchemySchema` and `auto_field` instead.",
+                DeprecationWarning,
+            )
             validate = overrides.pop("validate", [])
             kwargs["validate"] = self._merge_validators(
                 kwargs["validate"], validate

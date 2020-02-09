@@ -150,15 +150,6 @@ You can use the `field_for <marshmallow_sqlalchemy.field_for>` function to gener
             model = Author
             sqla_session = Session
 
-You can customize the keyword arguments passed to a column property's corresponding marshmallow field by passing the ``info`` argument to the `Column`.
-
-.. code-block:: python
-
-    class Book(Model):
-        # ...
-
-        abstract = Column(Text(), info=dict(marshmallow=dict(required=True)))
-
 
 Automatically Generating Schemas For SQLAlchemy Models
 ======================================================
