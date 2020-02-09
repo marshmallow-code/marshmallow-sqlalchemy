@@ -1,4 +1,13 @@
-from .schema import TableSchemaOpts, ModelSchemaOpts, TableSchema, ModelSchema
+from .schema import (
+    TableSchema,
+    TableSchemaOpts,
+    ModelSchema,
+    ModelSchemaOpts,
+    SQLAlchemySchema,
+    SQLAlchemyAutoSchema,
+    SQLAlchemySchemaOpts,
+    auto_field,
+)
 
 from .convert import (
     ModelConverter,
@@ -12,9 +21,13 @@ from .exceptions import ModelConversionError
 __version__ = "0.21.0"
 __all__ = [
     "TableSchema",
-    "ModelSchema",
     "TableSchemaOpts",
+    "ModelSchema",
     "ModelSchemaOpts",
+    "SQLAlchemySchema",
+    "SQLAlchemyAutoSchema",
+    "SQLAlchemySchemaOpts",
+    "auto_field",
     "ModelConverter",
     "fields_for_model",
     "property2field",

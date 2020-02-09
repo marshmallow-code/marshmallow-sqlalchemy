@@ -124,6 +124,10 @@ def models(Base):
 
         substitute = relationship("SubstituteTeacher", uselist=False, backref="teacher")
 
+        @property
+        def fname(self):
+            return self.full_name
+
     class SubstituteTeacher(Base):
         __tablename__ = "substituteteacher"
         id = sa.Column(sa.Integer, sa.ForeignKey("teacher.id"), primary_key=True)
