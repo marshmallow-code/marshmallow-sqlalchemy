@@ -1,4 +1,6 @@
 from collections import OrderedDict
+from types import SimpleNamespace
+import datetime as dt
 
 import pytest
 import marshmallow
@@ -9,6 +11,93 @@ from marshmallow import fields, ValidationError, Schema, post_load
 from marshmallow_sqlalchemy import ModelSchema, field_for
 from marshmallow_sqlalchemy.fields import Related, RelatedList, Nested
 from .utils import MyDateField, unpack, MARSHMALLOW_VERSION_INFO
+
+
+@pytest.fixture()
+def schemas(models, session):
+    class CourseSchema(ModelSchema):
+        class Meta:
+            model = models.Course
+            sqla_session = session
+            strict = True  # for testing marshmallow 2
+
+    class SchoolSchema(ModelSchema):
+        class Meta:
+            model = models.School
+            sqla_session = session
+            strict = True  # for testing marshmallow 2
+
+    class StudentSchema(ModelSchema):
+        class Meta:
+            model = models.Student
+            sqla_session = session
+            strict = True  # for testing marshmallow 2
+
+    class StudentSchemaWithCustomTypeMapping(ModelSchema):
+        TYPE_MAPPING = Schema.TYPE_MAPPING.copy()
+        TYPE_MAPPING.update({dt.date: MyDateField})
+
+        class Meta:
+            model = models.Student
+            sqla_session = session
+            strict = True  # for testing marshmallow 2
+
+    class TeacherSchema(ModelSchema):
+        class Meta:
+            model = models.Teacher
+            sqla_session = session
+            strict = True  # for testing marshmallow 2
+
+    class SubstituteTeacherSchema(ModelSchema):
+        class Meta:
+            model = models.SubstituteTeacher
+            strict = True  # for testing marshmallow 2
+
+    class PaperSchema(ModelSchema):
+        class Meta:
+            model = models.Paper
+            sqla_session = session
+            strict = True  # for testing marshmallow 2
+
+    class GradedPaperSchema(ModelSchema):
+        class Meta:
+            model = models.GradedPaper
+            sqla_session = session
+            strict = True  # for testing marshmallow 2
+
+    class HyperlinkStudentSchema(ModelSchema):
+        class Meta:
+            model = models.Student
+            sqla_session = session
+            strict = True  # for testing marshmallow 2
+
+    class SeminarSchema(ModelSchema):
+        class Meta:
+            model = models.Seminar
+            sqla_session = session
+            strict = True  # for testing marshmallow 2
+
+        label = fields.Str()
+
+    class LectureSchema(ModelSchema):
+        class Meta:
+            model = models.Lecture
+            sqla_session = session
+            strict = True  # for testing marshmallow 2
+
+    return SimpleNamespace(
+        CourseSchema=CourseSchema,
+        SchoolSchema=SchoolSchema,
+        StudentSchema=StudentSchema,
+        StudentSchemaWithCustomTypeMapping=StudentSchemaWithCustomTypeMapping,
+        TeacherSchema=TeacherSchema,
+        SubstituteTeacherSchema=SubstituteTeacherSchema,
+        PaperSchema=PaperSchema,
+        GradedPaperSchema=GradedPaperSchema,
+        HyperlinkStudentSchema=HyperlinkStudentSchema,
+        SeminarSchema=SeminarSchema,
+        LectureSchema=LectureSchema,
+    )
 
 
 class TestModelSchema:

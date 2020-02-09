@@ -6,10 +6,7 @@ import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
-from marshmallow import Schema, fields, validate
-
-from marshmallow_sqlalchemy import ModelSchema
-from .utils import MyDateField
+from marshmallow import validate
 
 
 class AnotherInteger(sa.Integer):
@@ -124,6 +121,10 @@ def models(Base):
 
         substitute = relationship("SubstituteTeacher", uselist=False, backref="teacher")
 
+        @property
+        def fname(self):
+            return self.full_name
+
     class SubstituteTeacher(Base):
         __tablename__ = "substituteteacher"
         id = sa.Column(sa.Integer, sa.ForeignKey("teacher.id"), primary_key=True)
@@ -199,91 +200,4 @@ def models(Base):
         Seminar=Seminar,
         Lecture=Lecture,
         Keyword=Keyword,
-    )
-
-
-@pytest.fixture()
-def schemas(models, session):
-    class CourseSchema(ModelSchema):
-        class Meta:
-            model = models.Course
-            sqla_session = session
-            strict = True  # for testing marshmallow 2
-
-    class SchoolSchema(ModelSchema):
-        class Meta:
-            model = models.School
-            sqla_session = session
-            strict = True  # for testing marshmallow 2
-
-    class StudentSchema(ModelSchema):
-        class Meta:
-            model = models.Student
-            sqla_session = session
-            strict = True  # for testing marshmallow 2
-
-    class StudentSchemaWithCustomTypeMapping(ModelSchema):
-        TYPE_MAPPING = Schema.TYPE_MAPPING.copy()
-        TYPE_MAPPING.update({dt.date: MyDateField})
-
-        class Meta:
-            model = models.Student
-            sqla_session = session
-            strict = True  # for testing marshmallow 2
-
-    class TeacherSchema(ModelSchema):
-        class Meta:
-            model = models.Teacher
-            sqla_session = session
-            strict = True  # for testing marshmallow 2
-
-    class SubstituteTeacherSchema(ModelSchema):
-        class Meta:
-            model = models.SubstituteTeacher
-            strict = True  # for testing marshmallow 2
-
-    class PaperSchema(ModelSchema):
-        class Meta:
-            model = models.Paper
-            sqla_session = session
-            strict = True  # for testing marshmallow 2
-
-    class GradedPaperSchema(ModelSchema):
-        class Meta:
-            model = models.GradedPaper
-            sqla_session = session
-            strict = True  # for testing marshmallow 2
-
-    class HyperlinkStudentSchema(ModelSchema):
-        class Meta:
-            model = models.Student
-            sqla_session = session
-            strict = True  # for testing marshmallow 2
-
-    class SeminarSchema(ModelSchema):
-        class Meta:
-            model = models.Seminar
-            sqla_session = session
-            strict = True  # for testing marshmallow 2
-
-        label = fields.Str()
-
-    class LectureSchema(ModelSchema):
-        class Meta:
-            model = models.Lecture
-            sqla_session = session
-            strict = True  # for testing marshmallow 2
-
-    return SimpleNamespace(
-        CourseSchema=CourseSchema,
-        SchoolSchema=SchoolSchema,
-        StudentSchema=StudentSchema,
-        StudentSchemaWithCustomTypeMapping=StudentSchemaWithCustomTypeMapping,
-        TeacherSchema=TeacherSchema,
-        SubstituteTeacherSchema=SubstituteTeacherSchema,
-        PaperSchema=PaperSchema,
-        GradedPaperSchema=GradedPaperSchema,
-        HyperlinkStudentSchema=HyperlinkStudentSchema,
-        SeminarSchema=SeminarSchema,
-        LectureSchema=LectureSchema,
     )
