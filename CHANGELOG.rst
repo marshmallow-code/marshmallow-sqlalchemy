@@ -39,6 +39,10 @@ Features:
         id = auto_field(dump_only=True)
         created_at = auto_field(dump_only=True)
 
+* Add ``load_instance`` option to configure deserialization to model instances (:issue:`193`, :issue:`270`).
+* Add ``include_relationships`` option to configure generating marshmallow fields for relationship properties (:issue:`98`).
+  Thanks :user:`dusktreader` for the suggestion.
+
 Deprecations:
 
 * ``ModelSchema`` and ``TableSchema`` are deprecated,
