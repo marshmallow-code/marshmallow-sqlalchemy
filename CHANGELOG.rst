@@ -9,6 +9,7 @@ Features:
 * Add ``SQLAlchemySchema`` and ``SQLAlchemyAutoSchema``,
   which have an improved API for generating marshmallow fields
   and overriding their arguments via ``auto_field`` (:issue:`240`).
+  Thanks :user:`taion` for the idea and original implementation.
 
 .. code-block:: python
 
