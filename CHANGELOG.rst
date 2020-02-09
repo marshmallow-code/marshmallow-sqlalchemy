@@ -71,6 +71,8 @@ Deprecations:
     class ArtistSchema(SQLAlchemyAutoSchema):
         class Meta:
             model = models.Artist
+            include_relationships = True
+            load_instance = True
 
 
     class AlbumSchema(SQLAlchemyAutoSchema):

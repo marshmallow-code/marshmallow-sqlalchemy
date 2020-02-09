@@ -1,3 +1,5 @@
+import warnings
+
 import marshmallow as ma
 
 from ..convert import ModelConverter
@@ -31,6 +33,15 @@ class ModelSchemaOpts(LoadInstanceMixin.Opts, ma.SchemaOpts):
 
 
 class ModelSchemaMeta(SchemaMeta):
+    def __init__(cls, *args, **kwargs):
+        warnings.warn(
+            "marshmallow_sqlalchemy.ModelSchema is deprecated. "
+            "Subclass marshmallow_sqlalchemy.SQLAlchemyAutoSchema and set "
+            "`load_instance = True` and `include_relationships = True` on `class Meta` instead.",
+            DeprecationWarning,
+        )
+        super().__init__(*args, **kwargs)
+
     @classmethod
     def get_fields(mcs, converter, opts, base_fields, dict_cls):
         if opts.model is not None:
@@ -65,6 +76,9 @@ class ModelSchema(LoadInstanceMixin.Schema, ma.Schema, metaclass=ModelSchemaMeta
 
     :param session: Optional SQLAlchemy session; may be overridden in `load.`
     :param instance: Optional existing instance to modify; may be overridden in `load`.
+
+    .. deprecated:: 0.22.0
+        Use `SQLAlchemyAutoSchema <marshmallow_sqlalchemy.SQLAlchemyAutoSchema>` instead.
     """
 
     OPTIONS_CLASS = ModelSchemaOpts
