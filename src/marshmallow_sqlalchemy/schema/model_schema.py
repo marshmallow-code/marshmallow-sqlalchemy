@@ -25,6 +25,7 @@ class ModelSchemaOpts(ma.SchemaOpts):
         self.sqla_session = getattr(meta, "sqla_session", None)
         self.model_converter = getattr(meta, "model_converter", ModelConverter)
         self.include_fk = getattr(meta, "include_fk", False)
+        self.include_relationships = getattr(meta, "include_relationships", True)
         self.transient = getattr(meta, "transient", False)
 
 
@@ -37,6 +38,7 @@ class ModelSchemaMeta(SchemaMeta):
                 fields=opts.fields,
                 exclude=opts.exclude,
                 include_fk=opts.include_fk,
+                include_relationships=opts.include_relationships,
                 base_fields=base_fields,
                 dict_cls=dict_cls,
             )

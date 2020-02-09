@@ -77,6 +77,11 @@ Deprecations:
         class Meta:
             table = models.Album.__table__
 
+Other changes:
+
+* *Backwards-incompatible*: ``fields_for_model`` does not include relationships by default.
+  Use ``fields_for_model(..., include_relationships=True)`` to preserve the old behavior.
+
 0.21.0 (2019-12-04)
 +++++++++++++++++++
 

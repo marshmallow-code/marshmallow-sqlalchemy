@@ -80,6 +80,7 @@ class ModelConverter:
         model,
         *,
         include_fk=False,
+        include_relationships=False,
         fields=None,
         exclude=None,
         base_fields=None,
@@ -101,6 +102,8 @@ class ModelConverter:
                             break
                     else:
                         continue
+            if not include_relationships and hasattr(prop, "direction"):
+                continue
             field = base_fields.get(prop.key) or self.property2field(prop)
             if field:
                 result[prop.key] = field
@@ -285,6 +288,7 @@ given model.
 
 :param model: The SQLAlchemy model
 :param bool include_fk: Whether to include foreign key fields in the output.
+:param bool include_relationships: Whether to include relationships fields in the output.
 :return: dict of field_name: Field instance pairs
 """
 

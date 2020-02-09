@@ -70,17 +70,17 @@ class TestModelFieldConversion:
         assert list(validator.choices) == ["Primary", "Secondary"]
 
     def test_many_to_many_relationship(self, models):
-        student_fields = fields_for_model(models.Student)
+        student_fields = fields_for_model(models.Student, include_relationships=True)
         assert type(student_fields["courses"]) is RelatedList
 
-        course_fields = fields_for_model(models.Course)
+        course_fields = fields_for_model(models.Course, include_relationships=True)
         assert type(course_fields["students"]) is RelatedList
 
     def test_many_to_one_relationship(self, models):
-        student_fields = fields_for_model(models.Student)
+        student_fields = fields_for_model(models.Student, include_relationships=True)
         assert type(student_fields["current_school"]) is Related
 
-        school_fields = fields_for_model(models.School)
+        school_fields = fields_for_model(models.School, include_relationships=True)
         assert type(school_fields["students"]) is RelatedList
 
     def test_include_fk(self, models):

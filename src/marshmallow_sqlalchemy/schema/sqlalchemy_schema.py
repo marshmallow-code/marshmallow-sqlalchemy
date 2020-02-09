@@ -48,6 +48,7 @@ class SQLAlchemySchemaOpts(SchemaOpts):
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
         marshmallow fields.
     - ``include_fk``: Whether to include foreign fields; defaults to `False`.
+    - ``include_relationships``: Whether to include relationships; defaults to `False`.
     """
 
     def __init__(self, meta, *args, **kwargs):
@@ -55,10 +56,13 @@ class SQLAlchemySchemaOpts(SchemaOpts):
 
         self.model = getattr(meta, "model", None)
         self.table = getattr(meta, "table", None)
-        if self.model and self.table:
+        if self.model is not None and self.table is not None:
             raise ValueError("Cannot set both `model` and `table` options.")
         self.sqla_session = getattr(meta, "sqla_session", None)
         self.include_fk = getattr(meta, "include_fk", False)
+        self.include_relationships = getattr(meta, "include_relationships", False)
+        if self.table is not None and self.include_relationships:
+            raise ValueError("Cannot set `table` and `include_relationships = True`.")
         self.model_converter = getattr(meta, "model_converter", ModelConverter)
 
 
@@ -115,6 +119,7 @@ class SQLAlchemyAutoSchemaMeta(SQLAlchemySchemaMeta):
                     fields=opts.fields,
                     exclude=opts.exclude,
                     include_fk=opts.include_fk,
+                    include_relationships=opts.include_relationships,
                     base_fields=base_fields,
                     dict_cls=dict_cls,
                 )

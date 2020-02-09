@@ -25,18 +25,7 @@ class EntityMixin:
     id = auto_field(dump_only=True)
 
 
-@pytest.fixture
-def sqla_schema(models, request):
-    class TeacherSchema(EntityMixin, SQLAlchemySchema):
-        class Meta:
-            model = models.Teacher
-            strict = True  # marshmallow 2 compat
-
-        full_name = auto_field(validate=validate.Length(max=20))
-        current_school = auto_field()
-        substitute = auto_field()
-
-    return TeacherSchema()
+# Auto schemas with default options
 
 
 @pytest.fixture
@@ -63,12 +52,75 @@ def sqla_auto_table_schema(models, request):
     return TeacherSchema()
 
 
+# Schemas with relationships
+
+
+@pytest.fixture
+def sqla_schema_with_relationships(models, request):
+    class TeacherSchema(EntityMixin, SQLAlchemySchema):
+        class Meta:
+            model = models.Teacher
+            strict = True  # marshmallow 2 compat
+
+        full_name = auto_field(validate=validate.Length(max=20))
+        current_school = auto_field()
+        substitute = auto_field()
+
+    return TeacherSchema()
+
+
+@pytest.fixture
+def sqla_auto_model_schema_with_relationships(models, request):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Teacher
+            include_relationships = True
+            strict = True  # marshmallow 2 compat
+
+        full_name = auto_field(validate=validate.Length(max=20))
+
+    return TeacherSchema()
+
+
+# Schemas with foreign keys
+
+
+@pytest.fixture
+def sqla_schema_with_fks(models, request):
+    class TeacherSchema(EntityMixin, SQLAlchemySchema):
+        class Meta:
+            model = models.Teacher
+            strict = True  # marshmallow 2 compat
+
+        full_name = auto_field(validate=validate.Length(max=20))
+        current_school_id = auto_field()
+
+    return TeacherSchema()
+
+
+@pytest.fixture
+def sqla_auto_model_schema_with_fks(models, request):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Teacher
+            include_fk = True
+            include_relationships = False
+            strict = True  # marshmallow 2 compat
+
+        full_name = auto_field(validate=validate.Length(max=20))
+
+    return TeacherSchema()
+
+
 # -----------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize(
     "schema",
-    (pytest.lazy_fixture("sqla_schema"), pytest.lazy_fixture("sqla_auto_model_schema")),
+    (
+        pytest.lazy_fixture("sqla_schema_with_relationships"),
+        pytest.lazy_fixture("sqla_auto_model_schema_with_relationships"),
+    ),
 )
 def test_dump_with_relationships(teacher, schema):
     assert unpack(schema.dump(teacher)) == {
@@ -76,6 +128,21 @@ def test_dump_with_relationships(teacher, schema):
         "full_name": teacher.full_name,
         "current_school": 42,
         "substitute": None,
+    }
+
+
+@pytest.mark.parametrize(
+    "schema",
+    (
+        pytest.lazy_fixture("sqla_schema_with_fks"),
+        pytest.lazy_fixture("sqla_auto_model_schema_with_fks"),
+    ),
+)
+def test_dump_with_foreign_keys(teacher, schema):
+    assert unpack(schema.dump(teacher)) == {
+        "id": teacher.id,
+        "full_name": teacher.full_name,
+        "current_school_id": 42,
     }
 
 
@@ -89,7 +156,8 @@ def test_table_schema_dump(teacher, sqla_auto_table_schema):
 @pytest.mark.parametrize(
     "schema",
     (
-        pytest.lazy_fixture("sqla_schema"),
+        pytest.lazy_fixture("sqla_schema_with_relationships"),
+        pytest.lazy_fixture("sqla_schema_with_fks"),
         pytest.lazy_fixture("sqla_auto_model_schema"),
         pytest.lazy_fixture("sqla_auto_table_schema"),
     ),
@@ -101,7 +169,8 @@ def test_load(schema):
 @pytest.mark.parametrize(
     "schema",
     (
-        pytest.lazy_fixture("sqla_schema"),
+        pytest.lazy_fixture("sqla_schema_with_relationships"),
+        pytest.lazy_fixture("sqla_schema_with_fks"),
         pytest.lazy_fixture("sqla_auto_model_schema"),
         pytest.lazy_fixture("sqla_auto_table_schema"),
     ),
