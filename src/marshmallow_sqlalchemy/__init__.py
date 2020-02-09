@@ -19,7 +19,7 @@ from .convert import (
 )
 from .exceptions import ModelConversionError
 
-__version__ = "0.21.0"
+__version__ = "0.22.0"
 __all__ = [
     "SQLAlchemySchema",
     "SQLAlchemyAutoSchema",
