@@ -32,10 +32,12 @@ jobs:
       - py36-marshmallow2
       - py36-marshmallow3
 
-      - py37-marshmallow2
       - py37-marshmallow3
 
-      - py37-marshmallowdev
+      - py38-marshmallow2
+      - py38-marshmallow3
+
+      - py38-marshmallowdev
 
       - docs
     os: linux
