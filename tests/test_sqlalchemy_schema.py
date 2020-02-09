@@ -1,10 +1,12 @@
 import pytest
 
 from marshmallow import validate, ValidationError, Schema
+import marshmallow
+import sqlalchemy as sa
 
 from marshmallow_sqlalchemy import SQLAlchemySchema, SQLAlchemyAutoSchema, auto_field
 from marshmallow_sqlalchemy.exceptions import IncorrectSchemaTypeError
-from .utils import unpack
+from .utils import unpack, MARSHMALLOW_VERSION_INFO
 
 
 # -----------------------------------------------------------------------------
@@ -251,3 +253,64 @@ class TestAliasing:
         assert aliased_attribute_schema.fields["name"].attribute == "fname"
         dumped = unpack(aliased_attribute_schema.dump(teacher))
         assert dumped["name"] == teacher.fname
+
+
+class TestModelInstanceDeserialization:
+    @pytest.fixture
+    def sqla_schema_class(self, models, session):
+        class TeacherSchema(SQLAlchemySchema):
+            class Meta:
+                model = models.Teacher
+                load_instance = True
+                sqla_session = session
+                strict = True  # marshmallow 2 compat
+
+            full_name = auto_field(validate=validate.Length(max=20))
+            current_school = auto_field()
+            substitute = auto_field()
+
+        return TeacherSchema
+
+    @pytest.fixture
+    def sqla_auto_schema_class(self, models, session):
+        class TeacherSchema(SQLAlchemyAutoSchema):
+            class Meta:
+                model = models.Teacher
+                include_relationships = True
+                load_instance = True
+                sqla_session = session
+                strict = True  # marshmallow 2 compat
+
+        return TeacherSchema
+
+    @pytest.mark.parametrize(
+        "SchemaClass",
+        (
+            pytest.lazy_fixture("sqla_schema_class"),
+            pytest.lazy_fixture("sqla_auto_schema_class"),
+        ),
+    )
+    def test_load(self, teacher, SchemaClass, models):
+        schema_kwargs = (
+            {"unknown": marshmallow.INCLUDE} if MARSHMALLOW_VERSION_INFO[0] >= 3 else {}
+        )
+        schema = SchemaClass(**schema_kwargs)
+        dump_data = unpack(schema.dump(teacher))
+        load_data = unpack(schema.load(dump_data))
+
+        assert isinstance(load_data, models.Teacher)
+
+    def test_load_transient(self, models, teacher):
+        class TeacherSchema(SQLAlchemyAutoSchema):
+            class Meta:
+                model = models.Teacher
+                load_instance = True
+                transient = True
+                strict = True  # marshmallow 2 compat
+
+        schema = TeacherSchema()
+        dump_data = unpack(schema.dump(teacher))
+        load_data = unpack(schema.load(dump_data))
+        assert isinstance(load_data, models.Teacher)
+        state = sa.inspect(load_data)
+        assert state.transient

@@ -5,6 +5,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from ..convert import ModelConverter
 from ..exceptions import IncorrectSchemaTypeError
+from .load_instance_mixin import LoadInstanceMixin
 
 
 # This isn't really a field. It's a placeholder for the metaclass.
@@ -37,7 +38,7 @@ class SQLAlchemyAutoField(FieldABC):
     _add_to_schema = _bind_to_schema  # marshmallow 2 compat
 
 
-class SQLAlchemySchemaOpts(SchemaOpts):
+class SQLAlchemySchemaOpts(LoadInstanceMixin.Opts, SchemaOpts):
     """Options class for `SQLAlchemySchema`.
     Adds the following options:
 
@@ -45,6 +46,9 @@ class SQLAlchemySchemaOpts(SchemaOpts):
     - ``table``: The SQLAlchemy table to generate the `Schema` from (mutually exclusive with ``model``).
     - ``sqla_session``: SQLAlchemy session to be used for deserialization. This is optional; you
         can also pass a session to the Schema's `load` method.
+    - ``load_instance``: Whether to load model instances.
+    - ``transient``: Whether to load model instances in a transient state (effectively ignoring
+        the session).
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
         marshmallow fields.
     """
@@ -56,7 +60,6 @@ class SQLAlchemySchemaOpts(SchemaOpts):
         self.table = getattr(meta, "table", None)
         if self.model is not None and self.table is not None:
             raise ValueError("Cannot set both `model` and `table` options.")
-        self.sqla_session = getattr(meta, "sqla_session", None)
         self.model_converter = getattr(meta, "model_converter", ModelConverter)
 
 
@@ -137,7 +140,9 @@ class SQLAlchemyAutoSchemaMeta(SQLAlchemySchemaMeta):
         return fields
 
 
-class SQLAlchemySchema(Schema, metaclass=SQLAlchemySchemaMeta):
+class SQLAlchemySchema(
+    LoadInstanceMixin.Schema, Schema, metaclass=SQLAlchemySchemaMeta
+):
     """Schema for a SQLAlchemy model or table.
     Use together with `auto_field` to generate fields from columns.
 
