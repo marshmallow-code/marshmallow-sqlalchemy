@@ -47,8 +47,6 @@ class SQLAlchemySchemaOpts(SchemaOpts):
         can also pass a session to the Schema's `load` method.
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
         marshmallow fields.
-    - ``include_fk``: Whether to include foreign fields; defaults to `False`.
-    - ``include_relationships``: Whether to include relationships; defaults to `False`.
     """
 
     def __init__(self, meta, *args, **kwargs):
@@ -59,11 +57,23 @@ class SQLAlchemySchemaOpts(SchemaOpts):
         if self.model is not None and self.table is not None:
             raise ValueError("Cannot set both `model` and `table` options.")
         self.sqla_session = getattr(meta, "sqla_session", None)
+        self.model_converter = getattr(meta, "model_converter", ModelConverter)
+
+
+class SQLAlchemyAutoSchemaOpts(SQLAlchemySchemaOpts):
+    """Options class for `SQLAlchemyAutoSchema`.
+    Has the same options as `SQLAlchemySchemaOpts`, with the addition of:
+
+    - ``include_fk``: Whether to include foreign fields; defaults to `False`.
+    - ``include_relationships``: Whether to include relationships; defaults to `False`.
+    """
+
+    def __init__(self, meta, *args, **kwargs):
+        super().__init__(meta, *args, **kwargs)
         self.include_fk = getattr(meta, "include_fk", False)
         self.include_relationships = getattr(meta, "include_relationships", False)
         if self.table is not None and self.include_relationships:
             raise ValueError("Cannot set `table` and `include_relationships = True`.")
-        self.model_converter = getattr(meta, "model_converter", ModelConverter)
 
 
 class SQLAlchemySchemaMeta(SchemaMeta):
@@ -167,6 +177,8 @@ class SQLAlchemyAutoSchema(SQLAlchemySchema, metaclass=SQLAlchemyAutoSchemaMeta)
 
             created_at = auto_field(dump_only=True)
      """
+
+    OPTIONS_CLASS = SQLAlchemyAutoSchemaOpts
 
 
 def auto_field(

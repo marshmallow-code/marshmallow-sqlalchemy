@@ -6,6 +6,7 @@ from .schema import (
     SQLAlchemySchema,
     SQLAlchemyAutoSchema,
     SQLAlchemySchemaOpts,
+    SQLAlchemyAutoSchemaOpts,
     auto_field,
 )
 
@@ -23,6 +24,7 @@ __all__ = [
     "SQLAlchemySchema",
     "SQLAlchemyAutoSchema",
     "SQLAlchemySchemaOpts",
+    "SQLAlchemyAutoSchemaOpts",
     "auto_field",
     "ModelConverter",
     "fields_for_model",
