@@ -62,6 +62,9 @@ class TableSchema(ma.Schema, metaclass=TableSchemaMeta):
         select = users.select().limit(1)
         user = engine.execute(select).fetchone()
         serialized = schema.dump(user)
+
+    .. deprecated:: 0.22.0
+        Use `SQLAlchemyAutoSchema <marshmallow_sqlalchemy.SQLAlchemyAutoSchema>` instead.
     """
 
     OPTIONS_CLASS = TableSchemaOpts

@@ -20,10 +20,6 @@ from .exceptions import ModelConversionError
 
 __version__ = "0.21.0"
 __all__ = [
-    "TableSchema",
-    "TableSchemaOpts",
-    "ModelSchema",
-    "ModelSchemaOpts",
     "SQLAlchemySchema",
     "SQLAlchemyAutoSchema",
     "SQLAlchemySchemaOpts",
@@ -34,4 +30,9 @@ __all__ = [
     "column2field",
     "ModelConversionError",
     "field_for",
+    # Deprecated API
+    "TableSchema",
+    "TableSchemaOpts",
+    "ModelSchema",
+    "ModelSchemaOpts",
 ]

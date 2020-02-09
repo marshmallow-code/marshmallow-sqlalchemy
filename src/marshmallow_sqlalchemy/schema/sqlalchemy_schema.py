@@ -1,5 +1,7 @@
 from marshmallow.fields import FieldABC
 from marshmallow.schema import Schema, SchemaMeta, SchemaOpts
+import sqlalchemy as sa
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from ..convert import ModelConverter
 from ..exceptions import IncorrectSchemaTypeError
@@ -36,16 +38,28 @@ class SQLAlchemyAutoField(FieldABC):
 
 
 class SQLAlchemySchemaOpts(SchemaOpts):
+    """Options class for `SQLAlchemySchema`.
+    Adds the following options:
+
+    - ``model``: The SQLAlchemy model to generate the `Schema` from (mutually exclusive with ``table``).
+    - ``table``: The SQLAlchemy table to generate the `Schema` from (mutually exclusive with ``model``).
+    - ``sqla_session``: SQLAlchemy session to be used for deserialization. This is optional; you
+        can also pass a session to the Schema's `load` method.
+    - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
+        marshmallow fields.
+    - ``include_fk``: Whether to include foreign fields; defaults to `False`.
+    """
+
     def __init__(self, meta, *args, **kwargs):
         super().__init__(meta, *args, **kwargs)
 
-        self.sqla_session = getattr(meta, "sqla_session", None)
-        self.include_fk = getattr(meta, "include_fk", False)
-        self.model_converter = getattr(meta, "model_converter", ModelConverter)
         self.model = getattr(meta, "model", None)
         self.table = getattr(meta, "table", None)
         if self.model and self.table:
             raise ValueError("Cannot set both `model` and `table` options.")
+        self.sqla_session = getattr(meta, "sqla_session", None)
+        self.include_fk = getattr(meta, "include_fk", False)
+        self.model_converter = getattr(meta, "model_converter", ModelConverter)
 
 
 class SQLAlchemySchemaMeta(SchemaMeta):
@@ -111,6 +125,20 @@ class SQLAlchemyAutoSchemaMeta(SQLAlchemySchemaMeta):
 class SQLAlchemySchema(Schema, metaclass=SQLAlchemySchemaMeta):
     """Schema for a SQLAlchemy model or table.
     Use together with `auto_field` to generate fields from columns.
+
+    Example: ::
+
+        from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
+
+        from mymodels import User, session
+
+        class UserSchema(SQLAlchemy):
+            class Meta:
+                model = User
+
+            id = auto_field()
+            created_at = auto_field(dump_only=True)
+            name = auto_field()
     """
 
     OPTIONS_CLASS = SQLAlchemySchemaOpts
@@ -119,10 +147,30 @@ class SQLAlchemySchema(Schema, metaclass=SQLAlchemySchemaMeta):
 class SQLAlchemyAutoSchema(SQLAlchemySchema, metaclass=SQLAlchemyAutoSchemaMeta):
     """Schema that automatically generates fields from the columns of
      a SQLAlchemy model or table.
+
+    Example: ::
+
+        from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
+
+        from mymodels import User, session
+
+        class UserSchema(SQLAlchemyAutoSchema):
+            class Meta:
+                model = User
+                # OR
+                # table = User.__table__
+
+            created_at = auto_field(dump_only=True)
      """
 
 
-def auto_field(column_name=None, *, model=None, table=None, **kwargs):
+def auto_field(
+    column_name: str = None,
+    *,
+    model: DeclarativeMeta = None,
+    table: sa.Table = None,
+    **kwargs,
+):
     """Mark a field to autogenerate from a model or table.
 
     :param column_name: Name of the column to generate the field from.

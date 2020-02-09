@@ -1,6 +1,82 @@
 Changelog
 ---------
 
+0.22.0 (unreleased)
++++++++++++++++++++
+
+Features:
+
+* Add ``SQLAlchemySchema`` and ``SQLAlchemyAutoSchema``,
+  which have an improved API for generating marshmallow fields
+  and overriding their arguments via ``auto_field`` (:issue:`240`).
+
+.. code-block:: python
+
+    # Before
+    from marshmallow_sqlalchemy import ModelSchema, field_for
+
+    from . import models
+
+
+    class ArtistSchema(ModelSchema):
+        class Meta:
+            model = models.Artist
+
+        id = field_for(models.Artist, "id", dump_only=True)
+        created_at = field_for(models.Artist, "created_at", dump_only=True)
+
+
+    # After
+    from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
+
+    from . import models
+
+
+    class ArtistSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Artist
+
+        id = auto_field(dump_only=True)
+        created_at = auto_field(dump_only=True)
+
+Deprecations:
+
+* ``ModelSchema`` and ``TableSchema`` are deprecated,
+  since ``SQLAlchemyAutoSchema`` has equivalent functionality.
+
+.. code-block:: python
+
+    # Before
+    from marshmallow_sqlalchemy import ModelSchema, TableSchema
+
+    from . import models
+
+
+    class ArtistSchema(ModelSchema):
+        class Meta:
+            model = models.Artist
+
+
+    class AlbumSchema(TableSchema):
+        class Meta:
+            table = models.Album.__table__
+
+
+    # After
+    from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+
+    from . import models
+
+
+    class ArtistSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Artist
+
+
+    class AlbumSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            table = models.Album.__table__
+
 0.21.0 (2019-12-04)
 +++++++++++++++++++
 
@@ -42,14 +118,14 @@ Bug fixes:
 
 * Fix error handling when passing an invalid type to ``Related`` (:issue:`223`).
   Thanks :user:`heckad` for reporting.
-* Address ``DeprecationWarning`` raised when using ``Related`` with marshmallow 3 (:pr:`243`). 
+* Address ``DeprecationWarning`` raised when using ``Related`` with marshmallow 3 (:pr:`243`).
 
 0.17.1 (2019-08-31)
 +++++++++++++++++++
 
 Bug fixes:
 
-* Add ``marshmallow_sqlalchemy.fields.Nested`` field that inherits its session from its schema. This fixes a bug where an exception was raised when using ``Nested`` within a ``ModelSchema`` (:issue:`67`). 
+* Add ``marshmallow_sqlalchemy.fields.Nested`` field that inherits its session from its schema. This fixes a bug where an exception was raised when using ``Nested`` within a ``ModelSchema`` (:issue:`67`).
   Thanks :user:`nickw444` for reporting and thanks :user:`samueljsb` for the PR.
 
 User code should be updated to use marshmallow-sqlalchemy's ``Nested`` instead of ``marshmallow.fields.Nested``.

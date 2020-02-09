@@ -1,5 +1,3 @@
-import warnings
-
 import marshmallow as ma
 
 from ..convert import ModelConverter
@@ -31,13 +29,6 @@ class ModelSchemaOpts(ma.SchemaOpts):
 
 
 class ModelSchemaMeta(SchemaMeta):
-    def __init__(cls, *args, **kwargs):
-        warnings.warn(
-            "marshmallow_sqlalchemy.ModelSchema is deprecated. Subclass marshmallow_sqlalchemy.SQLAlchemyAutoSchema instead.",
-            DeprecationWarning,
-        )
-        super().__init__(*args, **kwargs)
-
     @classmethod
     def get_fields(mcs, converter, opts, base_fields, dict_cls):
         if opts.model is not None:
