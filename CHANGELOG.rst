@@ -10,6 +10,11 @@ Bug fixes:
   with a model that has a ``SynonymProperty`` (:issue:`190`).
 * ``auto_field`` and ``field_for`` work with ``SynonymProperty``.
 
+Other changes:
+
+* Add hook in ``ModelConverter`` for changing field names based on SQLA columns and properties (:issue:`276`).
+  Thanks :user:`davenquinn` for the suggestion and the PR.
+
 0.22.1 (2020-02-09)
 +++++++++++++++++++
 
