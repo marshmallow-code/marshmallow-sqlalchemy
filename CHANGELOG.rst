@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.22.1 (unreleased)
++++++++++++++++++++
+
+* Fix behavior when passing ``table`` to ``auto_field`` (:pr:`277`).
+
 0.22.0 (2020-02-09)
 +++++++++++++++++++
 
@@ -9,6 +14,7 @@ Features:
 * Add ``SQLAlchemySchema`` and ``SQLAlchemyAutoSchema``,
   which have an improved API for generating marshmallow fields
   and overriding their arguments via ``auto_field`` (:issue:`240`).
+  Thanks :user:`taion` for the idea and original implementation.
 
 .. code-block:: python
 

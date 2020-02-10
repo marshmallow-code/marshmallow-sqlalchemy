@@ -199,6 +199,26 @@ def test_cannot_set_both_model_and_table(models):
                 table = models.Teacher
 
 
+def test_passing_model_to_auto_field(models, teacher):
+    class TeacherSchema(SQLAlchemySchema):
+        current_school_id = auto_field(model=models.Teacher)
+
+    schema = TeacherSchema()
+    assert unpack(schema.dump(teacher)) == {
+        "current_school_id": teacher.current_school_id
+    }
+
+
+def test_passing_table_to_auto_field(models, teacher):
+    class TeacherSchema(SQLAlchemySchema):
+        current_school_id = auto_field(table=models.Teacher.__table__)
+
+    schema = TeacherSchema()
+    assert unpack(schema.dump(teacher)) == {
+        "current_school_id": teacher.current_school_id
+    }
+
+
 class TestAliasing:
     @pytest.fixture
     def aliased_schema(self, models):
