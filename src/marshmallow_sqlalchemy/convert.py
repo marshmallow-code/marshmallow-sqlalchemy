@@ -90,7 +90,7 @@ class ModelConverter:
         result = dict_cls()
         base_fields = base_fields or {}
         for prop in model.__mapper__.iterate_properties:
-            key = self._get_key_for_field(prop)
+            key = self._get_field_name(prop)
             if self._should_exclude_field(prop, fields=fields, exclude=exclude):
                 # Allow marshmallow to validate and exclude the field key.
                 result[key] = None
@@ -126,7 +126,7 @@ class ModelConverter:
         result = dict_cls()
         base_fields = base_fields or {}
         for column in table.columns:
-            key = self._get_key_for_field(column)
+            key = self._get_field_name(column)
             if self._should_exclude_field(column, fields=fields, exclude=exclude):
                 # Allow marshmallow to validate and exclude the field key.
                 result[key] = None
@@ -170,13 +170,7 @@ class ModelConverter:
         prop = model.__mapper__.get_property(property_name)
         return self.property2field(prop, **kwargs)
 
-    def _get_key_for_field(self, prop_or_column):
-        """Hook to allow overriding property or column keys from input
-        SQLAlchemy model or table object. For simplicity, the same function
-        is used for both the `_fields_for_table` and `_fields_for_model`
-        methods, so the provided function should work for both columns
-        and ORM properties.
-        """
+    def _get_field_name(self, prop_or_column):
         return prop_or_column.key
 
     def _get_field_class_for_column(self, column):
@@ -288,7 +282,7 @@ class ModelConverter:
         kwargs.update({"allow_none": nullable, "required": not nullable})
 
     def _should_exclude_field(self, column, fields=None, exclude=None):
-        key = self._get_key_for_field(column)
+        key = self._get_field_name(column)
         if fields and key not in fields:
             return True
         if exclude and key in exclude:
