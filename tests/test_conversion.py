@@ -103,7 +103,7 @@ class TestModelFieldConversion:
 
     def test_rename_key(self, models):
         class RenameConverter(ModelConverter):
-            def _get_key_for_field(self, prop):
+            def _get_field_name(self, prop):
                 if prop.key == "name":
                     return "title"
                 return prop.key
