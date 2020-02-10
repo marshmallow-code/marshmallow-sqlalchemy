@@ -1,14 +1,15 @@
 Changelog
 ---------
 
-0.22.2 (unreleased)
+0.22.2 (2020-02-09)
 +++++++++++++++++++
 
 Bug fixes:
 
-* Avoid error when using ``SQLAlchemyModelSchema``, ``ModelSchema``, or ``fields_for_model``
+* Avoid error when using ``SQLAlchemyAutoSchema``, ``ModelSchema``, or ``fields_for_model``
   with a model that has a ``SynonymProperty`` (:issue:`190`).
-* ``auto_field`` and ``field_for`` work with ``SynonymProperty``.
+  Thanks :user:`TrilceAC` for reporting.
+* ``auto_field`` and ``field_for`` work with ``SynonymProperty`` (:pr:`280`).
 
 Other changes:
 
