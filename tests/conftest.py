@@ -5,7 +5,7 @@ import pytest
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, backref, column_property
+from sqlalchemy.orm import sessionmaker, relationship, backref, column_property, synonym
 from marshmallow import validate
 
 
@@ -118,6 +118,7 @@ def models(Base):
             sa.Integer, sa.ForeignKey(School.id), nullable=True
         )
         current_school = relationship(School, backref=backref("teachers"))
+        curr_school_id = synonym("current_school_id")
 
         substitute = relationship("SubstituteTeacher", uselist=False, backref="teacher")
 

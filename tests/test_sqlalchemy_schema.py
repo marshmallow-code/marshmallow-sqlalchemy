@@ -219,6 +219,31 @@ def test_passing_table_to_auto_field(models, teacher):
     }
 
 
+# https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/190
+def test_auto_schema_skips_synonyms(models):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Teacher
+            include_fk = True
+
+    schema = TeacherSchema()
+    assert "current_school_id" in schema.fields
+    assert "curr_school_id" not in schema.fields
+
+
+def test_auto_field_works_with_synonym(models):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Teacher
+            include_fk = True
+
+        curr_school_id = auto_field()
+
+    schema = TeacherSchema()
+    assert "current_school_id" in schema.fields
+    assert "curr_school_id" in schema.fields
+
+
 class TestAliasing:
     @pytest.fixture
     def aliased_schema(self, models):

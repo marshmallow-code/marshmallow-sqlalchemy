@@ -6,6 +6,7 @@ import uuid
 import marshmallow as ma
 from marshmallow import validate, fields
 from sqlalchemy.dialects import postgresql, mysql, mssql
+from sqlalchemy.orm import SynonymProperty
 import sqlalchemy as sa
 
 from .exceptions import ModelConversionError
@@ -93,6 +94,8 @@ class ModelConverter:
                 # Allow marshmallow to validate and exclude the field key.
                 result[prop.key] = None
                 continue
+            if isinstance(prop, SynonymProperty):
+                continue
             if hasattr(prop, "columns"):
                 if not include_fk:
                     # Only skip a column if there is no overriden column
@@ -134,6 +137,8 @@ class ModelConverter:
         return result
 
     def property2field(self, prop, *, instance=True, field_class=None, **kwargs):
+        if hasattr(prop, "_proxied_property"):  # handle synonyms
+            prop = prop._proxied_property
         field_class = field_class or self._get_field_class_for_property(prop)
         if not instance:
             return field_class
@@ -283,8 +288,8 @@ class ModelConverter:
 default_converter = ModelConverter()
 
 fields_for_model = default_converter.fields_for_model
-"""Generate a dict of field_name: `marshmallow.fields.Field` pairs for the
-given model.
+"""Generate a dict of field_name: `marshmallow.fields.Field` pairs for the given model.
+Note: SynonymProperties are ignored. Use an explicit field if you want to include a synonym.
 
 :param model: The SQLAlchemy model
 :param bool include_fk: Whether to include foreign key fields in the output.
