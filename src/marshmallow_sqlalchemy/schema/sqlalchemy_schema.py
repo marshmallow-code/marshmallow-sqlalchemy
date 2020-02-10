@@ -8,7 +8,8 @@ from ..exceptions import IncorrectSchemaTypeError
 from .load_instance_mixin import LoadInstanceMixin
 
 
-# This isn't really a field. It's a placeholder for the metaclass.
+# This isn't really a field; it's a placeholder for the metaclass.
+# This should be considered private API.
 class SQLAlchemyAutoField(FieldABC):
     def __init__(self, *, column_name=None, model=None, table=None, field_kwargs):
         if model and table:
@@ -24,7 +25,7 @@ class SQLAlchemyAutoField(FieldABC):
         if model:
             return converter.field_for(model, column_name, **self.field_kwargs)
         else:
-            table = self.table or schema_opts.table
+            table = self.table if self.table is not None else schema_opts.table
             column = getattr(table.columns, column_name)
             return converter.column2field(column, **self.field_kwargs)
 

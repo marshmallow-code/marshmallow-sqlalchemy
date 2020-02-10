@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.22.1 (unreleased)
++++++++++++++++++++
+
+* Fix behavior when passing ``table`` to ``auto_field`` (:pr:`277`).
+
 0.22.0 (2020-02-09)
 +++++++++++++++++++
 
