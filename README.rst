@@ -68,7 +68,7 @@ Generate marshmallow schemas
         title = auto_field()
         author_id = auto_field()
 
-You can automatically generate fields for a model's columns using `SQLAlchemyAutoSchema <marshmallow_sqlalchemy.SQLAlchemyAutoSchema>`.
+You can automatically generate fields for a model's columns using `SQLAlchemyAutoSchema`.
 The following schema classes are equivalent to the above.
 
 .. code-block:: python
