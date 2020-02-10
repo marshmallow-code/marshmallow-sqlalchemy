@@ -101,6 +101,18 @@ class TestModelFieldConversion:
         assert validator.max == 1000
         assert field.required
 
+    def test_rename_key(self, models):
+        class RenameConverter(ModelConverter):
+            def _get_key_for_field(self, prop):
+                if prop.key == "name":
+                    return "title"
+                return prop.key
+
+        converter = RenameConverter()
+        fields = converter.fields_for_model(models.Paper)
+        assert "title" in fields
+        assert "name" not in fields
+
 
 def make_property(*column_args, **column_kwargs):
     return column_property(sa.Column(*column_args, **column_kwargs))
