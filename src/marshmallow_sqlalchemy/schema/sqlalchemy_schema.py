@@ -148,11 +148,11 @@ class SQLAlchemySchema(
 
     Example: ::
 
-        from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
+        from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 
-        from mymodels import User, session
+        from mymodels import User
 
-        class UserSchema(SQLAlchemy):
+        class UserSchema(SQLAlchemySchema):
             class Meta:
                 model = User
 
@@ -172,7 +172,7 @@ class SQLAlchemyAutoSchema(SQLAlchemySchema, metaclass=SQLAlchemyAutoSchemaMeta)
 
         from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
-        from mymodels import User, session
+        from mymodels import User
 
         class UserSchema(SQLAlchemyAutoSchema):
             class Meta:
