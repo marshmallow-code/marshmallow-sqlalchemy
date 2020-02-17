@@ -154,6 +154,8 @@ If a field's external data key differs from the model's column name, you can pas
     class AuthorSchema(SQLAlchemyAutoSchema):
         class Meta:
             model = Author
+            # Exclude date_created because we're aliasing it below
+            exclude = ("date_created",)
 
         # Generate "created_date" field from "date_created" column
         created_date = auto_field("date_created", dump_only=True)
