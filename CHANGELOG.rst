@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+0.22.3 (unreleased)
++++++++++++++++++++
+
+Bug fixes:
+
+* Fix ``DeprecationWarning`` getting raised even when user code does not use
+  ``TableSchema`` or ``ModelSchema`` (:issue:`289`).
+  Thanks :user:`5uper5hoot` for reporting. 
+
 0.22.2 (2020-02-09)
 +++++++++++++++++++
 
