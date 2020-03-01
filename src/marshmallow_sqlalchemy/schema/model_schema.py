@@ -36,15 +36,6 @@ class ModelSchemaOpts(LoadInstanceMixin.Opts, ma.SchemaOpts):
 
 
 class ModelSchemaMeta(SchemaMeta):
-    def __init__(cls, *args, **kwargs):
-        warnings.warn(
-            "marshmallow_sqlalchemy.ModelSchema is deprecated. "
-            "Subclass marshmallow_sqlalchemy.SQLAlchemyAutoSchema and set "
-            "`load_instance = True` and `include_relationships = True` on `class Meta` instead.",
-            DeprecationWarning,
-        )
-        super().__init__(*args, **kwargs)
-
     @classmethod
     def get_fields(mcs, converter, opts, base_fields, dict_cls):
         if opts.model is not None:
@@ -85,3 +76,12 @@ class ModelSchema(LoadInstanceMixin.Schema, ma.Schema, metaclass=ModelSchemaMeta
     """
 
     OPTIONS_CLASS = ModelSchemaOpts
+
+    def __init_subclass__(cls):
+        warnings.warn(
+            "marshmallow_sqlalchemy.ModelSchema is deprecated. "
+            "Subclass marshmallow_sqlalchemy.SQLAlchemyAutoSchema and set "
+            "`load_instance = True` and `include_relationships = True` on `class Meta` instead.",
+            DeprecationWarning,
+        )
+        return super().__init_subclass__()

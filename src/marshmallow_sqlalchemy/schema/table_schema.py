@@ -24,13 +24,6 @@ class TableSchemaOpts(ma.SchemaOpts):
 
 
 class TableSchemaMeta(SchemaMeta):
-    def __init__(cls, *args, **kwargs):
-        warnings.warn(
-            "marshmallow_sqlalchemy.TableSchema is deprecated. Subclass marshmallow_sqlalchemy.SQLAlchemyAutoSchema instead.",
-            DeprecationWarning,
-        )
-        super().__init__(*args, **kwargs)
-
     @classmethod
     def get_fields(mcs, converter, opts, base_fields, dict_cls):
         if opts.table is not None:
@@ -68,3 +61,10 @@ class TableSchema(ma.Schema, metaclass=TableSchemaMeta):
     """
 
     OPTIONS_CLASS = TableSchemaOpts
+
+    def __init_subclass__(cls):
+        warnings.warn(
+            "marshmallow_sqlalchemy.TableSchema is deprecated. Subclass marshmallow_sqlalchemy.SQLAlchemyAutoSchema instead.",
+            DeprecationWarning,
+        )
+        return super().__init_subclass__()
