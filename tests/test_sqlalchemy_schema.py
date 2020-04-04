@@ -374,9 +374,9 @@ def test_related_when_model_attribute_name_distinct_from_column_name(
 
         current_school = Related(["id", "name"])
 
-    dump_data = TeacherSchema().dump(teacher)
+    dump_data = unpack(TeacherSchema().dump(teacher))
     assert "school_id" not in dump_data["current_school"]
     assert dump_data["current_school"]["id"] == teacher.current_school.id
-    new_teacher = TeacherSchema().load(dump_data, transient=True)
+    new_teacher = unpack(TeacherSchema().load(dump_data, transient=True))
     assert new_teacher.current_school.id == teacher.current_school.id
-    assert TeacherSchema().load(dump_data) is teacher
+    assert unpack(TeacherSchema().load(dump_data)) is teacher
