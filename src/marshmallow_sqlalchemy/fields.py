@@ -1,6 +1,7 @@
 from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
 
+from sqlalchemy import inspect
 from sqlalchemy.orm.exc import NoResultFound
 
 
@@ -58,9 +59,8 @@ class Related(fields.Field):
     @property
     def related_keys(self):
         if self.columns:
-            return [
-                self.related_model.__mapper__.columns[column] for column in self.columns
-            ]
+            insp = inspect(self.related_model)
+            return [insp.attrs[column] for column in self.columns]
         return get_primary_keys(self.related_model)
 
     @property

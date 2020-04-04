@@ -6,6 +6,7 @@ import sqlalchemy as sa
 
 from marshmallow_sqlalchemy import SQLAlchemySchema, SQLAlchemyAutoSchema, auto_field
 from marshmallow_sqlalchemy.exceptions import IncorrectSchemaTypeError
+from marshmallow_sqlalchemy.fields import Related
 from .utils import unpack, MARSHMALLOW_VERSION_INFO
 
 
@@ -359,3 +360,23 @@ class TestModelInstanceDeserialization:
         assert isinstance(load_data, models.Teacher)
         state = sa.inspect(load_data)
         assert state.transient
+
+
+def test_related_when_model_attribute_name_distinct_from_column_name(
+    models, session, teacher,
+):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Teacher
+            load_instance = True
+            sqla_session = session
+            strict = True  # marshmallow 2 compat
+
+        current_school = Related(["id", "name"])
+
+    dump_data = TeacherSchema().dump(teacher)
+    assert "school_id" not in dump_data["current_school"]
+    assert dump_data["current_school"]["id"] == teacher.current_school.id
+    new_teacher = TeacherSchema().load(dump_data, transient=True)
+    assert new_teacher.current_school.id == teacher.current_school.id
+    assert TeacherSchema().load(dump_data) is teacher
