@@ -244,6 +244,16 @@ def test_auto_field_works_with_synonym(models):
     assert "curr_school_id" in schema.fields
 
 
+def test_auto_field_works_with_ordered_flag(models):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Teacher
+            ordered = True
+            strict = True  # marshmallow 2 compat
+
+        full_name = auto_field()
+
+
 class TestAliasing:
     @pytest.fixture
     def aliased_schema(self, models):

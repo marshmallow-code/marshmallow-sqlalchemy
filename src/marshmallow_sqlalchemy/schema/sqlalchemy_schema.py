@@ -1,4 +1,4 @@
-from marshmallow.fields import FieldABC
+from marshmallow.fields import Field, FieldABC
 from marshmallow.schema import Schema, SchemaMeta, SchemaOpts
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -19,6 +19,8 @@ class SQLAlchemyAutoField(FieldABC):
         self.model = model
         self.table = table
         self.field_kwargs = field_kwargs
+        self._creation_index = Field._creation_index
+        Field._creation_index += 1
 
     def create_field(self, schema_opts, column_name, converter):
         model = self.model or schema_opts.model
