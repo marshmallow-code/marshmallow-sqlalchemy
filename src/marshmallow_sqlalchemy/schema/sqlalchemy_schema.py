@@ -1,4 +1,4 @@
-from marshmallow.fields import FieldABC
+from marshmallow.fields import Field
 from marshmallow.schema import Schema, SchemaMeta, SchemaOpts
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -10,8 +10,10 @@ from .load_instance_mixin import LoadInstanceMixin
 
 # This isn't really a field; it's a placeholder for the metaclass.
 # This should be considered private API.
-class SQLAlchemyAutoField(FieldABC):
+class SQLAlchemyAutoField(Field):
     def __init__(self, *, column_name=None, model=None, table=None, field_kwargs):
+        super().__init__()
+
         if model and table:
             raise ValueError("Cannot pass both `model` and `table` options.")
 
