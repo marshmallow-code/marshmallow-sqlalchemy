@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.23.0 (unreleased)
++++++++++++++++++++
+
+Bug fixes:
+
+* Fix data keys when using ``Related`` with a ``Column`` that is named differently
+  from its attribute (:issue:`299`). Thanks :user:`peterschutt` for the catch and patch.
+
 0.22.3 (2020-03-01)
 +++++++++++++++++++
 
