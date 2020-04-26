@@ -8,6 +8,8 @@ Bug fixes:
 
 * Fix data keys when using ``Related`` with a ``Column`` that is named differently
   from its attribute (:issue:`299`). Thanks :user:`peterschutt` for the catch and patch.
+* Fix bug that raised an exception when using the `ordered = True` option on a schema that has an `auto_field` (:issue:`306`).
+  Thanks :user:`KwonL` for reporting and thanks :user:`peterschutt` for the PR.
 
 0.22.3 (2020-03-01)
 +++++++++++++++++++
