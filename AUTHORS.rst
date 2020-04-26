@@ -35,4 +35,4 @@ Contributors
 - Pierre Verkest `@petrus-v <https://github.com/petrus-v>`_
 - Erik Cederstrand `@ecederstrand <https://github.com/ecederstrand>`_
 - Daven Quinn `@davenquinn <https://github.com/davenquinn>`_
-- Peter Schutt `@5uper5hoot <https://github.com/5uper5hoot>`_
+- Peter Schutt `@peterschutt <https://github.com/peterschutt>`_
