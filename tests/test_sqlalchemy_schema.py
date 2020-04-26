@@ -244,14 +244,19 @@ def test_auto_field_works_with_synonym(models):
     assert "curr_school_id" in schema.fields
 
 
+# Regresion test https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/306
 def test_auto_field_works_with_ordered_flag(models):
-    class TeacherSchema(SQLAlchemyAutoSchema):
+    class StudentSchema(SQLAlchemyAutoSchema):
         class Meta:
-            model = models.Teacher
+            model = models.Student
             ordered = True
             strict = True  # marshmallow 2 compat
 
         full_name = auto_field()
+
+    schema = StudentSchema()
+    # Declared fields precede auto-generated fields
+    assert tuple(schema.fields.keys()) == ("full_name", "id", "dob", "date_created")
 
 
 class TestAliasing:
