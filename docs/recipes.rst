@@ -273,7 +273,7 @@ An example of then using this:
 
     book = Book(id=1)
     book.author = Author(name="Chuck Paluhniuk")
-    session.add(author)
+    session.add(book)
     session.commit()
 
     book = Book.query.get(1)
