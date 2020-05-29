@@ -259,12 +259,14 @@ class ModelConverter:
         # Skip UUID columns
         # (see https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/54)
         if hasattr(column.type, "length"):
-            try:
-                python_type = column.type.python_type
-            except (AttributeError, NotImplementedError):
-                python_type = None
-            if not python_type or not issubclass(python_type, uuid.UUID):
-                kwargs["validate"].append(validate.Length(max=column.type.length))
+            column_length = column.type.length
+            if column_length is not None:
+                try:
+                    python_type = column.type.python_type
+                except (AttributeError, NotImplementedError):
+                    python_type = None
+                if not python_type or not issubclass(python_type, uuid.UUID):
+                    kwargs["validate"].append(validate.Length(max=column_length))
 
         if hasattr(column.type, "scale"):
             kwargs["places"] = getattr(column.type, "scale", None)
