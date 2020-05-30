@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.23.1 (2020-05-30)
++++++++++++++++++++
+
+Bug fixes:
+
+* Don't add no-op `Length` validator (:pr:`315`). Thanks :user:`taion` for the PR.
+
 0.23.0 (2020-04-26)
 +++++++++++++++++++
 
