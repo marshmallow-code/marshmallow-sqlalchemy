@@ -59,6 +59,10 @@ class TestModelFieldConversion:
         assert validator
         assert validator.max == 255
 
+    def test_none_length_validator_not_set(self, models):
+        fields_ = fields_for_model(models.Course)
+        assert not contains_validator(fields_["transcription"], validate.Length)
+
     def test_sets_allow_none_for_nullable_fields(self, models):
         fields_ = fields_for_model(models.Student)
         assert fields_["dob"].allow_none is True
