@@ -73,7 +73,7 @@ The following schema classes are equivalent to the above.
 
 .. code-block:: python
 
-    from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
+    from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 
     class AuthorSchema(SQLAlchemyAutoSchema):
