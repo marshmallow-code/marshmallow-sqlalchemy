@@ -12,15 +12,13 @@ class ModelSchemaOpts(LoadInstanceMixin.Opts, ma.SchemaOpts):
     Adds the following options:
 
     - ``model``: The SQLAlchemy model to generate the `Schema` from (required).
-    - ``sqla_session``: SQLAlchemy session to be used for deserialization. This is optional; you
-        can also pass a session to the Schema's `load` method.
     - ``load_instance``: Whether to load model instances.
     - ``sqla_session``: SQLAlchemy session to be used for deserialization.
         This is only needed when ``load_instance`` is `True`. You can also pass a session to the Schema's `load` method.
     - ``transient``: Whether to load model instances in a transient state (effectively ignoring the session).
         Only relevant when ``load_instance`` is `True`.
     - ``include_fk``: Whether to include foreign fields; defaults to `False`.
-    - ``include_relationships``: Whether to include relationships; defaults to `False`.
+    - ``include_relationships``: Whether to include relationships; defaults to `True`.
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to
         marshmallow fields.
     """
