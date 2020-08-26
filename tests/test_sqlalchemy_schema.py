@@ -376,7 +376,6 @@ def test_related_when_model_attribute_name_distinct_from_column_name(
 
 
 # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/338
-@pytest.mark.xfail
 def test_auto_field_works_with_assoc_proxy(models):
     class StudentSchema(SQLAlchemySchema):
         class Meta:
