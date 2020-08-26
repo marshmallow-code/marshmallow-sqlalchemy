@@ -357,9 +357,7 @@ class TestModelInstanceDeserialization:
 
 
 def test_related_when_model_attribute_name_distinct_from_column_name(
-    models,
-    session,
-    teacher,
+    models, session, teacher,
 ):
     class TeacherSchema(SQLAlchemyAutoSchema):
         class Meta:
@@ -375,3 +373,16 @@ def test_related_when_model_attribute_name_distinct_from_column_name(
     new_teacher = TeacherSchema().load(dump_data, transient=True)
     assert new_teacher.current_school.id == teacher.current_school.id
     assert TeacherSchema().load(dump_data) is teacher
+
+
+# https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/338
+@pytest.mark.xfail
+def test_auto_field_works_with_assoc_proxy(models):
+    class StudentSchema(SQLAlchemySchema):
+        class Meta:
+            model = models.Student
+
+        possible_teachers = auto_field()
+
+    schema = StudentSchema()
+    assert "possible_teachers" in schema.fields
