@@ -28,10 +28,10 @@ jobs:
         - lint
 
         - py36-lowest
-        - py36-mastable
-        - py37-mastable
-        - py38-mastable
-        - py38-madev
+        - py36-marshmallow3
+        - py37-marshmallow3
+        - py38-marshmallow3
+        - py38-marshmallowdev
 
         - docs
       os: linux
