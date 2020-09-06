@@ -183,7 +183,7 @@ class SQLAlchemyAutoSchema(SQLAlchemySchema, metaclass=SQLAlchemyAutoSchemaMeta)
                 # table = User.__table__
 
             created_at = auto_field(dump_only=True)
-     """
+    """
 
     OPTIONS_CLASS = SQLAlchemyAutoSchemaOpts
 
