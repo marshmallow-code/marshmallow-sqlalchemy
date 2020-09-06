@@ -2,16 +2,16 @@ trigger:
   branches:
     include: [dev, test-me-*]
   tags:
-    include: ['*']
+    include: ["*"]
 
 # Run builds nightly to catch incompatibilities with new marshmallow releases
 schedules:
-- cron: "0 0 * * *"
-  displayName: Daily midnight build
-  branches:
-    include:
-      - dev
-  always: "true"
+  - cron: "0 0 * * *"
+    displayName: Daily midnight build
+    branches:
+      include:
+        - dev
+    always: "true"
 
 resources:
   repositories:
@@ -22,26 +22,20 @@ resources:
       ref: refs/heads/sloria
 
 jobs:
-- template: job--python-tox.yml@sloria
-  parameters:
-    toxenvs:
-      - lint
+  - template: job--python-tox.yml@sloria
+    parameters:
+      toxenvs:
+        - lint
 
-      - py36-lowest
+        - py36-lowest
+        - py36-mastable
+        - py37-mastable
+        - py38-mastable
+        - py38-madev
 
-      - py36-marshmallow2
-      - py36-marshmallow3
-
-      - py37-marshmallow3
-
-      - py38-marshmallow2
-      - py38-marshmallow3
-
-      - py38-marshmallowdev
-
-      - docs
-    os: linux
-- template: job--pypi-release.yml@sloria
-  parameters:
-    dependsOn:
-      - tox_linux
+        - docs
+      os: linux
+  - template: job--pypi-release.yml@sloria
+    parameters:
+      dependsOn:
+        - tox_linux

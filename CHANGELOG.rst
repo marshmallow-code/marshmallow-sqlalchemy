@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.24.0 (unreleased)
++++++++++++++++++++
+
+Other changes:
+
+* *Backwards-incompatible*: Drop support for marshmallow 2.x, which is now EOL. 
+
 0.23.1 (2020-05-30)
 +++++++++++++++++++
 

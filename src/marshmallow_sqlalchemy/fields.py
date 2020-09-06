@@ -85,10 +85,7 @@ class Related(fields.Field):
         if not isinstance(value, dict):
             if len(self.related_keys) != 1:
                 keys = [prop.key for prop in self.related_keys]
-                if hasattr(self, "make_error"):
-                    raise self.make_error("invalid", value=value, keys=keys)
-                else:  # marshmallow 2
-                    self.fail("invalid", value=value, keys=keys)
+                raise self.make_error("invalid", value=value, keys=keys)
             value = {self.related_keys[0].key: value}
         if self.transient:
             return self.related_model(**value)
@@ -120,10 +117,7 @@ class Related(fields.Field):
                 result = query.get(lookup_values)
             except TypeError:
                 keys = [prop.key for prop in self.related_keys]
-                if hasattr(self, "make_error"):
-                    raise self.make_error("invalid", value=value, keys=keys)
-                else:  # marshmallow 2
-                    self.fail("invalid", value=value, keys=keys)
+                raise self.make_error("invalid", value=value, keys=keys)
             if result is None:
                 raise NoResultFound
         return result

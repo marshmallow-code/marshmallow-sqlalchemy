@@ -10,7 +10,10 @@ from marshmallow import fields, ValidationError, Schema, post_load
 
 from marshmallow_sqlalchemy import ModelSchema, field_for
 from marshmallow_sqlalchemy.fields import Related, RelatedList, Nested
-from .utils import MyDateField, unpack, MARSHMALLOW_VERSION_INFO
+
+
+class MyDateField(fields.Date):
+    pass
 
 
 @pytest.fixture()
@@ -19,19 +22,16 @@ def schemas(models, session):
         class Meta:
             model = models.Course
             sqla_session = session
-            strict = True  # for testing marshmallow 2
 
     class SchoolSchema(ModelSchema):
         class Meta:
             model = models.School
             sqla_session = session
-            strict = True  # for testing marshmallow 2
 
     class StudentSchema(ModelSchema):
         class Meta:
             model = models.Student
             sqla_session = session
-            strict = True  # for testing marshmallow 2
 
     class StudentSchemaWithCustomTypeMapping(ModelSchema):
         TYPE_MAPPING = Schema.TYPE_MAPPING.copy()
@@ -40,42 +40,35 @@ def schemas(models, session):
         class Meta:
             model = models.Student
             sqla_session = session
-            strict = True  # for testing marshmallow 2
 
     class TeacherSchema(ModelSchema):
         class Meta:
             model = models.Teacher
             sqla_session = session
-            strict = True  # for testing marshmallow 2
 
     class SubstituteTeacherSchema(ModelSchema):
         class Meta:
             model = models.SubstituteTeacher
-            strict = True  # for testing marshmallow 2
 
     class PaperSchema(ModelSchema):
         class Meta:
             model = models.Paper
             sqla_session = session
-            strict = True  # for testing marshmallow 2
 
     class GradedPaperSchema(ModelSchema):
         class Meta:
             model = models.GradedPaper
             sqla_session = session
-            strict = True  # for testing marshmallow 2
 
     class HyperlinkStudentSchema(ModelSchema):
         class Meta:
             model = models.Student
             sqla_session = session
-            strict = True  # for testing marshmallow 2
 
     class SeminarSchema(ModelSchema):
         class Meta:
             model = models.Seminar
             sqla_session = session
-            strict = True  # for testing marshmallow 2
 
         label = fields.Str()
 
@@ -83,7 +76,6 @@ def schemas(models, session):
         class Meta:
             model = models.Lecture
             sqla_session = session
-            strict = True  # for testing marshmallow 2
 
     return SimpleNamespace(
         CourseSchema=CourseSchema,
@@ -209,19 +201,16 @@ class TestModelSchema:
 
     def test_model_schema_dumping(self, schemas, student):
         schema = schemas.StudentSchema()
-        data = unpack(schema.dump(student))
+        data = schema.dump(student)
         # fk excluded by default
         assert "current_school_id" not in data
         # related field dumps to pk
         assert data["current_school"] == student.current_school.id
 
     def test_model_schema_loading(self, models, schemas, student, session):
-        schema_kwargs = (
-            {"unknown": marshmallow.INCLUDE} if MARSHMALLOW_VERSION_INFO[0] >= 3 else {}
-        )
-        schema = schemas.StudentSchema(**schema_kwargs)
-        dump_data = unpack(schema.dump(student))
-        load_data = unpack(schema.load(dump_data))
+        schema = schemas.StudentSchema(unknown=marshmallow.INCLUDE)
+        dump_data = schema.dump(student)
+        load_data = schema.load(dump_data)
 
         assert load_data is student
         assert load_data.current_school == student.current_school
@@ -230,7 +219,7 @@ class TestModelSchema:
         self, models, schemas, student, session
     ):
         schema = schemas.StudentSchema()
-        dump_data = unpack(schema.dump(student))
+        dump_data = schema.dump(student)
         dump_data["current_school"] = [1]
         with pytest.raises(
             ValidationError, match="Could not deserialize related value"
@@ -241,7 +230,7 @@ class TestModelSchema:
         self, models, schemas, student, session
     ):
         schema = schemas.StudentSchema()
-        dump_data = unpack(schema.dump(student))
+        dump_data = schema.dump(student)
         dump_data.pop("full_name")
         with pytest.raises(ValidationError) as excinfo:
             schema.load(dump_data)
@@ -252,9 +241,9 @@ class TestModelSchema:
         self, models, schemas, student, session
     ):
         schema = schemas.StudentSchema(instance=student)
-        dump_data = unpack(schema.dump(student))
+        dump_data = schema.dump(student)
         dump_data["full_name"] = "Terry Gilliam"
-        load_data = unpack(schema.load(dump_data))
+        load_data = schema.load(dump_data)
 
         assert load_data is student
         assert load_data.current_school == student.current_school
@@ -262,11 +251,11 @@ class TestModelSchema:
     # Regression test for https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/78
     def test_model_schema_loading_resets_instance(self, models, schemas, student):
         schema = schemas.StudentSchema()
-        data1 = unpack(schema.load({"full_name": "new name"}, instance=student))
+        data1 = schema.load({"full_name": "new name"}, instance=student)
         assert data1.id == student.id
         assert data1.full_name == student.full_name
 
-        data2 = unpack(schema.load({"full_name": "new name2"}))
+        data2 = schema.load({"full_name": "new name2"})
         assert isinstance(data2, models.Student)
         # loaded data is different from first instance (student)
         assert data2 != student
@@ -277,31 +266,31 @@ class TestModelSchema:
     ):
         schema = schemas.StudentSchema()
         dump_data = {"full_name": "Terry Gilliam"}
-        load_data = unpack(schema.load(dump_data))
+        load_data = schema.load(dump_data)
 
         assert load_data is not student
 
     def test_model_schema_compound_key(self, schemas, seminar):
         schema = schemas.SeminarSchema()
-        dump_data = unpack(schema.dump(seminar))
-        load_data = unpack(schema.load(dump_data))
+        dump_data = schema.dump(seminar)
+        load_data = schema.load(dump_data)
 
         assert load_data is seminar
 
     def test_model_schema_compound_key_relationship(self, schemas, lecture):
         schema = schemas.LectureSchema()
-        dump_data = unpack(schema.dump(lecture))
+        dump_data = schema.dump(lecture)
         assert dump_data["seminar"] == {
             "title": lecture.seminar_title,
             "semester": lecture.seminar_semester,
         }
-        load_data = unpack(schema.load(dump_data))
+        load_data = schema.load(dump_data)
 
         assert load_data is lecture
 
     def test_model_schema_compound_key_relationship_invalid_key(self, schemas, lecture):
         schema = schemas.LectureSchema()
-        dump_data = unpack(schema.dump(lecture))
+        dump_data = schema.dump(lecture)
         dump_data["seminar"] = "scalar"
         with pytest.raises(ValidationError) as excinfo:
             schema.load(dump_data)
@@ -316,8 +305,8 @@ class TestModelSchema:
                 model = models.Student
 
         schema = StudentSchemaNoSession()
-        dump_data = unpack(schema.dump(student))
-        load_data = unpack(schema.load(dump_data, session=session))
+        dump_data = schema.dump(student)
+        load_data = schema.load(dump_data, session=session)
         assert type(load_data) == models.Student
         assert load_data.current_school == student.current_school
 
@@ -329,7 +318,7 @@ class TestModelSchema:
                 model = models.Student
 
         schema = StudentSchemaNoSession()
-        dump_data = unpack(schema.dump(student))
+        dump_data = schema.dump(student)
         assert type(schema.validate(dump_data, session=session)) is dict
 
     def test_model_schema_loading_passing_session_to_constructor(
@@ -340,8 +329,8 @@ class TestModelSchema:
                 model = models.Student
 
         schema = StudentSchemaNoSession(session=session)
-        dump_data = unpack(schema.dump(student))
-        load_data = unpack(schema.load(dump_data))
+        dump_data = schema.dump(student)
+        load_data = schema.load(dump_data)
         assert type(load_data) == models.Student
         assert load_data.current_school == student.current_school
 
@@ -353,7 +342,7 @@ class TestModelSchema:
                 model = models.Student
 
         schema = StudentSchemaNoSession(session=session)
-        dump_data = unpack(schema.dump(student))
+        dump_data = schema.dump(student)
         assert type(schema.validate(dump_data)) is dict
 
     def test_model_schema_loading_and_validation_with_no_session_raises_error(
@@ -364,7 +353,7 @@ class TestModelSchema:
                 model = models.Student
 
         schema = StudentSchemaNoSession()
-        dump_data = unpack(schema.dump(student))
+        dump_data = schema.dump(student)
         with pytest.raises(ValueError) as excinfo:
             schema.load(dump_data)
         assert excinfo.value.args[0] == "Deserialization requires a session"
@@ -384,8 +373,8 @@ class TestModelSchema:
             current_school = Related(column="name")
 
         schema = StudentSchema()
-        dump_data = unpack(schema.dump(student))
-        load_data = unpack(schema.load(dump_data))
+        dump_data = schema.dump(student)
+        load_data = schema.load(dump_data)
 
         assert type(load_data) == models.Student
         assert load_data.current_school == student.current_school
@@ -423,10 +412,10 @@ class TestModelSchema:
         schema2 = SchoolSchema2()
         schema3 = SchoolSchema3()
 
-        dump_data = unpack(schema.dump(school))
-        dump_data2 = unpack(schema2.dump(school))
-        dump_data3 = unpack(schema3.dump(school))
-        load_data = unpack(schema.load(dump_data))
+        dump_data = schema.dump(school)
+        dump_data2 = schema2.dump(school)
+        dump_data3 = schema3.dump(school)
+        load_data = schema.load(dump_data)
 
         assert dump_data["students"] == dump_data["students"]
         assert dump_data["students"] == dump_data2["students"]
@@ -437,14 +426,14 @@ class TestModelSchema:
 
     def test_dump_many_to_one_relationship(self, models, schemas, school, student):
         schema = schemas.SchoolSchema()
-        dump_data = unpack(schema.dump(school))
+        dump_data = schema.dump(school)
 
         assert dump_data["students"] == [student.id]
 
     def test_load_many_to_one_relationship(self, models, schemas, school, student):
         schema = schemas.SchoolSchema()
-        dump_data = unpack(schema.dump(school))
-        load_data = unpack(schema.load(dump_data))
+        dump_data = schema.dump(school)
+        load_data = schema.load(dump_data)
         assert type(load_data.students[0]) is models.Student
         assert load_data.students[0] == student
 
@@ -457,7 +446,7 @@ class TestModelSchema:
 
         session.commit()
         schema = StudentSchema()
-        data = unpack(schema.dump(student))
+        data = schema.dump(student)
 
         assert "full_name" in data
         assert "date_created" in data
@@ -473,7 +462,7 @@ class TestModelSchema:
 
         session.commit()
         schema = StudentSchema()
-        data = unpack(schema.dump(student))
+        data = schema.dump(student)
 
         assert "full_name" in data
         assert "date_created" not in data
@@ -498,7 +487,7 @@ class TestModelSchema:
 
         session.commit()
         schema = StudentSchema()
-        data = unpack(schema.dump(student))
+        data = schema.dump(student)
         assert "full_name" in data
         assert "uppername" in data
         assert data["uppername"] == student.full_name.upper()
@@ -517,7 +506,7 @@ class TestModelSchema:
 
         session.commit()
         schema = StudentSchema()
-        data = unpack(schema.dump(student))
+        data = schema.dump(student)
         assert "full_name" in data
         assert data["full_name"] == student.full_name.upper()
 
@@ -526,8 +515,8 @@ class TestModelSchema:
     ):
         session.commit()
         schema = schemas.TeacherSchema()
-        data = unpack(schema.dump(teacher))
-        load_data = unpack(schema.load(data))
+        data = schema.dump(teacher)
+        load_data = schema.load(data)
 
         assert type(load_data) is models.Teacher
         assert "substitute" in data
@@ -549,15 +538,11 @@ class TestModelSchema:
         students_field = sch.fields["students"]
 
         assert students_field.dump_only is True
-        dump_data = unpack(sch.dump(school))
-        if MARSHMALLOW_VERSION_INFO[0] < 3:
-            load_data = unpack(sch.load(dump_data, session=session))
-            assert "students" not in load_data
-        else:
-            with pytest.raises(ValidationError) as excinfo:
-                sch.load(dump_data, session=session)
-            err = excinfo.value
-            assert err.messages == {"students": ["Unknown field."]}
+        dump_data = sch.dump(school)
+        with pytest.raises(ValidationError) as excinfo:
+            sch.load(dump_data, session=session)
+        err = excinfo.value
+        assert err.messages == {"students": ["Unknown field."]}
 
     def test_transient_schema(self, models, school):
         class SchoolSchemaTransient(ModelSchema):
@@ -566,8 +551,8 @@ class TestModelSchema:
                 transient = True
 
         sch = SchoolSchemaTransient()
-        dump_data = unpack(sch.dump(school))
-        load_data = unpack(sch.load(dump_data))
+        dump_data = sch.dump(school)
+        load_data = sch.load(dump_data)
         assert isinstance(load_data, models.School)
         state = sa.inspect(load_data)
         assert state.transient
@@ -579,15 +564,12 @@ class TestModelSchema:
                 sqla_session = session
 
         sch = SchoolSchemaTransient()
-        dump_data = unpack(sch.dump(school))
-        load_data = unpack(sch.load(dump_data, transient=True))
+        dump_data = sch.dump(school)
+        load_data = sch.load(dump_data, transient=True)
         assert isinstance(load_data, models.School)
         state = sa.inspect(load_data)
         assert state.transient
 
-    @pytest.mark.skipif(
-        MARSHMALLOW_VERSION_INFO[0] < 3, reason="`unknown` was added in marshmallow 3"
-    )
     def test_transient_load_with_unknown_include(self, models, session, school):
         class SchoolSchemaTransient(ModelSchema):
             class Meta:
@@ -596,9 +578,9 @@ class TestModelSchema:
                 unknown = marshmallow.INCLUDE
 
         sch = SchoolSchemaTransient()
-        dump_data = unpack(sch.dump(school))
+        dump_data = sch.dump(school)
         dump_data["foo"] = "bar"
-        load_data = unpack(sch.load(dump_data, transient=True))
+        load_data = sch.load(dump_data, transient=True)
 
         assert isinstance(load_data, models.School)
         state = sa.inspect(load_data)
@@ -613,8 +595,8 @@ class TestModelSchema:
                 transient = True
 
         sch = StudentSchemaTransient()
-        dump_data = unpack(sch.dump(student_with_teachers))
-        load_data = unpack(sch.load(dump_data))
+        dump_data = sch.dump(student_with_teachers)
+        load_data = sch.load(dump_data)
         assert isinstance(load_data, models.Student)
         state = sa.inspect(load_data)
         assert state.transient
@@ -635,8 +617,8 @@ class TestModelSchema:
             )
 
         sch = StudentSchemaTransient()
-        dump_data = unpack(sch.dump(student_with_teachers))
-        load_data = unpack(sch.load(dump_data))
+        dump_data = sch.dump(student_with_teachers)
+        load_data = sch.load(dump_data)
         assert isinstance(load_data, models.Student)
         state = sa.inspect(load_data)
         assert state.transient
@@ -668,9 +650,9 @@ class TestModelSchema:
             )
 
         sch = LectureSchemaTransient()
-        dump_data = unpack(sch.dump(lecture))
+        dump_data = sch.dump(lecture)
         del dump_data["kw"]
-        load_data = unpack(sch.load(dump_data))
+        load_data = sch.load(dump_data)
         assert isinstance(load_data, models.Lecture)
         state = sa.inspect(load_data)
         assert state.transient
@@ -691,7 +673,7 @@ class TestModelSchema:
                 exclude = ("name",)
 
         schema = SchoolSchema()
-        data = unpack(schema.dump(school))
+        data = schema.dump(school)
         assert "name" not in data
 
 
@@ -713,8 +695,8 @@ class TestNullForeignKey:
     def test_a_teacher_with_no_school(self, models, schemas, teacher, session):
         session.commit()
         schema = schemas.TeacherSchema()
-        dump_data = unpack(schema.dump(teacher))
-        load_data = unpack(schema.load(dump_data))
+        dump_data = schema.dump(teacher)
+        load_data = schema.load(dump_data)
 
         assert type(load_data) == models.Teacher
         assert load_data.current_school is None
@@ -722,8 +704,8 @@ class TestNullForeignKey:
     def test_a_teacher_who_is_not_a_substitute(self, models, schemas, teacher, session):
         session.commit()
         schema = schemas.TeacherSchema()
-        data = unpack(schema.dump(teacher))
-        load_data = unpack(schema.load(data))
+        data = schema.dump(teacher)
+        load_data = schema.load(data)
 
         assert type(load_data) is models.Teacher
         assert "substitute" in data
@@ -751,9 +733,8 @@ class TestDeserializeObjectThatDNE:
                 },
             ],
         }
-        deserialized_seminar_object = unpack(
-            seminar_schema.load(seminar_dict, session=session)
-        )
+        deserialized_seminar_object = seminar_schema.load(seminar_dict, session=session)
+
         # Ensure both nested lecture objects weren't forgotten...
 
         assert len(deserialized_seminar_object.lectures) == 2
@@ -786,7 +767,7 @@ class TestMarshmallowContext:
             "school": {"name": "one school"},
             "schools": [{"name": "another school"}, {"name": "yet, another school"}],
         }
-        result = unpack(schema.load(data))
+        result = schema.load(data)
         session.add(result["school"])
         session.add_all(result["schools"])
         session.flush()
@@ -795,7 +776,7 @@ class TestMarshmallowContext:
         for school in result["schools"]:
             assert isinstance(school, models.School)
             assert isinstance(school.id, int)
-        dump_result = unpack(schema.dump(result))
+        dump_result = schema.dump(result)
         assert dump_result == data
 
 
@@ -876,7 +857,7 @@ class TestNestedFieldSession:
                 model = parent_model
 
         data = {"name": "Parent1", "children": [{"name": "Child1"}]}
-        load_data = unpack(ParentSchema().load(data, transient=True))
+        load_data = ParentSchema().load(data, transient=True)
         child = load_data.children[0]
         state = sa.inspect(child)
         assert state.transient
