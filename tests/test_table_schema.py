@@ -1,8 +1,6 @@
 import pytest
 from marshmallow_sqlalchemy import TableSchema
 
-from .utils import unpack
-
 
 @pytest.fixture
 def school(models, session):
@@ -21,7 +19,7 @@ class TestTableSchema:
                 table = models.School.__table__
 
         schema = SchoolSchema()
-        data = unpack(schema.dump(school))
+        data = schema.dump(school)
         assert data == {"name": "Univ. of Whales", "school_id": 1}
 
     def test_exclude(self, models, school):
@@ -31,5 +29,5 @@ class TestTableSchema:
                 exclude = ("name",)
 
         schema = SchoolSchema()
-        data = unpack(schema.dump(school))
+        data = schema.dump(school)
         assert "name" not in data

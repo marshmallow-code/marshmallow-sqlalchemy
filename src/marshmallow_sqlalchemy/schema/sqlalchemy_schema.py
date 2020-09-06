@@ -38,8 +38,6 @@ class SQLAlchemyAutoField(Field):
             f"Cannot bind SQLAlchemyAutoField. Make sure that {schema} is a SQLAlchemySchema or SQLAlchemyAutoSchema."
         )
 
-    _add_to_schema = _bind_to_schema  # marshmallow 2 compat
-
 
 class SQLAlchemySchemaOpts(LoadInstanceMixin.Opts, SchemaOpts):
     """Options class for `SQLAlchemySchema`.
