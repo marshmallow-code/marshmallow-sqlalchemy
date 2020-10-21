@@ -1,10 +1,8 @@
 Changelog
 ---------
 
-0.24.0 (unreleased)
+0.24.0 (2020-10-20)
 +++++++++++++++++++
-
-Other changes:
 
 * *Backwards-incompatible*: Drop support for marshmallow 2.x, which is now EOL. 
 * Test against Python 3.9.
