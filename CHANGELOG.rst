@@ -7,6 +7,7 @@ Changelog
 Other changes:
 
 * *Backwards-incompatible*: Drop support for marshmallow 2.x, which is now EOL. 
+* Test against Python 3.9.
 
 0.23.1 (2020-05-30)
 +++++++++++++++++++
