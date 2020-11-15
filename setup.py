@@ -5,8 +5,8 @@ from setuptools import setup, find_packages
 INSTALL_REQUIRES = ("marshmallow>=3.0.0", "SQLAlchemy>=1.2.0")
 EXTRAS_REQUIRE = {
     "tests": ["pytest", "pytest-lazy-fixture"],
-    "lint": ["flake8==3.8.3", "flake8-bugbear==20.1.4", "pre-commit~=2.0"],
-    "docs": ["sphinx==3.2.1", "alabaster==0.7.12", "sphinx-issues==1.2.0"],
+    "lint": ["flake8==3.8.4", "flake8-bugbear==20.1.4", "pre-commit~=2.0"],
+    "docs": ["sphinx==3.3.1", "alabaster==0.7.12", "sphinx-issues==1.2.0"],
 }
 EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["lint"] + ["tox"]
 
@@ -58,6 +58,7 @@ setup(
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
     ],
     test_suite="tests",
     project_urls={
