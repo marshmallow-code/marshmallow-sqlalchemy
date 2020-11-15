@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-0.24.1 (unreleased)
+0.24.1 (2020-11-20)
 +++++++++++++++++++
 
 * ``auto_field`` works with ``association_proxy`` (:issue:`338`).
