@@ -167,7 +167,13 @@ class ModelConverter:
         return field_class(**field_kwargs)
 
     def field_for(self, model, property_name, **kwargs):
-        prop = model.__mapper__.get_property(property_name)
+        target_model = model
+        prop_name = property_name
+        attr = getattr(model, property_name)
+        if hasattr(attr, "remote_attr"):
+            target_model = attr.target_class
+            prop_name = attr.value_attr
+        prop = target_model.__mapper__.get_property(prop_name)
         return self.property2field(prop, **kwargs)
 
     def _get_field_name(self, prop_or_column):
