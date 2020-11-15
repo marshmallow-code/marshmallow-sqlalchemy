@@ -357,7 +357,9 @@ class TestModelInstanceDeserialization:
 
 
 def test_related_when_model_attribute_name_distinct_from_column_name(
-    models, session, teacher,
+    models,
+    session,
+    teacher,
 ):
     class TeacherSchema(SQLAlchemyAutoSchema):
         class Meta:
