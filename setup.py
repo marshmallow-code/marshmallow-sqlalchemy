@@ -6,7 +6,7 @@ INSTALL_REQUIRES = ("marshmallow>=3.0.0", "SQLAlchemy>=1.2.0")
 EXTRAS_REQUIRE = {
     "tests": ["pytest", "pytest-lazy-fixture"],
     "lint": ["flake8==3.8.4", "flake8-bugbear==20.11.1", "pre-commit~=2.0"],
-    "docs": ["sphinx==3.4.2", "alabaster==0.7.12", "sphinx-issues==1.2.0"],
+    "docs": ["sphinx==3.4.3", "alabaster==0.7.12", "sphinx-issues==1.2.0"],
 }
 EXTRAS_REQUIRE["dev"] = EXTRAS_REQUIRE["tests"] + EXTRAS_REQUIRE["lint"] + ["tox"]
 
