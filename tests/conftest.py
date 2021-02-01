@@ -77,6 +77,10 @@ def models(Base):
         id = sa.Column("school_id", sa.Integer, primary_key=True)
         name = sa.Column(sa.String(255), nullable=False)
 
+        student_ids = association_proxy(
+            "students", "id", creator=lambda sid: Student(id=sid)
+        )
+
         @property
         def url(self):
             return f"/schools/{self.id}"
@@ -97,7 +101,7 @@ def models(Base):
         possible_teachers = association_proxy("current_school", "teachers")
 
         courses = relationship(
-            "Course",
+            Course,
             secondary=student_course,
             backref=backref("students", lazy="dynamic"),
         )
