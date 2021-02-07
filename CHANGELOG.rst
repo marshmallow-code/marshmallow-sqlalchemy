@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.24.2 (unreleased)
++++++++++++++++++++
+
+* ``auto_field`` supports ``association_proxy`` fields with local multiplicity
+  (``uselist=True``) (:issue:`364`). Thanks :user:`Unix-Code`
+  for the catch and patch.
+
 0.24.1 (2020-11-20)
 +++++++++++++++++++
 
@@ -10,7 +17,7 @@ Changelog
 0.24.0 (2020-10-20)
 +++++++++++++++++++
 
-* *Backwards-incompatible*: Drop support for marshmallow 2.x, which is now EOL. 
+* *Backwards-incompatible*: Drop support for marshmallow 2.x, which is now EOL.
 * Test against Python 3.9.
 
 0.23.1 (2020-05-30)
@@ -37,7 +44,7 @@ Bug fixes:
 
 * Fix ``DeprecationWarning`` getting raised even when user code does not use
   ``TableSchema`` or ``ModelSchema`` (:issue:`289`).
-  Thanks :user:`5uper5hoot` for reporting. 
+  Thanks :user:`5uper5hoot` for reporting.
 
 0.22.2 (2020-02-09)
 +++++++++++++++++++
