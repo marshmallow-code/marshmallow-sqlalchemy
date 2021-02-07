@@ -37,3 +37,4 @@ Contributors
 - Daven Quinn `@davenquinn <https://github.com/davenquinn>`_
 - Peter Schutt `@peterschutt <https://github.com/peterschutt>`_
 - Arash Fatahzade `@ArashFatahzade <https://github.com/arashfatahzade>`_
+- David Malakh `@Unix-Code <https://github.com/Unix-Code>`_

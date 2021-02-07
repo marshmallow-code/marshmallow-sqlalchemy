@@ -170,11 +170,18 @@ class ModelConverter:
         target_model = model
         prop_name = property_name
         attr = getattr(model, property_name)
+        remote_with_local_multiplicity = False
         if hasattr(attr, "remote_attr"):
             target_model = attr.target_class
             prop_name = attr.value_attr
+            remote_with_local_multiplicity = attr.local_attr.prop.uselist
         prop = target_model.__mapper__.get_property(prop_name)
-        return self.property2field(prop, **kwargs)
+        converted_prop = self.property2field(prop, **kwargs)
+        return (
+            RelatedList(converted_prop, **kwargs)
+            if remote_with_local_multiplicity
+            else converted_prop
+        )
 
     def _get_field_name(self, prop_or_column):
         return prop_or_column.key

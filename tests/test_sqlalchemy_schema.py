@@ -23,6 +23,19 @@ def teacher(models, session):
     return teacher_
 
 
+@pytest.fixture
+def school(models, session):
+    school = models.School(id=42, name="Univ. Of Whales")
+    students = [
+        models.Student(id=35, full_name="Bob Smith", current_school=school),
+        models.Student(id=53, full_name="John Johnson", current_school=school),
+    ]
+
+    session.add_all(students)
+    session.flush()
+    return school
+
+
 class EntityMixin:
     id = auto_field(dump_only=True)
 
@@ -387,3 +400,72 @@ def test_auto_field_works_with_assoc_proxy(models):
 
     schema = StudentSchema()
     assert "possible_teachers" in schema.fields
+
+
+def test_dump_and_load_with_assoc_proxy_multiplicity(models, session, school):
+    class SchoolSchema(SQLAlchemySchema):
+        class Meta:
+            model = models.School
+            load_instance = True
+            sqla_session = session
+
+        student_ids = auto_field()
+
+    schema = SchoolSchema()
+    assert "student_ids" in schema.fields
+    dump_data = schema.dump(school)
+    assert "student_ids" in dump_data
+    assert dump_data["student_ids"] == list(school.student_ids)
+    new_school = schema.load(dump_data, transient=True)
+    assert list(new_school.student_ids) == list(school.student_ids)
+
+
+def test_dump_and_load_with_assoc_proxy_multiplicity_dump_only_kwargs(
+    models, session, school
+):
+    class SchoolSchema(SQLAlchemySchema):
+        class Meta:
+            model = models.School
+            load_instance = True
+            sqla_session = session
+
+        student_ids = auto_field(dump_only=True, data_key="student_identifiers")
+
+    schema = SchoolSchema()
+    assert "student_ids" in schema.fields
+    assert schema.fields["student_ids"] not in schema.load_fields.values()
+    assert schema.fields["student_ids"] in schema.dump_fields.values()
+
+    dump_data = schema.dump(school)
+    assert "student_ids" not in dump_data
+    assert "student_identifiers" in dump_data
+    assert dump_data["student_identifiers"] == list(school.student_ids)
+
+    with pytest.raises(ValidationError):
+        schema.load(dump_data, transient=True)
+
+
+def test_dump_and_load_with_assoc_proxy_multiplicity_load_only_only_kwargs(
+    models, session, school
+):
+    class SchoolSchema(SQLAlchemySchema):
+        class Meta:
+            model = models.School
+            load_instance = True
+            sqla_session = session
+
+        student_ids = auto_field(load_only=True, data_key="student_identifiers")
+
+    schema = SchoolSchema()
+
+    assert "student_ids" in schema.fields
+    assert schema.fields["student_ids"] not in schema.dump_fields.values()
+    assert schema.fields["student_ids"] in schema.load_fields.values()
+
+    dump_data = schema.dump(school)
+    assert "student_identifers" not in dump_data
+
+    new_school = schema.load(
+        {"student_identifiers": list(school.student_ids)}, transient=True
+    )
+    assert list(new_school.student_ids) == list(school.student_ids)
