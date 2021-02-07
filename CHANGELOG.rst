@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-0.24.2 (unreleased)
+0.24.2 (2021-02-07)
 +++++++++++++++++++
 
 * ``auto_field`` supports ``association_proxy`` fields with local multiplicity
