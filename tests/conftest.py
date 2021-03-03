@@ -6,7 +6,6 @@ import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, relationship, backref, column_property, synonym
-from marshmallow import validate
 
 
 class AnotherInteger(sa.Integer):
@@ -55,13 +54,7 @@ def models(Base):
         name = sa.Column(sa.String(255), nullable=False)
         # These are for better model form testing
         cost = sa.Column(sa.Numeric(5, 2), nullable=False)
-        description = sa.Column(
-            sa.Text,
-            nullable=True,
-            info=dict(
-                marshmallow=dict(validate=[validate.Length(max=1000)], required=True)
-            ),
-        )
+        description = sa.Column(sa.Text, nullable=True)
         level = sa.Column(sa.Enum("Primary", "Secondary"))
         has_prereqs = sa.Column(sa.Boolean, nullable=False)
         started = sa.Column(sa.DateTime, nullable=False)

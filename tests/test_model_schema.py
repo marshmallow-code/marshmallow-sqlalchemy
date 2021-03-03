@@ -722,11 +722,13 @@ class TestDeserializeObjectThatDNE:
             "semester": "First",
             "lectures": [
                 {
+                    "id": 99999998,
                     "topic": "Intro to Ter'Angreal",
                     "seminar_title": "Novice Training",
                     "seminar_semester": "First",
                 },
                 {
+                    "id": 99999999,
                     "topic": "History of the Ajahs",
                     "seminar_title": "Novice Training",
                     "seminar_semester": "First",
