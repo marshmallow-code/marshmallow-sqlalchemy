@@ -14,7 +14,7 @@ from .exceptions import ModelConversionError
 from .fields import Related, RelatedList
 
 
-_META_KWARGS_DEPRECIATED = LooseVersion(ma.__version__) >= LooseVersion("3.10.0")
+_META_KWARGS_DEPRECATED = LooseVersion(ma.__version__) >= LooseVersion("3.10.0")
 
 
 def _is_field(value):
@@ -40,7 +40,7 @@ def _postgres_array_factory(converter, data_type):
 
 
 def _set_meta_kwarg(field_kwargs, key, value):
-    if _META_KWARGS_DEPRECIATED:
+    if _META_KWARGS_DEPRECATED:
         field_kwargs["metadata"][key] = value
     else:
         field_kwargs[key] = value
@@ -341,7 +341,7 @@ class ModelConverter:
 
     def get_base_kwargs(self):
         kwargs = {"validate": []}
-        if _META_KWARGS_DEPRECIATED:
+        if _META_KWARGS_DEPRECATED:
             kwargs["metadata"] = {}
         return kwargs
 
