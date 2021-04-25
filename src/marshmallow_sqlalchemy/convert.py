@@ -171,8 +171,12 @@ class ModelConverter:
         return result
 
     def property2field(self, prop, *, instance=True, field_class=None, **kwargs):
-        if hasattr(prop, "_proxied_property"):  # handle synonyms
-            prop = prop._proxied_property
+        # handle synonyms
+        # Attribute renamed "_proxied_object" in 1.4
+        for attr in ("_proxied_property", "_proxied_object"):
+            proxied_obj = getattr(prop, attr, None)
+            if proxied_obj is not None:
+                prop = proxied_obj
         field_class = field_class or self._get_field_class_for_property(prop)
         if not instance:
             return field_class
