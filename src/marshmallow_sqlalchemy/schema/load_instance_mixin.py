@@ -39,6 +39,7 @@ class LoadInstanceMixin:
             self._session = kwargs.pop("session", None)
             self.instance = kwargs.pop("instance", None)
             self._transient = kwargs.pop("transient", None)
+            self._load_instance = kwargs.pop("load_instance", self.opts.load_instance)
             super().__init__(*args, **kwargs)
 
         def get_instance(self, data):
@@ -64,7 +65,7 @@ class LoadInstanceMixin:
 
             :param data: Data to deserialize.
             """
-            if not self.opts.load_instance:
+            if not self._load_instance:
                 return data
             instance = self.instance or self.get_instance(data)
             if instance is not None:
@@ -86,7 +87,7 @@ class LoadInstanceMixin:
             """
             self._session = session or self._session
             self._transient = transient or self._transient
-            if self.opts.load_instance and not (self.transient or self.session):
+            if self._load_instance and not (self.transient or self.session):
                 raise ValueError("Deserialization requires a session")
             self.instance = instance or self.instance
             try:
