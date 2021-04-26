@@ -99,8 +99,19 @@ class TestModelFieldConversion:
         assert "id" in graded_paper_fields
 
     def test_info_overrides(self, models):
-        fields_ = fields_for_model(models.Course)
-        field = fields_["description"]
+        class TestModel(models.Course):
+            test = sa.Column(
+                sa.Text,
+                nullable=True,
+                info=dict(
+                    marshmallow=dict(
+                        validate=[validate.Length(max=1000)], required=True
+                    )
+                ),
+            )
+
+        fields_ = fields_for_model(TestModel)
+        field = fields_["test"]
         validator = contains_validator(field, validate.Length)
         assert validator.max == 1000
         assert field.required
@@ -145,7 +156,6 @@ class TestPropertyFieldConversion:
         (
             (sa.String, fields.Str),
             (sa.Unicode, fields.Str),
-            (sa.Binary, fields.Str),
             (sa.LargeBinary, fields.Str),
             (sa.Text, fields.Str),
             (sa.Date, fields.Date),

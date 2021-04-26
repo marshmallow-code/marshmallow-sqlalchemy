@@ -1,6 +1,7 @@
 import inspect
 import functools
 import warnings
+from distutils.version import LooseVersion
 
 import uuid
 import marshmallow as ma
@@ -11,6 +12,9 @@ import sqlalchemy as sa
 
 from .exceptions import ModelConversionError
 from .fields import Related, RelatedList
+
+
+_META_KWARGS_DEPRECATED = LooseVersion(ma.__version__) >= LooseVersion("3.10.0")
 
 
 def _is_field(value):
@@ -33,6 +37,32 @@ def _postgres_array_factory(converter, data_type):
     return functools.partial(
         fields.List, converter._get_field_class_for_data_type(data_type.item_type)
     )
+
+
+def _set_meta_kwarg(field_kwargs, key, value):
+    if _META_KWARGS_DEPRECATED:
+        field_kwargs["metadata"][key] = value
+    else:
+        field_kwargs[key] = value
+
+
+def _field_update_kwargs(field_class, field_kwargs, kwargs):
+    if not kwargs:
+        return field_kwargs
+
+    possible_field_keywords = {
+        key
+        for cls in inspect.getmro(field_class)
+        for key, param in inspect.signature(cls).parameters.items()
+        if param.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
+        or param.kind is inspect.Parameter.KEYWORD_ONLY
+    }
+    for k, v in kwargs.items():
+        if k in possible_field_keywords:
+            field_kwargs[k] = v
+        else:
+            _set_meta_kwarg(field_kwargs, k, v)
+    return field_kwargs
 
 
 class ModelConverter:
@@ -141,20 +171,27 @@ class ModelConverter:
         return result
 
     def property2field(self, prop, *, instance=True, field_class=None, **kwargs):
-        if hasattr(prop, "_proxied_property"):  # handle synonyms
-            prop = prop._proxied_property
+        # handle synonyms
+        # Attribute renamed "_proxied_object" in 1.4
+        for attr in ("_proxied_property", "_proxied_object"):
+            proxied_obj = getattr(prop, attr, None)
+            if proxied_obj is not None:
+                prop = proxied_obj
         field_class = field_class or self._get_field_class_for_property(prop)
         if not instance:
             return field_class
         field_kwargs = self._get_field_kwargs_for_property(prop)
-        field_kwargs.update(kwargs)
+        _field_update_kwargs(field_class, field_kwargs, kwargs)
         ret = field_class(**field_kwargs)
         if (
             hasattr(prop, "direction")
             and self.DIRECTION_MAPPING[prop.direction.name]
             and prop.uselist is True
         ):
-            ret = RelatedList(ret, **kwargs)
+            related_list_kwargs = _field_update_kwargs(
+                RelatedList, self.get_base_kwargs(), kwargs
+            )
+            ret = RelatedList(ret, **related_list_kwargs)
         return ret
 
     def column2field(self, column, *, instance=True, **kwargs):
@@ -163,7 +200,7 @@ class ModelConverter:
             return field_class
         field_kwargs = self.get_base_kwargs()
         self._add_column_kwargs(field_kwargs, column)
-        field_kwargs.update(kwargs)
+        _field_update_kwargs(field_class, field_kwargs, kwargs)
         return field_class(**field_kwargs)
 
     def field_for(self, model, property_name, **kwargs):
@@ -177,11 +214,13 @@ class ModelConverter:
             remote_with_local_multiplicity = attr.local_attr.prop.uselist
         prop = target_model.__mapper__.get_property(prop_name)
         converted_prop = self.property2field(prop, **kwargs)
-        return (
-            RelatedList(converted_prop, **kwargs)
-            if remote_with_local_multiplicity
-            else converted_prop
-        )
+        if remote_with_local_multiplicity:
+            related_list_kwargs = _field_update_kwargs(
+                RelatedList, self.get_base_kwargs(), kwargs
+            )
+            return RelatedList(converted_prop, **related_list_kwargs)
+        else:
+            return converted_prop
 
     def _get_field_name(self, prop_or_column):
         return prop_or_column.key
@@ -241,7 +280,7 @@ class ModelConverter:
         if hasattr(prop, "direction"):  # Relationship property
             self._add_relationship_kwargs(kwargs, prop)
         if getattr(prop, "doc", None):  # Useful for documentation generation
-            kwargs["description"] = prop.doc
+            _set_meta_kwarg(kwargs, "description", prop.doc)
         info = getattr(prop, "info", dict())
         overrides = info.get("marshmallow")
         if overrides is not None:
@@ -281,7 +320,7 @@ class ModelConverter:
                 if not python_type or not issubclass(python_type, uuid.UUID):
                     kwargs["validate"].append(validate.Length(max=column_length))
 
-        if hasattr(column.type, "scale"):
+        if getattr(column.type, "asdecimal", False):
             kwargs["places"] = getattr(column.type, "scale", None)
 
     def _add_relationship_kwargs(self, kwargs, prop):
@@ -305,7 +344,10 @@ class ModelConverter:
         return False
 
     def get_base_kwargs(self):
-        return {"validate": []}
+        kwargs = {"validate": []}
+        if _META_KWARGS_DEPRECATED:
+            kwargs["metadata"] = {}
+        return kwargs
 
 
 default_converter = ModelConverter()
