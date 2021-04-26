@@ -58,8 +58,9 @@ class LoadInstanceMixin:
         @ma.post_load
         def make_instance(self, data, **kwargs):
             """Deserialize data to an instance of the model if self.load_instance is True.
-            Update an existing row if specified in `self.instance` or loaded by primary key(s) in the data;
-            else create a new row.
+
+            Update an existing row if specified in `self.instance` or loaded by primary
+            key(s) in the data; else create a new row.
 
             :param data: Data to deserialize.
             """
