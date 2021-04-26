@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.24.3 (2021-04-26)
++++++++++++++++++++
+
+* Fix deprecation warnings from marshmallow 3.10 and SQLAlchemy 1.4 (:pr:`369`).
+  Thanks :user:`peterschutt` for the PR.
+
 0.24.2 (2021-02-07)
 +++++++++++++++++++
 
