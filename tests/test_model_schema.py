@@ -248,6 +248,24 @@ class TestModelSchema:
         assert load_data is student
         assert load_data.current_school == student.current_school
 
+    # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/340
+    def test_attribute_in_related_list(models, session, teacher):
+        class SchoolSchema(SQLAlchemySchema):
+            class Meta:
+                model = models.School
+                sqla_session = session
+                load_instance = True
+
+            all_teachers = RelatedList(Related(), attribute="teachers")
+
+        schema = SchoolSchema()
+        assert "all_teachers" in schema.fields
+        field = schema.fields["all_teachers"]
+        assert field.attribute == "teachers"
+
+        out_school = schema.load({"all_teachers": [1]})
+        assert len(out_school.teachers) == 1
+
     # Regression test for https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/78
     def test_model_schema_loading_resets_instance(self, models, schemas, student):
         schema = schemas.StudentSchema()
