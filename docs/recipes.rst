@@ -331,7 +331,7 @@ Note that transience propagates to relationships (i.e. auto-generated schemas fo
 
     See `State Management <https://docs.sqlalchemy.org/en/latest/orm/session_state_management.html>`_ to understand session state management.
 
-Controlling instance loading
+Controlling Instance Loading
 ============================
 
 You can override the schema ``load_instance`` flag by passing in a ``load_instance`` argument when creating the schema instance. Use this to switch between loading to a dictionary or to a model instance:
