@@ -7,7 +7,7 @@
 """
 import marshmallow as ma
 
-from ..fields import get_primary_keys
+from .fields import get_primary_keys
 
 
 class LoadInstanceMixin:

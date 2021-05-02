@@ -3,8 +3,8 @@ from marshmallow.schema import Schema, SchemaMeta, SchemaOpts
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
-from ..convert import ModelConverter
-from ..exceptions import IncorrectSchemaTypeError
+from .convert import ModelConverter
+from .exceptions import IncorrectSchemaTypeError
 from .load_instance_mixin import LoadInstanceMixin
 
 
