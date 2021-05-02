@@ -1,6 +1,12 @@
 Changelog
 ---------
 
+0.25.0 (unreleased)
++++++++++++++++++++
+
+* Add ``load_instance`` as a parameter to `SQLAlchemySchema` and `SQLAlchemyAutoSchema` (:pr:`380`).
+  Thanks :user:`mjpieters` for the PR.
+
 0.24.2 (2021-02-07)
 +++++++++++++++++++
 
