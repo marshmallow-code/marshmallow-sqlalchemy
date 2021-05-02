@@ -175,6 +175,76 @@ def test_load(schema):
     assert schema.load({"full_name": "Teachy T"}) == {"full_name": "Teachy T"}
 
 
+class TestLoadInstancePerSchemaInstance:
+    @pytest.fixture
+    def schema_no_load_instance(self, models, session):
+        class TeacherSchema(SQLAlchemySchema):
+            class Meta:
+                model = models.Teacher
+                sqla_session = session
+                # load_instance = False is the default
+
+            full_name = auto_field(validate=validate.Length(max=20))
+            current_school = auto_field()
+            substitute = auto_field()
+
+        return TeacherSchema
+
+    @pytest.fixture
+    def schema_with_load_instance(self, schema_no_load_instance):
+        class TeacherSchema(schema_no_load_instance):
+            class Meta(schema_no_load_instance.Meta):
+                load_instance = True
+
+        return TeacherSchema
+
+    @pytest.fixture
+    def auto_schema_no_load_instance(self, models, session):
+        class TeacherSchema(SQLAlchemyAutoSchema):
+            class Meta:
+                model = models.Teacher
+                sqla_session = session
+                # load_instance = False is the default
+
+        return TeacherSchema
+
+    @pytest.fixture
+    def auto_schema_with_load_instance(self, auto_schema_no_load_instance):
+        class TeacherSchema(auto_schema_no_load_instance):
+            class Meta(auto_schema_no_load_instance.Meta):
+                load_instance = True
+
+        return TeacherSchema
+
+    @pytest.mark.parametrize(
+        "Schema",
+        (
+            pytest.lazy_fixture("schema_no_load_instance"),
+            pytest.lazy_fixture("schema_with_load_instance"),
+            pytest.lazy_fixture("auto_schema_no_load_instance"),
+            pytest.lazy_fixture("auto_schema_with_load_instance"),
+        ),
+    )
+    def test_toggle_load_instance_per_schema(self, models, Schema):
+        tname = "Teachy T"
+        source = {"full_name": tname}
+
+        # No per-instance override
+        load_instance_default = Schema()
+        result = load_instance_default.load(source)
+        default = load_instance_default.opts.load_instance
+
+        default_type = models.Teacher if default else dict
+        assert isinstance(result, default_type)
+
+        # Override the default
+        override = Schema(load_instance=not default)
+        result = override.load(source)
+
+        override_type = dict if default else models.Teacher
+        assert isinstance(result, override_type)
+
+
 @pytest.mark.parametrize(
     "schema",
     (

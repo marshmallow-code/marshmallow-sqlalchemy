@@ -330,3 +330,26 @@ Note that transience propagates to relationships (i.e. auto-generated schemas fo
 .. seealso::
 
     See `State Management <https://docs.sqlalchemy.org/en/latest/orm/session_state_management.html>`_ to understand session state management.
+
+Controlling Instance Loading
+============================
+
+You can override the schema ``load_instance`` flag by passing in a ``load_instance`` argument when creating the schema instance. Use this to switch between loading to a dictionary or to a model instance:
+
+.. code-block:: python
+
+    from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+
+
+    class AuthorSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = Author
+            sqla_session = Session
+            load_instance = True
+
+
+    dump_data = {"id": 1, "name": "John Steinbeck"}
+    print(AuthorSchema().load(dump_data))  # loading an instance
+    # <Author(name='John Steinbeck')>
+    print(AuthorSchema(load_instance=False).load(dump_data))  # loading a dict
+    # {"id": 1, "name": "John Steinbeck"}
