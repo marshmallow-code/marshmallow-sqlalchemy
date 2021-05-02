@@ -1,5 +1,3 @@
-from .model_schema import ModelSchema, ModelSchemaOpts, ModelSchemaMeta
-from .table_schema import TableSchema, TableSchemaOpts, TableSchemaMeta
 from .sqlalchemy_schema import (
     SQLAlchemySchema,
     SQLAlchemySchemaOpts,
@@ -16,10 +14,4 @@ __all__ = [
     "SQLAlchemyAutoSchemaOpts",
     "SQLAlchemySchemaMeta",
     "auto_field",
-    "ModelSchema",
-    "ModelSchemaOpts",
-    "ModelSchemaMeta",
-    "TableSchema",
-    "TableSchemaOpts",
-    "TableSchemaMeta",
 ]

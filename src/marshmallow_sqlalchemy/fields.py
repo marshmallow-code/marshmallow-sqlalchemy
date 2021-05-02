@@ -30,7 +30,7 @@ class RelatedList(fields.List):
 class Related(fields.Field):
     """Related data represented by a SQLAlchemy `relationship`. Must be attached
     to a :class:`Schema` class whose options includes a SQLAlchemy `model`, such
-    as :class:`ModelSchema`.
+    as :class:`SQLAlchemySchema`.
 
     :param list columns: Optional column names on related model. If not provided,
         the primary key(s) of the related model will be used.
