@@ -1,8 +1,4 @@
 from .schema import (
-    TableSchema,
-    TableSchemaOpts,
-    ModelSchema,
-    ModelSchemaOpts,
     SQLAlchemySchema,
     SQLAlchemyAutoSchema,
     SQLAlchemySchemaOpts,
@@ -32,9 +28,4 @@ __all__ = [
     "column2field",
     "ModelConversionError",
     "field_for",
-    # Deprecated API
-    "TableSchema",
-    "TableSchemaOpts",
-    "ModelSchema",
-    "ModelSchemaOpts",
 ]

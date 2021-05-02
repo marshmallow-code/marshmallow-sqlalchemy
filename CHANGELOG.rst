@@ -1,6 +1,11 @@
 Changelog
 ---------
 
+0.26.0 (unreleased)
++++++++++++++++++++
+
+* *Backwards-incompatible*: Remove deprecated ``ModelSchema`` and ``TableSchema`` classes.
+
 0.25.0 (2021-05-02)
 +++++++++++++++++++
 
