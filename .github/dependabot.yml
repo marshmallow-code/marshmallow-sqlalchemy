@@ -5,11 +5,3 @@ updates:
   schedule:
     interval: daily
   open-pull-requests-limit: 10
-  ignore:
-  - dependency-name: sphinx
-    versions:
-    - 3.5.3
-  - dependency-name: flake8-bugbear
-    versions:
-    - 21.3.1
-    - 21.3.2
