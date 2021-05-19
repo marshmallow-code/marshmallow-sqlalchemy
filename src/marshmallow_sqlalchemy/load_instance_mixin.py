@@ -29,7 +29,9 @@ class LoadInstanceMixin:
 
         @property
         def transient(self):
-            return self._transient or self.opts.transient
+            if self._transient is not None:
+                return self._transient
+            return self.opts.transient
 
         @transient.setter
         def transient(self, transient):

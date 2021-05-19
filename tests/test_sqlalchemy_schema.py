@@ -438,6 +438,17 @@ class TestModelInstanceDeserialization:
         state = sa.inspect(load_data)
         assert state.transient
 
+    def test_override_transient(self, models, teacher):
+        # marshmallow-code/marshmallow-sqlalchemy#388
+        class TeacherSchema(SQLAlchemyAutoSchema):
+            class Meta:
+                model = models.Teacher
+                load_instance = True
+                transient = True
+
+        schema = TeacherSchema(transient=False)
+        assert schema.transient is False
+
 
 def test_related_when_model_attribute_name_distinct_from_column_name(
     models,
