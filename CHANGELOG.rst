@@ -8,6 +8,9 @@ Bug fixes:
 
 * Unwrap proxied columns to handle models for subqueries (:issue:`383`).
   Thanks :user:`mjpieters` for the catch and patch
+* Fix setting ``transient`` on a per-instance basis when the
+  ``transient`` Meta option is set (:issue:`388`).
+  Thanks again :user:`mjpieters`.
 
 Other changes:
 
