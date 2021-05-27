@@ -21,6 +21,14 @@ def _is_field(value):
     return isinstance(value, type) and issubclass(value, fields.Field)
 
 
+def _base_column(column):
+    """Unwrap proxied columns"""
+    if column not in column.base_columns and len(column.base_columns) == 1:
+        [base] = column.base_columns
+        return base
+    return column
+
+
 def _has_default(column):
     return (
         column.default is not None
@@ -259,7 +267,7 @@ class ModelConverter:
         if hasattr(prop, "direction"):
             field_cls = Related
         else:
-            column = prop.columns[0]
+            column = _base_column(prop.columns[0])
             field_cls = self._get_field_class_for_column(column)
         return field_cls
 
@@ -274,7 +282,7 @@ class ModelConverter:
     def _get_field_kwargs_for_property(self, prop):
         kwargs = self.get_base_kwargs()
         if hasattr(prop, "columns"):
-            column = prop.columns[0]
+            column = _base_column(prop.columns[0])
             self._add_column_kwargs(kwargs, column)
             prop = column
         if hasattr(prop, "direction"):  # Relationship property

@@ -128,6 +128,19 @@ class TestModelFieldConversion:
         assert "title" in fields
         assert "name" not in fields
 
+    def test_subquery_proxies(self, session, Base, models):
+        # Model from a subquery, columns are proxied.
+        # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/383
+        first_graders = session.query(models.Student).filter(
+            models.Student.courses.any(models.Course.grade == 1)
+        )
+
+        class FirstGradeStudent(Base):
+            __table__ = first_graders.subquery("first_graders")
+
+        fields_ = fields_for_model(FirstGradeStudent)
+        assert fields_["dob"].allow_none is True
+
 
 def make_property(*column_args, **column_kwargs):
     return column_property(sa.Column(*column_args, **column_kwargs))
