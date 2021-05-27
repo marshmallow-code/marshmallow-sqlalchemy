@@ -4,7 +4,15 @@ Changelog
 0.26.0 (unreleased)
 +++++++++++++++++++
 
+Bug fixes:
+
+* Unwrap proxied columns to handle models for subqueries (:issue:`383`).
+  Thanks :user:`mjpieters` for the catch and patch
+
+Other changes:
+
 * *Backwards-incompatible*: Remove deprecated ``ModelSchema`` and ``TableSchema`` classes.
+
 
 0.25.0 (2021-05-02)
 +++++++++++++++++++
