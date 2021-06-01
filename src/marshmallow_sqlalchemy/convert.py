@@ -58,6 +58,10 @@ def _field_update_kwargs(field_class, field_kwargs, kwargs):
     if not kwargs:
         return field_kwargs
 
+    if isinstance(field_class, functools.partial):
+        # Unwrap partials, assuming that they bind a Field to arguments
+        field_class = field_class.func
+
     possible_field_keywords = {
         key
         for cls in inspect.getmro(field_class)
