@@ -303,6 +303,20 @@ class TestFieldFor:
         field = field_for(models.Student, "full_name", validate=[])
         assert field.validators == []
 
+    def tests_postgresql_array_with_args(self, Base):
+        # regression test for #392
+        from sqlalchemy import Column, Integer, String
+        from sqlalchemy.dialects.postgresql import ARRAY
+
+        class ModelWithArray(Base):
+            __tablename__ = "model_with_array"
+            id = Column(Integer, primary_key=True)
+            bar = Column(ARRAY(String))
+
+        field = field_for(ModelWithArray, "bar", dump_only=True)
+        assert type(field) == fields.List
+        assert field.dump_only is True
+
 
 def _repr_validator_list(validators):
     return sorted([repr(validator) for validator in validators])

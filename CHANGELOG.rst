@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.26.1 (2021-06-05)
++++++++++++++++++++
+
+Bug fixes:
+
+* Fix generating fields for ``postgreql.ARRAY`` columns (:issue:`392`).
+ Thanks :user:`mjpieters` for the catch and patch.
+
 0.26.0 (2021-05-26)
 +++++++++++++++++++
 
