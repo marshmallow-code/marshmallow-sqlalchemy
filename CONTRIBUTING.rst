@@ -101,7 +101,7 @@ To build the docs in "watch" mode: ::
 Changes in the `docs/` directory will automatically trigger a rebuild.
 
 
-.. _Sphinx: http://sphinx.pocoo.org/
+.. _Sphinx: https://www.sphinx-doc.org/
 .. _`reStructuredText`: https://docutils.sourceforge.io/rst.html
 
 .. _`marshmallow-sqlalchemy`: https://github.com/marshmallow-code/marshmallow-sqlalchemy
