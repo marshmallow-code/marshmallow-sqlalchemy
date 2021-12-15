@@ -44,6 +44,7 @@ setup(
     url="https://github.com/marshmallow-code/marshmallow-sqlalchemy",
     packages=find_packages("src"),
     package_dir={"": "src"},
+    package_data={"marshmallow_sqlalchemy": ["py.typed"]},
     include_package_data=True,
     python_requires=">=3.6",
     install_requires=INSTALL_REQUIRES,
