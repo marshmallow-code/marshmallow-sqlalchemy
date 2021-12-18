@@ -105,6 +105,7 @@ class ModelConverter:
         mysql.INTEGER: fields.Integer,
         mysql.DATETIME: fields.DateTime,
         mssql.BIT: fields.Integer,
+        mssql.UNIQUEIDENTIFIER: fields.UUID,
     }
     DIRECTION_MAPPING = {"MANYTOONE": False, "MANYTOMANY": True, "ONETOMANY": True}
 
