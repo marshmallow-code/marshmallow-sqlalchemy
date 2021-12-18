@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.27.0 (unreleased)
++++++++++++++++++++
+
+Features:
+
+* Distribute type information per `PEP 561 <https://www.python.org/dev/peps/pep-0561/>`_ (:pr:`420`).
+  Thanks :user:`bruceadams` for the PR.
+
 0.26.1 (2021-06-05)
 +++++++++++++++++++
 
