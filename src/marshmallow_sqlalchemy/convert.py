@@ -264,7 +264,7 @@ class ModelConverter:
                 if hasattr(data_type, "impl"):
                     return self._get_field_class_for_data_type(data_type.impl)
                 raise ModelConversionError(
-                    "Could not find field column of type {}.".format(types[0])
+                    f"Could not find field column of type {types[0]}."
                 )
         return field_cls
 

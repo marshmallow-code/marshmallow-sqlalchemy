@@ -319,7 +319,7 @@ class TestFieldFor:
 
 
 def _repr_validator_list(validators):
-    return sorted([repr(validator) for validator in validators])
+    return sorted(repr(validator) for validator in validators)
 
 
 @pytest.mark.parametrize(
