@@ -328,7 +328,13 @@ def test_auto_field_works_with_ordered_flag(models):
 
     schema = StudentSchema()
     # Declared fields precede auto-generated fields
-    assert tuple(schema.fields.keys()) == ("full_name", "id", "dob", "date_created")
+    assert tuple(schema.fields.keys()) == (
+        "full_name",
+        "course_count",
+        "id",
+        "dob",
+        "date_created",
+    )
 
 
 class TestAliasing:

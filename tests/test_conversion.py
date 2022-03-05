@@ -235,6 +235,19 @@ class TestPropertyFieldConversion:
         field = converter.property2field(prop)
         assert field.required is False
 
+    def test_handle_complex_column_property(self, models, converter):
+        """
+        Tests handling of column properties that do not derive directly from Column.
+        """
+        # A simple string column property
+        prop = models.Seminar.__mapper__.get_property("label")
+        field = converter.property2field(prop)
+        assert type(field) is fields.String
+        # A more complex column property, a mapped SQL expression
+        prop = models.Student.__mapper__.get_property("course_count")
+        field = converter.property2field(prop)
+        assert type(field) is fields.Integer
+
 
 class TestPropToFieldClass:
     def test_property2field(self):
