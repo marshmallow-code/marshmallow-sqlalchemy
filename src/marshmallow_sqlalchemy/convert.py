@@ -317,9 +317,11 @@ class ModelConverter:
             if column.nullable:
                 kwargs["allow_none"] = True
             kwargs["required"] = not column.nullable and not _has_default(column)
-        # If there is no nullable attribute, we are dealing with a complex
-        # custom column (such as a column_property). In this case, assume
-        # dump_only and do not add validators moving forward
+        # If there is no nullable attribute, we are dealing with a property
+        # that does not derive from the Column class. Mark as dump_only.
+        # TODO - how does this work with hybrid_properties which can have
+        # setters? Should we be checking for isinstance(ColumnProperty)
+        # instead?
         else:
             kwargs["dump_only"] = True
 
