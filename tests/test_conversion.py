@@ -244,6 +244,7 @@ class TestPropertyFieldConversion:
         prop = models.Student.__mapper__.get_property("course_count")
         field = converter.property2field(prop)
         assert type(field) is fields.Integer
+        assert field.dump_only is True
 
     def test_handle_simple_column_property(self, models, converter):
         """
@@ -252,6 +253,7 @@ class TestPropertyFieldConversion:
         prop = models.Seminar.__mapper__.get_property("label")
         field = converter.property2field(prop)
         assert type(field) is fields.String
+        assert field.dump_only is True
 
 
 class TestPropToFieldClass:

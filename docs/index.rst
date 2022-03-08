@@ -110,6 +110,15 @@ Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalch
     print(load_data)
     # <Author(name='Chuck Paluhniuk')>
 
+Complex Columns
+===============
+
+Any `column_property` on the model that does not derive directly from `Column`
+(such as a mapped expression), will be detected and marked as `dump_only`.
+
+`hybrid_property` is not automatically handled at all, and would need to be
+explicitly declared as a field.
+
 Get it now
 ==========
 ::
