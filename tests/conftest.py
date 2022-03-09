@@ -100,9 +100,8 @@ def models(Base):
         )
         # Test complex column property
         course_count = column_property(
-            sa.select(sa.func.count(student_course.c.course_id))
+            sa.select([sa.func.count(student_course.c.course_id)])
             .where(student_course.c.student_id == id)
-            .scalar_subquery()
         )
 
         @property
