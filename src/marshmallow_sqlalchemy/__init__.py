@@ -1,21 +1,20 @@
+from .convert import (
+    ModelConverter,
+    column2field,
+    field_for,
+    fields_for_model,
+    property2field,
+)
+from .exceptions import ModelConversionError
 from .schema import (
-    SQLAlchemySchema,
     SQLAlchemyAutoSchema,
-    SQLAlchemySchemaOpts,
     SQLAlchemyAutoSchemaOpts,
+    SQLAlchemySchema,
+    SQLAlchemySchemaOpts,
     auto_field,
 )
 
-from .convert import (
-    ModelConverter,
-    fields_for_model,
-    property2field,
-    column2field,
-    field_for,
-)
-from .exceptions import ModelConversionError
-
-__version__ = "0.27.0"
+__version__ = "0.28.0"
 __all__ = [
     "SQLAlchemySchema",
     "SQLAlchemyAutoSchema",
