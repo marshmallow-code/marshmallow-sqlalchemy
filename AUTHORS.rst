@@ -40,3 +40,4 @@ Contributors
 - David Malakh `@Unix-Code <https://github.com/Unix-Code>`_
 - Martijn Pieters `@mjpieters <https://github.com/mjpieters>`_
 - Bruce Adams `@bruceadams <https://github.com/bruceadams>`_
+- Justin Crown `@mrname <https://github.com/mrname>`_

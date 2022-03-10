@@ -1,6 +1,18 @@
 Changelog
 ---------
 
+0.28.0 (unreleased)
++++++++++++++++++++
+
+Features:
+
+* Add support for generating fields from `column_property` (:issue:`97`).
+  Thanks :user:`mrname` for the PR.
+
+Other changes:
+
+* Drop support for SQLAlchemy 1.2, which is EOL.
+
 0.27.0 (2021-12-18)
 +++++++++++++++++++
 
