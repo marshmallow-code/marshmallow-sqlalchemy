@@ -119,7 +119,7 @@ Get it now
    pip install -U marshmallow-sqlalchemy
 
 
-Requires Python >= 3.6, marshmallow >= 3.0.0, and SQLAlchemy >= 1.2.0.
+Requires Python >= 3.6, marshmallow >= 3.0.0, and SQLAlchemy >= 1.3.0.
 
 Documentation
 =============

@@ -1,8 +1,8 @@
 import re
-from setuptools import setup, find_packages
 
+from setuptools import find_packages, setup
 
-INSTALL_REQUIRES = ("marshmallow>=3.0.0", "SQLAlchemy>=1.2.0")
+INSTALL_REQUIRES = ("marshmallow>=3.0.0", "SQLAlchemy>=1.3.0")
 EXTRAS_REQUIRE = {
     "tests": ["pytest", "pytest-lazy-fixture>=0.6.2"],
     "lint": ["flake8==4.0.1", "flake8-bugbear==22.1.11", "pre-commit~=2.0"],
