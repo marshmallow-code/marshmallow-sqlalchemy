@@ -235,6 +235,26 @@ class TestPropertyFieldConversion:
         field = converter.property2field(prop)
         assert field.required is False
 
+    def test_handle_expression_based_column_property(self, models, converter):
+        """
+        Tests ability to handle a column_property with a mapped expression value.
+        Such properties should be marked as dump_only, and the type should be properly
+        inferred.
+        """
+        prop = models.Student.__mapper__.get_property("course_count")
+        field = converter.property2field(prop)
+        assert type(field) is fields.Integer
+        assert field.dump_only is True
+
+    def test_handle_simple_column_property(self, models, converter):
+        """
+        Tests handling of column properties that do not derive directly from Column
+        """
+        prop = models.Seminar.__mapper__.get_property("label")
+        field = converter.property2field(prop)
+        assert type(field) is fields.String
+        assert field.dump_only is True
+
 
 class TestPropToFieldClass:
     def test_property2field(self):

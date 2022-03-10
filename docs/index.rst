@@ -90,6 +90,14 @@ The following schema classes are equivalent to the above.
 
 Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalchemy.orm.configure_mappers() <https://docs.sqlalchemy.org/en/latest/orm/mapping_api.html>`_ will run too soon and fail.
 
+.. note::
+
+    Any `column_property` on the model that does not derive directly from `Column`
+    (such as a mapped expression), will be detected and marked as `dump_only`.
+
+    `hybrid_property` is not automatically handled at all, and would need to be
+    explicitly declared as a field.
+
 (De)serialize your data
 =======================
 
@@ -109,6 +117,7 @@ Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalch
     load_data = author_schema.load(dump_data, session=session)
     print(load_data)
     # <Author(name='Chuck Paluhniuk')>
+
 
 Get it now
 ==========

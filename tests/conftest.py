@@ -98,6 +98,12 @@ def models(Base):
             secondary=student_course,
             backref=backref("students", lazy="dynamic"),
         )
+        # Test complex column property
+        course_count = column_property(
+            sa.select([sa.func.count(student_course.c.course_id)]).where(
+                student_course.c.student_id == id
+            )
+        )
 
         @property
         def url(self):

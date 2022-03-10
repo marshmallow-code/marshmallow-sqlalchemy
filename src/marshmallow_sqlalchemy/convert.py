@@ -313,17 +313,22 @@ class ModelConverter:
         """Add keyword arguments to kwargs (in-place) based on the passed in
         `Column <sqlalchemy.schema.Column>`.
         """
-        if column.nullable:
-            kwargs["allow_none"] = True
-        kwargs["required"] = not column.nullable and not _has_default(column)
+        if hasattr(column, "nullable"):
+            if column.nullable:
+                kwargs["allow_none"] = True
+            kwargs["required"] = not column.nullable and not _has_default(column)
+        # If there is no nullable attribute, we are dealing with a property
+        # that does not derive from the Column class. Mark as dump_only.
+        else:
+            kwargs["dump_only"] = True
 
-        if hasattr(column.type, "enums"):
+        if hasattr(column.type, "enums") and not kwargs.get("dump_only"):
             kwargs["validate"].append(validate.OneOf(choices=column.type.enums))
 
         # Add a length validator if a max length is set on the column
         # Skip UUID columns
         # (see https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/54)
-        if hasattr(column.type, "length"):
+        if hasattr(column.type, "length") and not kwargs.get("dump_only"):
             column_length = column.type.length
             if column_length is not None:
                 try:
