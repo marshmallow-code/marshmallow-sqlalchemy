@@ -11,6 +11,7 @@ Features:
 
 Other changes:
 
+* Drop support for Python 3.6, which is EOL.
 * Drop support for SQLAlchemy 1.2, which is EOL.
 
 0.27.0 (2021-12-18)
