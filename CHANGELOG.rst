@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+0.28.1 (unreleased)
++++++++++++++++++++
+
+Bug fixes:
+
+* Address ``DeprecationWarning`` re: usage of ``distutils`` (:pr:`435`).
+ Thanks :user:`Tenzer` for the PR.
+
 0.28.0 (2022-03-09)
 +++++++++++++++++++
 

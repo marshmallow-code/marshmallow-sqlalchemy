@@ -1,11 +1,11 @@
 import inspect
 import functools
 import warnings
-from distutils.version import LooseVersion
 
 import uuid
 import marshmallow as ma
 from marshmallow import validate, fields
+from packaging.version import Version
 from sqlalchemy.dialects import postgresql, mysql, mssql
 from sqlalchemy.orm import SynonymProperty
 import sqlalchemy as sa
@@ -14,7 +14,7 @@ from .exceptions import ModelConversionError
 from .fields import Related, RelatedList
 
 
-_META_KWARGS_DEPRECATED = LooseVersion(ma.__version__) >= LooseVersion("3.10.0")
+_META_KWARGS_DEPRECATED = Version(ma.__version__) >= Version("3.10.0")
 
 
 def _is_field(value):
