@@ -119,6 +119,30 @@ class ModelConverter:
         else:
             return ma.Schema.TYPE_MAPPING
 
+    def exclude_fk_field_if_needed(self, opts, inherited_fields):
+        """Exclude foreign fields from inherited_fields
+        when *opts.include_fk* is set to False."""
+        if (
+            not hasattr(opts, "include_fk") or
+            opts.include_fk or
+            not opts.model
+        ):
+            return inherited_fields
+        for prop in opts.model.__mapper__.iterate_properties:
+            if hasattr(prop, "columns"):
+                for column in prop.columns:
+                        if column.foreign_keys:
+                            if column.key in [
+                                item[0] for item in inherited_fields
+                            ]:
+                                inherited_fields = list(
+                                    filter(
+                                        lambda field: field[0] != column.key,
+                                        inherited_fields)
+                                )
+                                
+        return inherited_fields
+
     def fields_for_model(
         self,
         model,

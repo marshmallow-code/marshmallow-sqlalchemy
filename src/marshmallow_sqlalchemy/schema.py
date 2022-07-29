@@ -86,7 +86,10 @@ class SQLAlchemySchemaMeta(SchemaMeta):
         Converter = opts.model_converter
         converter = Converter(schema_cls=klass)
         fields = super().get_declared_fields(
-            klass, cls_fields, inherited_fields, dict_cls
+            klass,
+            cls_fields,
+            converter.exclude_fk_field_if_needed(opts, inherited_fields),
+            dict_cls
         )
         fields.update(mcs.get_declared_sqla_fields(fields, converter, opts, dict_cls))
         fields.update(mcs.get_auto_fields(fields, converter, opts, dict_cls))
