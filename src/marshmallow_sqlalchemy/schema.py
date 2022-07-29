@@ -89,7 +89,7 @@ class SQLAlchemySchemaMeta(SchemaMeta):
             klass,
             cls_fields,
             converter.exclude_fk_field_if_needed(opts, inherited_fields),
-            dict_cls
+            dict_cls,
         )
         fields.update(mcs.get_declared_sqla_fields(fields, converter, opts, dict_cls))
         fields.update(mcs.get_auto_fields(fields, converter, opts, dict_cls))
