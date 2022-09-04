@@ -349,7 +349,7 @@ class ModelConverter:
         nullable = True
         for pair in prop.local_remote_pairs:
             if not pair[0].nullable:
-                if prop.uselist is True:
+                if prop.uselist is True or prop.direction.name == "MANYTOONE":
                     nullable = False
                 break
         kwargs.update({"allow_none": nullable, "required": not nullable})
