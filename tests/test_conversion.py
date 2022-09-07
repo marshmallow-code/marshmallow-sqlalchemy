@@ -313,6 +313,22 @@ class TestFieldFor:
         field = field_for(models.Student, "full_name", field_class=fields.Date)
         assert type(field) == fields.Date
 
+    def test_related_initialization_warning(self, models, session):
+        with pytest.warns(
+            DeprecationWarning,
+            match="column` parameter is deprecated and will be removed in future releases. Use `columns` instead.",
+        ):
+            Related(column=[])
+
+    def test_related_initialization_with_columns(self, models, session):
+        ret = Related(columns=["TestCol"])
+        assert len(ret.columns) == 1
+        assert ret.columns[0] == "TestCol"
+        ret = Related(columns="TestCol")
+        assert isinstance(ret.columns, list)
+        assert len(ret.columns) == 1
+        assert ret.columns[0] == "TestCol"
+
     def test_field_for_can_override_validators(self, models, session):
         field = field_for(
             models.Student, "full_name", validate=[validate.Length(max=20)]

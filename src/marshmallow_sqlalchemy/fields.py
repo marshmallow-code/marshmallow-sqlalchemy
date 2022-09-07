@@ -1,3 +1,4 @@
+import warnings
 from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
 
@@ -41,9 +42,17 @@ class Related(fields.Field):
         "expected a dictionary with keys {keys!r}"
     }
 
-    def __init__(self, column=None, **kwargs):
+    def __init__(self, columns=None, column=None, **kwargs):
+        if column is not None:
+            warnings.warn(
+                "`column` parameter is deprecated and will be removed in future releases. "
+                "Use `columns` instead.",
+                DeprecationWarning,
+            )
+            if columns is None:
+                columns = column
         super().__init__(**kwargs)
-        self.columns = ensure_list(column or [])
+        self.columns = ensure_list(columns or [])
 
     @property
     def model(self):
