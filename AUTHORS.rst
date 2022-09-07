@@ -42,3 +42,4 @@ Contributors
 - Bruce Adams `@bruceadams <https://github.com/bruceadams>`_
 - Justin Crown `@mrname <https://github.com/mrname>`_
 - Jeppe Fihl-Pearson  `@Tenzer <https://github.com/Tenzer>`_
+- Indivar  `@indiVar0508 <https://github.com/indiVar0508>`_

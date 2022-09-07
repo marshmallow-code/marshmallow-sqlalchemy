@@ -98,12 +98,16 @@ def models(Base):
             secondary=student_course,
             backref=backref("students", lazy="dynamic"),
         )
+
         # Test complex column property
-        course_count = column_property(
-            sa.select([sa.func.count(student_course.c.course_id)]).where(
-                student_course.c.student_id == id
-            )
+        subquery = sa.select([sa.func.count(student_course.c.course_id)]).where(
+            student_course.c.student_id == id
         )
+        if hasattr(subquery, "scalar_subquery"):
+            subquery = subquery.scalar_subquery()
+        else:  # SQLA < 1.4
+            subquery = subquery.as_scalar()
+        course_count = column_property(subquery)
 
         @property
         def url(self):
