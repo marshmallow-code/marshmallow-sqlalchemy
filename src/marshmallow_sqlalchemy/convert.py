@@ -83,7 +83,8 @@ class ModelConverter:
     """
 
     SQLA_TYPE_MAPPING = {
-        sa.Enum: fields.Field,
+        # marshmallow 3.18.0 adds native Enum support
+        sa.Enum: getattr(fields, "Enum", fields.Field),
         sa.JSON: fields.Raw,
         postgresql.BIT: fields.Integer,
         postgresql.OID: fields.Integer,
