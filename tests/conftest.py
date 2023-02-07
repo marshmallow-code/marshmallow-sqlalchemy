@@ -101,10 +101,7 @@ def models(Base):
         subquery = sa.select(sa.func.count(student_course.c.course_id)).where(
             student_course.c.student_id == id
         )
-        if hasattr(subquery, "scalar_subquery"):
-            subquery = subquery.scalar_subquery()
-        else:  # SQLA < 1.4
-            subquery = subquery.as_scalar()
+        subquery = subquery.scalar_subquery()
         course_count = column_property(subquery)
 
         @property
