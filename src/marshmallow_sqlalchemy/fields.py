@@ -99,31 +99,29 @@ class Related(fields.Field):
         if self.transient:
             return self.related_model(**value)
         try:
-            result = self._get_existing_instance(
-                self.session.query(self.related_model), value
-            )
+            result = self._get_existing_instance(self.related_model, value)
         except NoResultFound:
             # The related-object DNE in the DB, but we still want to deserialize it
             # ...perhaps we want to add it to the DB later
             return self.related_model(**value)
         return result
 
-    def _get_existing_instance(self, query, value):
+    def _get_existing_instance(self, related_model, value):
         """Retrieve the related object from an existing instance in the DB.
 
-        :param query: A SQLAlchemy `Query <sqlalchemy.orm.query.Query>` object.
+        :param related_model: The related model to query
         :param value: The serialized value to mapto an existing instance.
         :raises NoResultFound: if there is no matching record.
         """
         if self.columns:
-            result = query.filter_by(
+            result = self.session.query(related_model).filter_by(
                 **{prop.key: value.get(prop.key) for prop in self.related_keys}
             ).one()
         else:
             # Use a faster path if the related key is the primary key.
             lookup_values = [value.get(prop.key) for prop in self.related_keys]
             try:
-                result = query.get(lookup_values)
+                result = self.session.get(related_model, lookup_values)
             except TypeError:
                 keys = [prop.key for prop in self.related_keys]
                 raise self.make_error("invalid", value=value, keys=keys)

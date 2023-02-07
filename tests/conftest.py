@@ -4,8 +4,7 @@ import datetime as dt
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship, backref, column_property, synonym
+from sqlalchemy.orm import sessionmaker, relationship, backref, column_property, synonym, declarative_base
 
 
 class AnotherInteger(sa.Integer):
@@ -27,14 +26,14 @@ def Base():
 
 @pytest.fixture()
 def engine():
-    return sa.create_engine("sqlite:///:memory:", echo=False)
+    return sa.create_engine("sqlite:///:memory:", echo=False, future=True)
 
 
 @pytest.fixture()
 def session(Base, models, engine):
     Session = sessionmaker(bind=engine)
     Base.metadata.create_all(bind=engine)
-    return Session()
+    return Session(future=True)
 
 
 @pytest.fixture()
@@ -99,7 +98,7 @@ def models(Base):
         )
 
         # Test complex column property
-        subquery = sa.select([sa.func.count(student_course.c.course_id)]).where(
+        subquery = sa.select(sa.func.count(student_course.c.course_id)).where(
             student_course.c.student_id == id
         )
         if hasattr(subquery, "scalar_subquery"):
