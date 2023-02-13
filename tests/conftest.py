@@ -39,7 +39,6 @@ def session(Base, models, engine):
 
 @pytest.fixture()
 def models(Base):
-
     # models adapted from https://github.com/wtforms/wtforms-sqlalchemy/blob/master/tests/tests.py
     student_course = sa.Table(
         "student_course",
