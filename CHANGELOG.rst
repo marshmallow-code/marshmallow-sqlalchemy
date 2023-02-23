@@ -1,6 +1,17 @@
 Changelog
 ---------
 
+0.29.0 (unreleased)
++++++++++++++++++++
+
+Features:
+
+* Enable (in tests) and fix SQLAlchemy 2.0 compatibility warnings (:pr:`493`).
+
+Other changes:
+
+* Drop support for SQLAlchemy 1.3 (:pr:`493`).
+
 0.28.2 (2023-02-23)
 +++++++++++++++++++
 
