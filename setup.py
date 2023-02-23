@@ -4,7 +4,7 @@ from setuptools import find_packages, setup
 
 INSTALL_REQUIRES = (
     "marshmallow>=3.0.0",
-    "SQLAlchemy>=1.3.0,<2.0",
+    "SQLAlchemy>=1.4.40,<2.0",
     "packaging>=21.3",
 )
 EXTRAS_REQUIRE = {
