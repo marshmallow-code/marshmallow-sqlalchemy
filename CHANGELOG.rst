@@ -1,6 +1,19 @@
 Changelog
 ---------
 
+0.28.2 (2023-02-23)
++++++++++++++++++++
+
+Bug fixes:
+
+* Use .scalar_subquery() for SQLAlchemy>1.4 to suppress a warning (:issue:`459`).
+  Thanks :user:`indiVar0508` for the PR.
+
+Other changes:
+
+* Lock SQLAlchemy<2.0 in setup.py. SQLAlchemy 2.x is not supported (:pr:`486`).
+* Test against Python 3.11 (:pr:`486`).
+
 0.28.1 (2022-07-18)
 +++++++++++++++++++
 
