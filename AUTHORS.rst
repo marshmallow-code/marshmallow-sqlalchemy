@@ -43,3 +43,4 @@ Contributors
 - Justin Crown `@mrname <https://github.com/mrname>`_
 - Jeppe Fihl-Pearson  `@Tenzer <https://github.com/Tenzer>`_
 - Indivar  `@indiVar0508 <https://github.com/indiVar0508>`_
+- Lloyd Capson `@LloydCapson <https://github.com/LloydCapson>`_

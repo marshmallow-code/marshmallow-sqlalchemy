@@ -132,6 +132,11 @@ class ModelConverter:
     ):
         result = dict_cls()
         base_fields = base_fields or {}
+
+        # Manually calling _check_configure(), replacing the call that used to 
+        # be done in model.__mapper__.iterate_properties prior to SQLAlchemy 2.0.2.
+        model.__mapper__._check_configure()
+
         for prop in model.__mapper__.iterate_properties:
             key = self._get_field_name(prop)
             if self._should_exclude_field(prop, fields=fields, exclude=exclude):
