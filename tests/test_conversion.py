@@ -231,7 +231,7 @@ class TestPropertyFieldConversion:
         assert field.required is False
 
     def test_convert_autoincrement(self, models, converter):
-        prop = models.Course.__mapper__.get_property("id")
+        prop = models.Course.__mapper__.attrs.get("id")
         field = converter.property2field(prop)
         assert field.required is False
 
@@ -241,7 +241,7 @@ class TestPropertyFieldConversion:
         Such properties should be marked as dump_only, and the type should be properly
         inferred.
         """
-        prop = models.Student.__mapper__.get_property("course_count")
+        prop = models.Student.__mapper__.attrs.get("course_count")
         field = converter.property2field(prop)
         assert type(field) is fields.Integer
         assert field.dump_only is True
@@ -250,7 +250,7 @@ class TestPropertyFieldConversion:
         """
         Tests handling of column properties that do not derive directly from Column
         """
-        prop = models.Seminar.__mapper__.get_property("label")
+        prop = models.Seminar.__mapper__.attrs.get("label")
         field = converter.property2field(prop)
         assert type(field) is fields.String
         assert field.dump_only is True

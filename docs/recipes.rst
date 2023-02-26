@@ -109,7 +109,7 @@ You can also use `marshmallow_sqlalchemy's` conversion functions directly.
 
     from marshmallow_sqlalchemy import property2field
 
-    id_prop = Author.__mapper__.get_property("id")
+    id_prop = Author.__mapper__.attrs.get("id")
 
     property2field(id_prop)
     # <fields.Integer(default=<marshmallow.missing>, ...>
