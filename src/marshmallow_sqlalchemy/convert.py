@@ -132,7 +132,8 @@ class ModelConverter:
     ):
         result = dict_cls()
         base_fields = base_fields or {}
-        for prop in model.__mapper__.iterate_properties:
+
+        for prop in model.__mapper__.attrs:
             key = self._get_field_name(prop)
             if self._should_exclude_field(prop, fields=fields, exclude=exclude):
                 # Allow marshmallow to validate and exclude the field key.
@@ -225,7 +226,7 @@ class ModelConverter:
             target_model = attr.target_class
             prop_name = attr.value_attr
             remote_with_local_multiplicity = attr.local_attr.prop.uselist
-        prop = target_model.__mapper__.get_property(prop_name)
+        prop = target_model.__mapper__.attrs.get(prop_name)
         converted_prop = self.property2field(prop, **kwargs)
         if remote_with_local_multiplicity:
             related_list_kwargs = _field_update_kwargs(
