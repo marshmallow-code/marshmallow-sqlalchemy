@@ -1,16 +1,25 @@
 Changelog
 ---------
 
-0.29.0 (unreleased)
+0.29.0 (2023-02-27)
 +++++++++++++++++++
 
 Features:
 
+* Support SQLAlchemy 2.0 (:pr:`494`).
+  Thanks :user:`dependabot` for the PR.
 * Enable (in tests) and fix SQLAlchemy 2.0 compatibility warnings (:pr:`493`).
+
+Bug fixes:
+
+* Use mapper ``.attrs`` rather than ``.get_property`` and ``.iterate_properties``
+  to ensure ``registry.configure`` is called (call removed in SQLAlchemy 2.0.2)
+  (:issue:`487`).
+  Thanks :user:`ddoyon92` for the PR.
 
 Other changes:
 
-* Drop support for SQLAlchemy 1.3 (:pr:`493`).
+* Drop support for SQLAlchemy 1.3, which is EOL (:pr:`493`).
 
 0.28.2 (2023-02-23)
 +++++++++++++++++++
