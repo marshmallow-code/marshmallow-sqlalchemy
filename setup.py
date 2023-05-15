@@ -18,7 +18,7 @@ EXTRAS_REQUIRE = {
         "pre-commit==3.3.1",
     ],
     "docs": [
-        "sphinx==7.0.0",
+        "sphinx==7.0.1",
         "alabaster==0.7.13",
         "sphinx-issues==3.0.1",
     ],
