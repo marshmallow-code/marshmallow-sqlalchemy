@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.30.0 (unreleased)
++++++++++++++++++++
+
+Other changes:
+
+* Drop support for Python 3.7, which is EOL.
+
 0.29.0 (2023-02-27)
 +++++++++++++++++++
 
