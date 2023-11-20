@@ -1,7 +1,7 @@
 import warnings
+
 from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
-
 from sqlalchemy import inspect
 from sqlalchemy.orm.exc import NoResultFound
 
@@ -48,6 +48,7 @@ class Related(fields.Field):
                 "`column` parameter is deprecated and will be removed in future releases. "
                 "Use `columns` instead.",
                 DeprecationWarning,
+                stacklevel=2,
             )
             if columns is None:
                 columns = column

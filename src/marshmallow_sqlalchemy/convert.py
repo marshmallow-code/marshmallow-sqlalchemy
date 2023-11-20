@@ -1,18 +1,17 @@
-import inspect
 import functools
+import inspect
+import uuid
 import warnings
 
-import uuid
 import marshmallow as ma
-from marshmallow import validate, fields
-from packaging.version import Version
-from sqlalchemy.dialects import postgresql, mysql, mssql
-from sqlalchemy.orm import SynonymProperty
 import sqlalchemy as sa
+from marshmallow import fields, validate
+from packaging.version import Version
+from sqlalchemy.dialects import mssql, mysql, postgresql
+from sqlalchemy.orm import SynonymProperty
 
 from .exceptions import ModelConversionError
 from .fields import Related, RelatedList
-
 
 _META_KWARGS_DEPRECATED = Version(ma.__version__) >= Version("3.10.0")
 
@@ -302,6 +301,7 @@ class ModelConverter:
                 'Passing `info={"marshmallow": ...}` is deprecated. '
                 "Use `SQLAlchemySchema` and `auto_field` instead.",
                 DeprecationWarning,
+                stacklevel=2,
             )
             validate = overrides.pop("validate", [])
             kwargs["validate"] = self._merge_validators(
