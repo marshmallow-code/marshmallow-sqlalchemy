@@ -6,7 +6,7 @@ Changelog
 
 Other changes:
 
-* Drop support for Python 3.7, which is EOL.
+* Drop support for Python 3.7, which is EOL (:pr:`540`).
 
 0.29.0 (2023-02-27)
 +++++++++++++++++++
