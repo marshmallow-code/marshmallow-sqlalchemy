@@ -1,20 +1,20 @@
-import uuid
 import datetime as dt
 import decimal
+import uuid
 
-import sqlalchemy as sa
 import pytest
-from sqlalchemy.dialects import postgresql, mysql
-from sqlalchemy.orm import column_property
+import sqlalchemy as sa
 from marshmallow import Schema, fields, validate
+from sqlalchemy.dialects import mysql, postgresql
+from sqlalchemy.orm import column_property
 
 from marshmallow_sqlalchemy import (
-    fields_for_model,
+    ModelConversionError,
     ModelConverter,
-    property2field,
     column2field,
     field_for,
-    ModelConversionError,
+    fields_for_model,
+    property2field,
 )
 from marshmallow_sqlalchemy.fields import Related, RelatedList
 
@@ -162,7 +162,7 @@ class TestPropertyFieldConversion:
         converter = ModelConverter(schema_cls=MySchema)
         prop = make_property(sa.DateTime())
         field = converter.property2field(prop)
-        assert type(field) == MyDateTimeField
+        assert type(field) is MyDateTimeField
 
     @pytest.mark.parametrize(
         ("sa_type", "field_type"),
@@ -193,27 +193,27 @@ class TestPropertyFieldConversion:
     def test_convert_types(self, converter, sa_type, field_type):
         prop = make_property(sa_type())
         field = converter.property2field(prop)
-        assert type(field) == field_type
+        assert type(field) is field_type
 
     def test_convert_Numeric(self, converter):
         prop = make_property(sa.Numeric(scale=2))
         field = converter.property2field(prop)
-        assert type(field) == fields.Decimal
+        assert type(field) is fields.Decimal
         assert field.places == decimal.Decimal((0, (1,), -2))
 
     def test_convert_ARRAY_String(self, converter):
         prop = make_property(postgresql.ARRAY(sa.String()))
         field = converter.property2field(prop)
-        assert type(field) == fields.List
+        assert type(field) is fields.List
         inner_field = getattr(field, "inner", getattr(field, "container", None))
-        assert type(inner_field) == fields.Str
+        assert type(inner_field) is fields.Str
 
     def test_convert_ARRAY_Integer(self, converter):
         prop = make_property(postgresql.ARRAY(sa.Integer))
         field = converter.property2field(prop)
-        assert type(field) == fields.List
+        assert type(field) is fields.List
         inner_field = getattr(field, "inner", getattr(field, "container", None))
-        assert type(inner_field) == fields.Int
+        assert type(inner_field) is fields.Int
 
     def test_convert_TSVECTOR(self, converter):
         prop = make_property(postgresql.TSVECTOR)
@@ -261,10 +261,10 @@ class TestPropToFieldClass:
         prop = make_property(sa.Integer())
         field = property2field(prop, instance=True)
 
-        assert type(field) == fields.Int
+        assert type(field) is fields.Int
 
         field_cls = property2field(prop, instance=False)
-        assert field_cls == fields.Int
+        assert field_cls is fields.Int
 
     def test_can_pass_extra_kwargs(self):
         prop = make_property(sa.String())
@@ -277,10 +277,10 @@ class TestColumnToFieldClass:
         column = sa.Column(sa.String(255))
         field = column2field(column, instance=True)
 
-        assert type(field) == fields.String
+        assert type(field) is fields.String
 
         field_cls = column2field(column, instance=False)
-        assert field_cls == fields.String
+        assert field_cls is fields.String
 
     def test_can_pass_extra_kwargs(self):
         column = sa.Column(sa.String(255))
@@ -305,13 +305,13 @@ class TestColumnToFieldClass:
 class TestFieldFor:
     def test_field_for(self, models, session):
         field = field_for(models.Student, "full_name")
-        assert type(field) == fields.Str
+        assert type(field) is fields.Str
 
         field = field_for(models.Student, "current_school", session=session)
-        assert type(field) == Related
+        assert type(field) is Related
 
         field = field_for(models.Student, "full_name", field_class=fields.Date)
-        assert type(field) == fields.Date
+        assert type(field) is fields.Date
 
     def test_related_initialization_warning(self, models, session):
         with pytest.warns(
@@ -350,7 +350,7 @@ class TestFieldFor:
             bar = Column(ARRAY(String))
 
         field = field_for(ModelWithArray, "bar", dump_only=True)
-        assert type(field) == fields.List
+        assert type(field) is fields.List
         assert field.dump_only is True
 
 
