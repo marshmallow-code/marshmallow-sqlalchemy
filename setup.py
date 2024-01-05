@@ -13,7 +13,7 @@ EXTRAS_REQUIRE = {
         "pytest-lazy-fixture>=0.6.2",
     ],
     "lint": [
-        "flake8==6.1.0",
+        "flake8==7.0.0",
         "flake8-bugbear==23.12.2",
         "pre-commit==3.6.0",
     ],
