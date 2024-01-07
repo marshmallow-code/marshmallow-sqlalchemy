@@ -4,6 +4,11 @@ Changelog
 0.30.0 (unreleased)
 +++++++++++++++++++
 
+Features:
+
+* Use ``Session.get()`` load instances to improve deserialization performance (:pr:`548`).
+  Thanks :user:`zippolyte` for the PR.
+
 Other changes:
 
 * Drop support for Python 3.7, which is EOL (:pr:`540`).
