@@ -19,7 +19,7 @@ EXTRAS_REQUIRE = {
     ],
     "docs": [
         "sphinx==7.2.6",
-        "alabaster==0.7.13",
+        "alabaster==0.7.15",
         "sphinx-issues==3.0.1",
     ],
 }
