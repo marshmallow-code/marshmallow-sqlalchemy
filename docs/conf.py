@@ -43,6 +43,7 @@ html_show_sourcelink = False
 
 html_theme_options = {
     "logo": "marshmallow-sqlalchemy-logo.png",
+    "logo_name": None,
     "description": "SQLAlchemy integration with the marshmallow (de)serialization library",
     "description_font_style": "italic",
     "github_user": "marshmallow-code",
