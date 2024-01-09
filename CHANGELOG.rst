@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+0.31.0 (unreleased)
++++++++++++++++++++
+
+Other changes:
+
+* Support Python 3.12.
+
 0.30.0 (2024-01-07)
 +++++++++++++++++++
 
