@@ -5,6 +5,7 @@
     This module is treated as private API.
     Users should not need to use this module directly.
 """
+
 import marshmallow as ma
 from sqlalchemy.orm.exc import ObjectDeletedError
 
