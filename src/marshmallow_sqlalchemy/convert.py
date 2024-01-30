@@ -6,14 +6,11 @@ import warnings
 import marshmallow as ma
 import sqlalchemy as sa
 from marshmallow import fields, validate
-from packaging.version import Version
 from sqlalchemy.dialects import mssql, mysql, postgresql
 from sqlalchemy.orm import SynonymProperty
 
 from .exceptions import ModelConversionError
 from .fields import Related, RelatedList
-
-_META_KWARGS_DEPRECATED = Version(ma.__version__) >= Version("3.10.0")
 
 
 def _is_field(value):
@@ -46,13 +43,6 @@ def _postgres_array_factory(converter, data_type):
     )
 
 
-def _set_meta_kwarg(field_kwargs, key, value):
-    if _META_KWARGS_DEPRECATED:
-        field_kwargs["metadata"][key] = value
-    else:
-        field_kwargs[key] = value
-
-
 def _field_update_kwargs(field_class, field_kwargs, kwargs):
     if not kwargs:
         return field_kwargs
@@ -72,7 +62,7 @@ def _field_update_kwargs(field_class, field_kwargs, kwargs):
         if k in possible_field_keywords:
             field_kwargs[k] = v
         else:
-            _set_meta_kwarg(field_kwargs, k, v)
+            field_kwargs["metadata"][k] = v
     return field_kwargs
 
 
@@ -293,7 +283,7 @@ class ModelConverter:
         if hasattr(prop, "direction"):  # Relationship property
             self._add_relationship_kwargs(kwargs, prop)
         if getattr(prop, "doc", None):  # Useful for documentation generation
-            _set_meta_kwarg(kwargs, "description", prop.doc)
+            kwargs["metadata"]["description"] = prop.doc
         info = getattr(prop, "info", dict())
         overrides = info.get("marshmallow")
         if overrides is not None:
@@ -363,10 +353,7 @@ class ModelConverter:
         return False
 
     def get_base_kwargs(self):
-        kwargs = {"validate": []}
-        if _META_KWARGS_DEPRECATED:
-            kwargs["metadata"] = {}
-        return kwargs
+        return {"validate": [], "metadata": {}}
 
 
 default_converter = ModelConverter()
