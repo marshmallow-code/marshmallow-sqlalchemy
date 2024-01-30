@@ -98,24 +98,6 @@ class TestModelFieldConversion:
         graded_paper_fields = fields_for_model(models.GradedPaper, include_fk=False)
         assert "id" in graded_paper_fields
 
-    def test_info_overrides(self, models):
-        class TestModel(models.Course):
-            test = sa.Column(
-                sa.Text,
-                nullable=True,
-                info=dict(
-                    marshmallow=dict(
-                        validate=[validate.Length(max=1000)], required=True
-                    )
-                ),
-            )
-
-        fields_ = fields_for_model(TestModel)
-        field = fields_["test"]
-        validator = contains_validator(field, validate.Length)
-        assert validator.max == 1000
-        assert field.required
-
     def test_rename_key(self, models):
         class RenameConverter(ModelConverter):
             def _get_field_name(self, prop):

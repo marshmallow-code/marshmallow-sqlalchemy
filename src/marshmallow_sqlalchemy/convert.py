@@ -1,7 +1,6 @@
 import functools
 import inspect
 import uuid
-import warnings
 
 import marshmallow as ma
 import sqlalchemy as sa
@@ -284,20 +283,6 @@ class ModelConverter:
             self._add_relationship_kwargs(kwargs, prop)
         if getattr(prop, "doc", None):  # Useful for documentation generation
             kwargs["metadata"]["description"] = prop.doc
-        info = getattr(prop, "info", dict())
-        overrides = info.get("marshmallow")
-        if overrides is not None:
-            warnings.warn(
-                'Passing `info={"marshmallow": ...}` is deprecated. '
-                "Use `SQLAlchemySchema` and `auto_field` instead.",
-                DeprecationWarning,
-                stacklevel=2,
-            )
-            validate = overrides.pop("validate", [])
-            kwargs["validate"] = self._merge_validators(
-                kwargs["validate"], validate
-            )  # Ensure we do not override the generated validators.
-            kwargs.update(overrides)  # Override other kwargs.
         return kwargs
 
     def _add_column_kwargs(self, kwargs, column):
