@@ -107,11 +107,11 @@ def models(Base):
         )
 
         # Test complex column property
-        subquery = sa.select(sa.func.count(student_course.c.course_id)).where(
-            student_course.c.student_id == id
+        course_count = column_property(
+            sa.select(sa.func.count(student_course.c.course_id))
+            .where(student_course.c.student_id == id)
+            .scalar_subquery()
         )
-        subquery = subquery.scalar_subquery()
-        course_count = column_property(subquery)
 
         @property
         def url(self):

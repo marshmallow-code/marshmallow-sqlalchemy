@@ -5,7 +5,9 @@ Changelog
 +++++++++++++++++++
 
 * Support marshmallow>=3.10.0.
-* Remove ``packaging`` as a requirement.
+* Passing `info={"marshmallow": ...}` to SQLAlchemy columns is removed, as it is redundant with
+  the ``auto_field`` functionality.
+* Remove ``packaging`` as a dependency.
 * Support Python 3.12.
 
 0.30.0 (2024-01-07)
