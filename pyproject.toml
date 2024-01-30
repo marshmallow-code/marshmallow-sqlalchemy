@@ -1,6 +1,6 @@
 [project]
 name = "marshmallow-sqlalchemy"
-version = "0.30.0"
+version = "1.0.0"
 description = "SQLAlchemy integration with the marshmallow (de)serialization library"
 readme = "README.rst"
 license = { file = "LICENSE" }

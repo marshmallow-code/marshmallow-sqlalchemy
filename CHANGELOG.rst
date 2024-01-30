@@ -1,7 +1,7 @@
 Changelog
 ---------
 
-1.0.0 (unreleased)
+1.0.0 (2024-01-30)
 +++++++++++++++++++
 
 * Remove ``__version__`` attribute. Use feature detection or
