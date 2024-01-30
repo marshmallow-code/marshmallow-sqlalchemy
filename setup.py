@@ -9,7 +9,8 @@ INSTALL_REQUIRES = (
 )
 EXTRAS_REQUIRE = {
     "tests": [
-        "pytest",
+        # TODO: Remove pin when https://github.com/TvoroG/pytest-lazy-fixture/issues/65 is resolved
+        "pytest<8",
         "pytest-lazy-fixture>=0.6.2",
     ],
     "lint": [
