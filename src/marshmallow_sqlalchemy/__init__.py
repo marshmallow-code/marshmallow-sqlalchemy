@@ -1,3 +1,5 @@
+import importlib.metadata
+
 from .convert import (
     ModelConverter,
     column2field,
@@ -14,7 +16,8 @@ from .schema import (
     auto_field,
 )
 
-__version__ = "0.30.0"
+# TODO: Deprecate __version__
+__version__ = importlib.metadata.version("marshmallow-sqlalchemy")
 __all__ = [
     "SQLAlchemySchema",
     "SQLAlchemyAutoSchema",

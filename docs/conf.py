@@ -1,12 +1,7 @@
+import importlib.metadata
 from collections import OrderedDict
-import datetime as dt
-import os
-import sys
 
 import alabaster
-
-sys.path.insert(0, os.path.abspath(os.path.join("..", "src")))
-import marshmallow_sqlalchemy  # noqa: E402
 
 extensions = [
     "sphinx.ext.autodoc",
@@ -29,9 +24,9 @@ issues_github_path = "marshmallow-code/marshmallow-sqlalchemy"
 source_suffix = ".rst"
 master_doc = "index"
 project = "marshmallow-sqlalchemy"
-copyright = f"Steven Loria and contributors {dt.datetime.utcnow():%Y}"
+copyright = "Steven Loria and contributors"
 
-version = release = marshmallow_sqlalchemy.__version__
+version = release = importlib.metadata.version("marshmallow-sqlalchemy")
 
 exclude_patterns = ["_build"]
 
