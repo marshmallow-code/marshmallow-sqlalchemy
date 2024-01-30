@@ -4,10 +4,12 @@ Changelog
 1.0.0 (unreleased)
 +++++++++++++++++++
 
-* Support marshmallow>=3.10.0.
+* Remove ``__version__`` attribute. Use feature detection or
+  ``importlib.metadata.version("marshmallow-sqlalchemy")`` instead (:pr:`568`).
+* Support marshmallow>=3.10.0 (:pr:`566`).
 * Passing `info={"marshmallow": ...}` to SQLAlchemy columns is removed, as it is redundant with
-  the ``auto_field`` functionality.
-* Remove ``packaging`` as a dependency.
+  the ``auto_field`` functionality (:pr:`567`).
+* Remove ``packaging`` as a dependency (:pr:`566`).
 * Support Python 3.12.
 
 0.30.0 (2024-01-07)
