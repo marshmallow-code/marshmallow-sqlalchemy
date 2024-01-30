@@ -1,11 +1,11 @@
 Changelog
 ---------
 
-0.31.0 (unreleased)
+1.0.0 (unreleased)
 +++++++++++++++++++
 
-Other changes:
-
+* Support marshmallow>=3.10.0.
+* Remove ``packaging`` as a requirement.
 * Support Python 3.12.
 
 0.30.0 (2024-01-07)
