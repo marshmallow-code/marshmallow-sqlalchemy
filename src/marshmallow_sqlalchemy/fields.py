@@ -127,9 +127,9 @@ class Related(fields.Field):
             lookup_values = [value.get(prop.key) for prop in self.related_keys]
             try:
                 result = self.session.get(related_model, lookup_values)
-            except TypeError:
+            except TypeError as error:
                 keys = [prop.key for prop in self.related_keys]
-                raise self.make_error("invalid", value=value, keys=keys)
+                raise self.make_error("invalid", value=value, keys=keys) from error
             if result is None:
                 raise NoResultFound
         return result

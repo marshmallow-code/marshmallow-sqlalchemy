@@ -1,6 +1,6 @@
+import sqlalchemy as sa
 from marshmallow.fields import Field
 from marshmallow.schema import Schema, SchemaMeta, SchemaOpts
-import sqlalchemy as sa
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from .convert import ModelConverter

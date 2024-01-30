@@ -1,9 +1,7 @@
 import importlib.metadata
-
 from collections import OrderedDict
 
 import alabaster
-
 
 extensions = [
     "sphinx.ext.autodoc",

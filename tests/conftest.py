@@ -1,16 +1,16 @@
-from types import SimpleNamespace
 import datetime as dt
+from types import SimpleNamespace
 
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import (
-    sessionmaker,
-    relationship,
     backref,
     column_property,
-    synonym,
     declarative_base,
+    relationship,
+    sessionmaker,
+    synonym,
 )
 
 
@@ -89,7 +89,9 @@ def models(Base):
         full_name = sa.Column(sa.String(255), nullable=False, unique=True)
         dob = sa.Column(sa.Date(), nullable=True)
         date_created = sa.Column(
-            sa.DateTime, default=dt.datetime.utcnow, doc="date the student was created"
+            sa.DateTime,
+            default=lambda: dt.datetime.now(dt.timezone.utc),
+            doc="date the student was created",
         )
 
         current_school_id = sa.Column(
