@@ -152,6 +152,7 @@ class SQLAlchemySchema(
 
         from mymodels import User
 
+
         class UserSchema(SQLAlchemySchema):
             class Meta:
                 model = User
@@ -173,6 +174,7 @@ class SQLAlchemyAutoSchema(SQLAlchemySchema, metaclass=SQLAlchemyAutoSchemaMeta)
         from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
 
         from mymodels import User
+
 
         class UserSchema(SQLAlchemyAutoSchema):
             class Meta:
