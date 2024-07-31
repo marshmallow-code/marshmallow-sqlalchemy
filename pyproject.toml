@@ -27,7 +27,7 @@ Source = "https://github.com/marshmallow-code/marshmallow-sqlalchemy"
 [project.optional-dependencies]
 docs = ["sphinx==7.4.5", "alabaster==1.0.0", "sphinx-issues==4.1.0"]
 # TODO: Remove pytest pin when https://github.com/TvoroG/pytest-lazy-fixture/issues/65 is resolved
-tests = ["pytest<8", "pytest-lazy-fixture>=0.6.2"]
+tests = ["pytest<9", "pytest-lazy-fixture>=0.6.2"]
 dev = ["marshmallow-sqlalchemy[tests]", "tox", "pre-commit~=3.5"]
 
 [build-system]
