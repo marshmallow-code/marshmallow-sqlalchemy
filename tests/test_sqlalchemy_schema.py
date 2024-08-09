@@ -1,8 +1,8 @@
 import marshmallow
 import pytest
-from pytest_lazy_fixtures import lf
 import sqlalchemy as sa
 from marshmallow import Schema, ValidationError, validate
+from pytest_lazy_fixtures import lf
 
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, SQLAlchemySchema, auto_field
 from marshmallow_sqlalchemy.exceptions import IncorrectSchemaTypeError
