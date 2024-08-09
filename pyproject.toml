@@ -26,7 +26,7 @@ Source = "https://github.com/marshmallow-code/marshmallow-sqlalchemy"
 
 [project.optional-dependencies]
 docs = ["sphinx==7.4.5", "alabaster==1.0.0", "sphinx-issues==4.1.0"]
-tests = ["pytest", "pytest-lazy-fixtures"]
+tests = ["pytest<9", "pytest-lazy-fixtures"]
 dev = ["marshmallow-sqlalchemy[tests]", "tox", "pre-commit~=3.5"]
 
 [build-system]
