@@ -42,6 +42,10 @@ def _postgres_array_factory(converter, data_type):
     )
 
 
+def _enum_field_factory(converter, data_type):
+    return fields.Enum if data_type.enum_class else fields.Field
+
+
 def _field_update_kwargs(field_class, field_kwargs, kwargs):
     if not kwargs:
         return field_kwargs
@@ -71,7 +75,7 @@ class ModelConverter:
     """
 
     SQLA_TYPE_MAPPING = {
-        sa.Enum: fields.Field,
+        sa.Enum: _enum_field_factory,
         sa.JSON: fields.Raw,
         postgresql.BIT: fields.Integer,
         postgresql.OID: fields.Integer,
@@ -300,6 +304,9 @@ class ModelConverter:
 
         if hasattr(column.type, "enums") and not kwargs.get("dump_only"):
             kwargs["validate"].append(validate.OneOf(choices=column.type.enums))
+
+        if hasattr(column.type, "enum_class"):
+            kwargs["enum"] = column.type.enum_class
 
         # Add a length validator if a max length is set on the column
         # Skip UUID columns
