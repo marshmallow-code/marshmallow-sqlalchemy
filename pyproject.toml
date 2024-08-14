@@ -16,7 +16,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
 ]
 requires-python = ">=3.8"
-dependencies = ["marshmallow>=3.10.0", "SQLAlchemy>=1.4.40,<3.0"]
+dependencies = ["marshmallow>=3.18.0", "SQLAlchemy>=1.4.40,<3.0"]
 
 [project.urls]
 Changelog = "https://marshmallow-sqlalchemy.readthedocs.io/en/latest/changelog.html"
