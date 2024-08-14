@@ -73,6 +73,12 @@ class TestModelFieldConversion:
         assert validator
         assert list(validator.choices) == ["Primary", "Secondary"]
 
+    def test_sets_enum_with_class_choices(self, models):
+        fields_ = fields_for_model(models.Course)
+        validator = contains_validator(fields_["level_with_enum_class"], validate.OneOf)
+        assert validator
+        assert list(validator.choices) == ["PRIMARY", "SECONDARY"]
+
     def test_many_to_many_relationship(self, models):
         student_fields = fields_for_model(models.Student, include_relationships=True)
         assert type(student_fields["courses"]) is RelatedList

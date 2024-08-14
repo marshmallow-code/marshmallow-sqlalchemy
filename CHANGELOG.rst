@@ -1,6 +1,18 @@
 Changelog
 ---------
 
+1.1.0 (unreleased)
+++++++++++++++++++
+
+Features:
+
+*  ``sqlalchemy.Enum`` fields generate a corresponding ``marshmallow.fields.Enum`` field
+  (:issue:`485`, :issue:`112`). Thanks :user:`panda-byte` for the PR.
+
+Support:
+
+* Drop support for marshmallow<=3.18.0.
+
 1.0.0 (2024-01-30)
 +++++++++++++++++++
 
