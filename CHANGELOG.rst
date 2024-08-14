@@ -11,7 +11,7 @@ Features:
 
 Support:
 
-* Drop support for marshmallow<=3.18.0.
+* Drop support for marshmallow<3.18.0.
 
 1.0.0 (2024-01-30)
 +++++++++++++++++++
