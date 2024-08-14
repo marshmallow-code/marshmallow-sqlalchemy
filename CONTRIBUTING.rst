@@ -34,19 +34,6 @@ Setting Up for Local Development
     # The pre-commit CLI was installed above
     $ pre-commit install --allow-missing-config
 
-Git Branch Structure
---------------------
-
-marshmallow-sqlalchemy abides by the following branching model:
-
-``dev``
-    Current development branch. **New features should branch off here**.
-
-``X.Y-line``
-    Maintenance branch for release ``X.Y``. **Bug fixes should be sent to the most recent release branch.**. The maintainer will forward-port the fix to ``dev``. Note: exceptions may be made for bug fixes that introduce large code changes.
-
-**Always make a new branch for your work**, no matter how small. Also, **do not put unrelated changes in the same branch or pull request**. This makes it more difficult to merge your changes.
-
 Pull Requests
 --------------
 
@@ -71,7 +58,7 @@ Pull Requests
 - You've added yourself to ``AUTHORS.rst``.
 
 4. Submit a pull request to ``marshmallow-code:dev`` or the appropriate maintenance branch.
-   The `CI <https://dev.azure.com/sloria/sloria/_build/latest?definitionId=10&branchName=dev>`_ build
+   The `CI <https://github.com/marshmallow-code/marshmallow-sqlalchemy/actions/workflows/build-release.yml>`_ build
    must be passing before your pull request is merged.
 
 Running Tests
