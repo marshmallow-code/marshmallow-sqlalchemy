@@ -1,4 +1,5 @@
 import datetime as dt
+from enum import Enum
 from types import SimpleNamespace
 
 import pytest
@@ -61,6 +62,7 @@ def models(Base):
         cost = sa.Column(sa.Numeric(5, 2), nullable=False)
         description = sa.Column(sa.Text, nullable=True)
         level = sa.Column(sa.Enum("Primary", "Secondary"))
+        level_with_enum_class = sa.Column(sa.Enum(Enum("Level", "PRIMARY SECONDARY")))
         has_prereqs = sa.Column(sa.Boolean, nullable=False)
         started = sa.Column(sa.DateTime, nullable=False)
         grade = sa.Column(AnotherInteger, nullable=False)
