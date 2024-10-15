@@ -198,7 +198,7 @@ def models(Base):
         seminar = relationship(
             Seminar, foreign_keys=[seminar_title, seminar_semester], backref="lectures"
         )
-        kw = relationship("Keyword", secondary=lecturekeywords_table)
+        kw = relationship("Keyword", uselist=False, secondary=lecturekeywords_table)
         keywords = association_proxy(
             "kw", "keyword", creator=lambda kw: Keyword(keyword=kw)
         )

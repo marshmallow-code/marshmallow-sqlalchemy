@@ -342,6 +342,49 @@ class TestFieldFor:
         assert field.dump_only is True
 
 
+class TestRelationshipKwarg:
+    def test_many_to_one_relationship_kwarg(self, models):
+        default_converter = ModelConverter()
+
+        rel = models.Student.__mapper__.attrs.get("current_school")
+        assert rel.direction.name == "MANYTOONE"
+        assert rel.uselist is False
+        rel_kwargs = {}
+        default_converter._add_relationship_kwargs(rel_kwargs, rel)
+        assert rel_kwargs["allow_none"] is False
+        assert rel_kwargs["required"] is True
+
+        rel = models.School.__mapper__.attrs.get("students")
+        assert rel.direction.name == "ONETOMANY"
+        assert rel.uselist is True
+        rel_kwargs = {}
+        default_converter._add_relationship_kwargs(rel_kwargs, rel)
+        assert rel_kwargs["allow_none"] is False
+        assert rel_kwargs["required"] is True
+
+    def test_many_to_many_with_uselist_relationship_kwarg(self, models):
+        default_converter = ModelConverter()
+
+        rel = models.Student.__mapper__.attrs.get("courses")
+        assert rel.direction.name == "MANYTOMANY"
+        assert rel.uselist is True
+        rel_kwargs = {}
+        default_converter._add_relationship_kwargs(rel_kwargs, rel)
+        assert rel_kwargs["allow_none"] is False
+        assert rel_kwargs["required"] is True
+
+    def test_many_to_many_without_uselist_relationship_kwarg(self, models):
+        default_converter = ModelConverter()
+
+        rel = models.Lecture.__mapper__.attrs.get("kw")
+        assert rel.direction.name == "MANYTOMANY"
+        assert rel.uselist is False
+        rel_kwargs = {}
+        default_converter._add_relationship_kwargs(rel_kwargs, rel)
+        assert rel_kwargs["allow_none"] is True
+        assert rel_kwargs["required"] is False
+
+
 def _repr_validator_list(validators):
     return sorted(repr(validator) for validator in validators)
 
