@@ -6,11 +6,11 @@ Changelog
 
 Bug fixes:
 
-* Fix compatibility with marshmallow 3.24.0 and 4.0.0.
+* Fix compatibility with marshmallow 3.24.0 and 4.0.0 (:pr:`628`).
 
 Other changes:
 
-* Test against Python 3.13.
+* Test against Python 3.13 (:issue:`629`).
 
 1.1.0 (2024-08-14)
 ++++++++++++++++++
