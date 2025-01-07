@@ -43,7 +43,7 @@ def _postgres_array_factory(converter, data_type):
 
 
 def _enum_field_factory(converter, data_type):
-    return fields.Enum if data_type.enum_class else fields.Field
+    return fields.Enum if data_type.enum_class else fields.Raw
 
 
 def _field_update_kwargs(field_class, field_kwargs, kwargs):
@@ -57,7 +57,7 @@ def _field_update_kwargs(field_class, field_kwargs, kwargs):
     possible_field_keywords = {
         key
         for cls in inspect.getmro(field_class)
-        for key, param in inspect.signature(cls).parameters.items()
+        for key, param in inspect.signature(cls.__init__).parameters.items()
         if param.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
         or param.kind is inspect.Parameter.KEYWORD_ONLY
     }
