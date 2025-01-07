@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+1.2.0 (unreleased)
+++++++++++++++++++
+
+Other changes:
+
+* Drop support for Python 3.8, which is EOL. Support Python 3.9-3.13.
+
 1.1.1 (2025-01-06)
 ++++++++++++++++++
 
