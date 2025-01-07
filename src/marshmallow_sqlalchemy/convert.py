@@ -305,7 +305,7 @@ class ModelConverter:
         if hasattr(column.type, "enums") and not kwargs.get("dump_only"):
             kwargs["validate"].append(validate.OneOf(choices=column.type.enums))
 
-        if hasattr(column.type, "enum_class"):
+        if hasattr(column.type, "enum_class") and column.type.enum_class is not None:
             kwargs["enum"] = column.type.enum_class
 
         # Add a length validator if a max length is set on the column

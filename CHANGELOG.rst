@@ -6,7 +6,7 @@ Changelog
 
 Bug fixes:
 
-* Fix compatibility with marshmallow 3.24.0.
+* Fix compatibility with marshmallow 3.24.0 and 4.0.0.
 
 1.1.0 (2024-08-14)
 ++++++++++++++++++
