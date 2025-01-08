@@ -4,7 +4,7 @@ import functools
 import inspect
 import uuid
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable
+from typing import TYPE_CHECKING, Any, Callable, cast
 
 import marshmallow as ma
 import sqlalchemy as sa
@@ -19,7 +19,9 @@ if TYPE_CHECKING:
     from sqlalchemy.ext.declarative import DeclarativeMeta
     from sqlalchemy.types import TypeEngine
 
-    PropertyOrColumn = sa.orm.properties.Property | sa.Column
+    PropertyOrColumn = sa.orm.MapperProperty | sa.Column
+
+_FieldClassFactory = Callable[[Any, Any], type[fields.Field]]
 
 
 def _is_field(value) -> bool:
@@ -48,32 +50,33 @@ def _is_auto_increment(column) -> bool:
 
 def _postgres_array_factory(converter: ModelConverter, data_type: TypeEngine):
     return functools.partial(
-        fields.List, converter._get_field_class_for_data_type(data_type.item_type)
+        fields.List,
+        converter._get_field_class_for_data_type(data_type.item_type),  # type: ignore[attr-defined]
     )
 
 
 def _enum_field_factory(
-    converter: ModelConverter, data_type: TypeEngine
-) -> fields.Field:
+    converter: ModelConverter, data_type: sa.Enum
+) -> type[fields.Field]:
     return fields.Enum if data_type.enum_class else fields.Raw
 
 
 def _field_update_kwargs(
-    field_class: type[fields.Field],
+    field_class: type[fields.Field] | functools.partial,
     field_kwargs: dict[str, Any],
     kwargs: dict[str, Any],
-) -> None:
+) -> dict[str, Any]:
     if not kwargs:
         return field_kwargs
 
     if isinstance(field_class, functools.partial):
         # Unwrap partials, assuming that they bind a Field to arguments
-        field_class = field_class.func
+        field_class = cast(functools.partial, field_class.func)
 
     possible_field_keywords = {
         key
-        for cls in inspect.getmro(field_class)
-        for key, param in inspect.signature(cls.__init__).parameters.items()
+        for cls in inspect.getmro(cast(type[fields.Field], field_class))
+        for key, param in inspect.signature(cls.__init__).parameters.items()  # type: ignore[misc]
         if param.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
         or param.kind is inspect.Parameter.KEYWORD_ONLY
     }
@@ -91,7 +94,7 @@ class ModelConverter:
     """
 
     SQLA_TYPE_MAPPING: dict[
-        TypeEngine, type[fields.Field] | Callable[[Any, Any], fields.Field]
+        type[TypeEngine], type[fields.Field] | _FieldClassFactory
     ] = {
         sa.Enum: _enum_field_factory,
         sa.JSON: fields.Raw,
@@ -135,15 +138,15 @@ class ModelConverter:
         *,
         include_fk: bool = False,
         include_relationships: bool = False,
-        fields: Iterable[str] = None,
-        exclude: Iterable[str] = None,
+        fields: Iterable[str] | None = None,
+        exclude: Iterable[str] | None = None,
         base_fields: dict | None = None,
         dict_cls: type[dict] = dict,
     ) -> dict[str, fields.Field]:
         result = dict_cls()
         base_fields = base_fields or {}
 
-        for prop in model.__mapper__.attrs:
+        for prop in sa.inspect(model).attrs:
             key = self._get_field_name(prop)
             if self._should_exclude_field(prop, fields=fields, exclude=exclude):
                 # Allow marshmallow to validate and exclude the field key.
@@ -172,8 +175,8 @@ class ModelConverter:
         table: sa.Table,
         *,
         include_fk: bool = False,
-        fields: Iterable[str] = None,
-        exclude: Iterable[str] = None,
+        fields: Iterable[str] | None = None,
+        exclude: Iterable[str] | None = None,
         base_fields: dict | None = None,
         dict_cls: type[dict] = dict,
     ) -> dict[str, fields.Field]:
@@ -201,7 +204,7 @@ class ModelConverter:
         instance: bool = True,
         field_class: type[fields.Field] | None = None,
         **kwargs,
-    ) -> fields.Field:
+    ) -> fields.Field | type[fields.Field]:
         # handle synonyms
         # Attribute renamed "_proxied_object" in 1.4
         for attr in ("_proxied_property", "_proxied_object"):
@@ -225,7 +228,9 @@ class ModelConverter:
             ret = RelatedList(ret, **related_list_kwargs)
         return ret
 
-    def column2field(self, column, *, instance: bool = True, **kwargs) -> fields.Field:
+    def column2field(
+        self, column, *, instance: bool = True, **kwargs
+    ) -> fields.Field | type[fields.Field]:
         field_class = self._get_field_class_for_column(column)
         if not instance:
             return field_class
@@ -236,7 +241,7 @@ class ModelConverter:
 
     def field_for(
         self, model: DeclarativeMeta, property_name: str, **kwargs
-    ) -> fields.Field:
+    ) -> fields.Field | type[fields.Field]:
         target_model = model
         prop_name = property_name
         attr = getattr(model, property_name)
@@ -245,7 +250,7 @@ class ModelConverter:
             target_model = attr.target_class
             prop_name = attr.value_attr
             remote_with_local_multiplicity = attr.local_attr.prop.uselist
-        prop = target_model.__mapper__.attrs.get(prop_name)
+        prop = sa.inspect(target_model).attrs.get(prop_name)
         converted_prop = self.property2field(prop, **kwargs)
         if remote_with_local_multiplicity:
             related_list_kwargs = _field_update_kwargs(
@@ -271,7 +276,7 @@ class ModelConverter:
             if col_type in self.SQLA_TYPE_MAPPING:
                 field_cls = self.SQLA_TYPE_MAPPING[col_type]
                 if callable(field_cls) and not _is_field(field_cls):
-                    field_cls = field_cls(self, data_type)
+                    field_cls = cast(_FieldClassFactory, field_cls)(self, data_type)
                 break
         else:
             # Try to find a field class based on the column's python_type
@@ -288,9 +293,10 @@ class ModelConverter:
                 raise ModelConversionError(
                     f"Could not find field column of type {types[0]}."
                 )
-        return field_cls
+        return cast(type[fields.Field], field_cls)
 
     def _get_field_class_for_property(self, prop) -> type[fields.Field]:
+        field_cls: type[fields.Field]
         if hasattr(prop, "direction"):
             field_cls = Related
         else:
@@ -370,8 +376,8 @@ class ModelConverter:
     def _should_exclude_field(
         self,
         column: PropertyOrColumn,
-        fields: Iterable[str] = None,
-        exclude: Iterable[str] = None,
+        fields: Iterable[str] | None = None,
+        exclude: Iterable[str] | None = None,
     ) -> bool:
         key = self._get_field_name(column)
         if fields and key not in fields:

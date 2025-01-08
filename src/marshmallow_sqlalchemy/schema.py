@@ -94,12 +94,12 @@ class SQLAlchemySchemaMeta(SchemaMeta):
     @classmethod
     def get_declared_fields(
         mcs,
-        klass: SchemaMeta,
+        klass,
         cls_fields: list[tuple[str, Field]],
         inherited_fields: list[tuple[str, Field]],
         dict_cls: type[dict] = dict,
     ) -> dict[str, Field]:
-        opts = klass.opts  # type: ignore[attr-defined]
+        opts = klass.opts
         Converter: type[ModelConverter] = opts.model_converter
         converter = Converter(schema_cls=klass)
         fields = super().get_declared_fields(
