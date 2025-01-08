@@ -1,6 +1,10 @@
+from __future__ import annotations
+
 import functools
 import inspect
 import uuid
+from collections.abc import Iterable
+from typing import TYPE_CHECKING, Any, Callable
 
 import marshmallow as ma
 import sqlalchemy as sa
@@ -11,8 +15,14 @@ from sqlalchemy.orm import SynonymProperty
 from .exceptions import ModelConversionError
 from .fields import Related, RelatedList
 
+if TYPE_CHECKING:
+    from sqlalchemy.ext.declarative import DeclarativeMeta
+    from sqlalchemy.types import TypeEngine
 
-def _is_field(value):
+    PropertyOrColumn = sa.orm.properties.Property | sa.Column
+
+
+def _is_field(value) -> bool:
     return isinstance(value, type) and issubclass(value, fields.Field)
 
 
@@ -24,7 +34,7 @@ def _base_column(column):
     return column
 
 
-def _has_default(column):
+def _has_default(column) -> bool:
     return (
         column.default is not None
         or column.server_default is not None
@@ -32,21 +42,27 @@ def _has_default(column):
     )
 
 
-def _is_auto_increment(column):
+def _is_auto_increment(column) -> bool:
     return column.table is not None and column is column.table._autoincrement_column
 
 
-def _postgres_array_factory(converter, data_type):
+def _postgres_array_factory(converter: ModelConverter, data_type: TypeEngine):
     return functools.partial(
         fields.List, converter._get_field_class_for_data_type(data_type.item_type)
     )
 
 
-def _enum_field_factory(converter, data_type):
+def _enum_field_factory(
+    converter: ModelConverter, data_type: TypeEngine
+) -> fields.Field:
     return fields.Enum if data_type.enum_class else fields.Raw
 
 
-def _field_update_kwargs(field_class, field_kwargs, kwargs):
+def _field_update_kwargs(
+    field_class: type[fields.Field],
+    field_kwargs: dict[str, Any],
+    kwargs: dict[str, Any],
+) -> None:
     if not kwargs:
         return field_kwargs
 
@@ -74,7 +90,9 @@ class ModelConverter:
     marshmallow `Fields <marshmallow.fields.Field>`.
     """
 
-    SQLA_TYPE_MAPPING = {
+    SQLA_TYPE_MAPPING: dict[
+        TypeEngine, type[fields.Field] | Callable[[Any, Any], fields.Field]
+    ] = {
         sa.Enum: _enum_field_factory,
         sa.JSON: fields.Raw,
         postgresql.BIT: fields.Integer,
@@ -101,11 +119,11 @@ class ModelConverter:
     }
     DIRECTION_MAPPING = {"MANYTOONE": False, "MANYTOMANY": True, "ONETOMANY": True}
 
-    def __init__(self, schema_cls=None):
+    def __init__(self, schema_cls: ma.Schema | None = None):
         self.schema_cls = schema_cls
 
     @property
-    def type_mapping(self):
+    def type_mapping(self) -> dict[type, type[fields.Field]]:
         if self.schema_cls:
             return self.schema_cls.TYPE_MAPPING
         else:
@@ -113,15 +131,15 @@ class ModelConverter:
 
     def fields_for_model(
         self,
-        model,
+        model: DeclarativeMeta,
         *,
-        include_fk=False,
-        include_relationships=False,
-        fields=None,
-        exclude=None,
-        base_fields=None,
-        dict_cls=dict,
-    ):
+        include_fk: bool = False,
+        include_relationships: bool = False,
+        fields: Iterable[str] = None,
+        exclude: Iterable[str] = None,
+        base_fields: dict | None = None,
+        dict_cls: type[dict] = dict,
+    ) -> dict[str, fields.Field]:
         result = dict_cls()
         base_fields = base_fields or {}
 
@@ -151,14 +169,14 @@ class ModelConverter:
 
     def fields_for_table(
         self,
-        table,
+        table: sa.Table,
         *,
-        include_fk=False,
-        fields=None,
-        exclude=None,
-        base_fields=None,
-        dict_cls=dict,
-    ):
+        include_fk: bool = False,
+        fields: Iterable[str] = None,
+        exclude: Iterable[str] = None,
+        base_fields: dict | None = None,
+        dict_cls: type[dict] = dict,
+    ) -> dict[str, fields.Field]:
         result = dict_cls()
         base_fields = base_fields or {}
         for column in table.columns:
@@ -176,7 +194,14 @@ class ModelConverter:
                 result[key] = field
         return result
 
-    def property2field(self, prop, *, instance=True, field_class=None, **kwargs):
+    def property2field(
+        self,
+        prop,
+        *,
+        instance: bool = True,
+        field_class: type[fields.Field] | None = None,
+        **kwargs,
+    ) -> fields.Field:
         # handle synonyms
         # Attribute renamed "_proxied_object" in 1.4
         for attr in ("_proxied_property", "_proxied_object"):
@@ -200,7 +225,7 @@ class ModelConverter:
             ret = RelatedList(ret, **related_list_kwargs)
         return ret
 
-    def column2field(self, column, *, instance=True, **kwargs):
+    def column2field(self, column, *, instance: bool = True, **kwargs) -> fields.Field:
         field_class = self._get_field_class_for_column(column)
         if not instance:
             return field_class
@@ -209,7 +234,9 @@ class ModelConverter:
         _field_update_kwargs(field_class, field_kwargs, kwargs)
         return field_class(**field_kwargs)
 
-    def field_for(self, model, property_name, **kwargs):
+    def field_for(
+        self, model: DeclarativeMeta, property_name: str, **kwargs
+    ) -> fields.Field:
         target_model = model
         prop_name = property_name
         attr = getattr(model, property_name)
@@ -228,13 +255,15 @@ class ModelConverter:
         else:
             return converted_prop
 
-    def _get_field_name(self, prop_or_column):
+    def _get_field_name(self, prop_or_column: PropertyOrColumn) -> str:
         return prop_or_column.key
 
-    def _get_field_class_for_column(self, column):
+    def _get_field_class_for_column(self, column: sa.Column) -> type[fields.Field]:
         return self._get_field_class_for_data_type(column.type)
 
-    def _get_field_class_for_data_type(self, data_type):
+    def _get_field_class_for_data_type(
+        self, data_type: TypeEngine
+    ) -> type[fields.Field]:
         field_cls = None
         types = inspect.getmro(type(data_type))
         # First search for a field class from self.SQLA_TYPE_MAPPING
@@ -261,7 +290,7 @@ class ModelConverter:
                 )
         return field_cls
 
-    def _get_field_class_for_property(self, prop):
+    def _get_field_class_for_property(self, prop) -> type[fields.Field]:
         if hasattr(prop, "direction"):
             field_cls = Related
         else:
@@ -277,7 +306,7 @@ class ModelConverter:
             if validator.__class__ not in new_classes
         ] + new
 
-    def _get_field_kwargs_for_property(self, prop):
+    def _get_field_kwargs_for_property(self, prop: PropertyOrColumn) -> dict[str, Any]:
         kwargs = self.get_base_kwargs()
         if hasattr(prop, "columns"):
             column = _base_column(prop.columns[0])
@@ -289,7 +318,7 @@ class ModelConverter:
             kwargs["metadata"]["description"] = prop.doc
         return kwargs
 
-    def _add_column_kwargs(self, kwargs, column):
+    def _add_column_kwargs(self, kwargs: dict[str, Any], column: sa.Column) -> None:
         """Add keyword arguments to kwargs (in-place) based on the passed in
         `Column <sqlalchemy.schema.Column>`.
         """
@@ -324,7 +353,9 @@ class ModelConverter:
         if getattr(column.type, "asdecimal", False):
             kwargs["places"] = getattr(column.type, "scale", None)
 
-    def _add_relationship_kwargs(self, kwargs, prop):
+    def _add_relationship_kwargs(
+        self, kwargs: dict[str, Any], prop: PropertyOrColumn
+    ) -> None:
         """Add keyword arguments to kwargs (in-place) based on the passed in
         relationship `Property`.
         """
@@ -336,7 +367,12 @@ class ModelConverter:
                 break
         kwargs.update({"allow_none": nullable, "required": not nullable})
 
-    def _should_exclude_field(self, column, fields=None, exclude=None):
+    def _should_exclude_field(
+        self,
+        column: PropertyOrColumn,
+        fields: Iterable[str] = None,
+        exclude: Iterable[str] = None,
+    ) -> bool:
         key = self._get_field_name(column)
         if fields and key not in fields:
             return True

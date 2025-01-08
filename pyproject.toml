@@ -56,3 +56,10 @@ select = [
   "UP", # pyupgrade
   "W",  # pycodestyle warning
 ]
+
+[tool.mypy]
+ignore_missing_imports = true
+warn_unreachable = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+no_implicit_optional = true

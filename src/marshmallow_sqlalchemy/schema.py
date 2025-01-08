@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any
+
 import sqlalchemy as sa
 from marshmallow.fields import Field
 from marshmallow.schema import Schema, SchemaMeta, SchemaOpts
@@ -11,7 +15,14 @@ from .load_instance_mixin import LoadInstanceMixin
 # This isn't really a field; it's a placeholder for the metaclass.
 # This should be considered private API.
 class SQLAlchemyAutoField(Field):
-    def __init__(self, *, column_name=None, model=None, table=None, field_kwargs):
+    def __init__(
+        self,
+        *,
+        column_name: str | None = None,
+        model: DeclarativeMeta | None = None,
+        table: sa.Table | None = None,
+        field_kwargs: dict[str, Any],
+    ):
         super().__init__()
 
         if model and table:
@@ -81,9 +92,15 @@ class SQLAlchemyAutoSchemaOpts(SQLAlchemySchemaOpts):
 
 class SQLAlchemySchemaMeta(SchemaMeta):
     @classmethod
-    def get_declared_fields(mcs, klass, cls_fields, inherited_fields, dict_cls):
-        opts = klass.opts
-        Converter = opts.model_converter
+    def get_declared_fields(
+        mcs,
+        klass: SchemaMeta,
+        cls_fields: list[tuple[str, Field]],
+        inherited_fields: list[tuple[str, Field]],
+        dict_cls: type[dict] = dict,
+    ) -> dict[str, Field]:
+        opts = klass.opts  # type: ignore[attr-defined]
+        Converter: type[ModelConverter] = opts.model_converter
         converter = Converter(schema_cls=klass)
         fields = super().get_declared_fields(
             klass, cls_fields, inherited_fields, dict_cls
@@ -93,11 +110,23 @@ class SQLAlchemySchemaMeta(SchemaMeta):
         return fields
 
     @classmethod
-    def get_declared_sqla_fields(mcs, base_fields, converter, opts, dict_cls):
+    def get_declared_sqla_fields(
+        mcs,
+        base_fields: dict[str, Field],
+        converter: ModelConverter,
+        opts: Any,
+        dict_cls: type[dict],
+    ) -> dict[str, Field]:
         return {}
 
     @classmethod
-    def get_auto_fields(mcs, fields, converter, opts, dict_cls):
+    def get_auto_fields(
+        mcs,
+        fields: dict[str, Field],
+        converter: ModelConverter,
+        opts: Any,
+        dict_cls: type[dict],
+    ) -> dict[str, Field]:
         return dict_cls(
             {
                 field_name: field.create_field(
@@ -189,12 +218,12 @@ class SQLAlchemyAutoSchema(SQLAlchemySchema, metaclass=SQLAlchemyAutoSchemaMeta)
 
 
 def auto_field(
-    column_name: str = None,
+    column_name: str | None = None,
     *,
-    model: DeclarativeMeta = None,
-    table: sa.Table = None,
+    model: DeclarativeMeta | None = None,
+    table: sa.Table | None = None,
     **kwargs,
-):
+) -> SQLAlchemyAutoField:
     """Mark a field to autogenerate from a model or table.
 
     :param column_name: Name of the column to generate the field from.
