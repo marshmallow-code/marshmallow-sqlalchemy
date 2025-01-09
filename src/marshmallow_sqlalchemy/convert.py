@@ -4,7 +4,7 @@ import functools
 import inspect
 import uuid
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, Callable, Literal, cast, overload
 
 import marshmallow as ma
 import sqlalchemy as sa
@@ -17,9 +17,10 @@ from .fields import Related, RelatedList
 
 if TYPE_CHECKING:
     from sqlalchemy.ext.declarative import DeclarativeMeta
+    from sqlalchemy.orm import MapperProperty
     from sqlalchemy.types import TypeEngine
 
-    PropertyOrColumn = sa.orm.MapperProperty | sa.Column
+    PropertyOrColumn = MapperProperty | sa.Column
 
 _FieldClassFactory = Callable[[Any, Any], type[fields.Field]]
 
@@ -197,9 +198,29 @@ class ModelConverter:
                 result[key] = field
         return result
 
+    @overload
     def property2field(
         self,
-        prop,
+        prop: MapperProperty,
+        *,
+        instance: Literal[True] = ...,
+        field_class: type[fields.Field] | None = ...,
+        **kwargs,
+    ) -> fields.Field: ...
+
+    @overload
+    def property2field(
+        self,
+        prop: MapperProperty,
+        *,
+        instance: Literal[False] = ...,
+        field_class: type[fields.Field] | None = ...,
+        **kwargs,
+    ) -> type[fields.Field]: ...
+
+    def property2field(
+        self,
+        prop: MapperProperty,
         *,
         instance: bool = True,
         field_class: type[fields.Field] | None = None,
@@ -228,6 +249,16 @@ class ModelConverter:
             ret = RelatedList(ret, **related_list_kwargs)
         return ret
 
+    @overload
+    def column2field(
+        self, column, *, instance: Literal[True] = ..., **kwargs
+    ) -> fields.Field: ...
+
+    @overload
+    def column2field(
+        self, column, *, instance: Literal[False] = ..., **kwargs
+    ) -> type[fields.Field]: ...
+
     def column2field(
         self, column, *, instance: bool = True, **kwargs
     ) -> fields.Field | type[fields.Field]:
@@ -239,8 +270,36 @@ class ModelConverter:
         _field_update_kwargs(field_class, field_kwargs, kwargs)
         return field_class(**field_kwargs)
 
+    @overload
     def field_for(
-        self, model: type[DeclarativeMeta], property_name: str, **kwargs
+        self,
+        model: type[DeclarativeMeta],
+        property_name: str,
+        *,
+        instance: Literal[True] = ...,
+        field_class: type[fields.Field] | None = ...,
+        **kwargs,
+    ) -> fields.Field: ...
+
+    @overload
+    def field_for(
+        self,
+        model: type[DeclarativeMeta],
+        property_name: str,
+        *,
+        instance: Literal[False] = ...,
+        field_class: type[fields.Field] | None = None,
+        **kwargs,
+    ) -> type[fields.Field]: ...
+
+    def field_for(
+        self,
+        model: type[DeclarativeMeta],
+        property_name: str,
+        *,
+        instance: bool = True,
+        field_class: type[fields.Field] | None = None,
+        **kwargs,
     ) -> fields.Field | type[fields.Field]:
         target_model = model
         prop_name = property_name
@@ -250,8 +309,14 @@ class ModelConverter:
             target_model = attr.target_class
             prop_name = attr.value_attr
             remote_with_local_multiplicity = attr.local_attr.prop.uselist
-        prop = sa.inspect(target_model).attrs.get(prop_name)  # type: ignore[union-attr]
-        converted_prop = self.property2field(prop, **kwargs)
+        prop: MapperProperty = sa.inspect(target_model).attrs.get(prop_name)  # type: ignore[union-attr]
+        converted_prop = self.property2field(
+            prop,
+            # To satisfy type checking, need to pass a literal bool
+            instance=True if instance else False,
+            field_class=field_class,
+            **kwargs,
+        )
         if remote_with_local_multiplicity:
             related_list_kwargs = _field_update_kwargs(
                 RelatedList, self.get_base_kwargs(), kwargs
