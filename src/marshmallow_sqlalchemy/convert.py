@@ -48,10 +48,10 @@ def _is_auto_increment(column) -> bool:
     return column.table is not None and column is column.table._autoincrement_column
 
 
-def _postgres_array_factory(converter: ModelConverter, data_type: TypeEngine):
+def _postgres_array_factory(converter: ModelConverter, data_type: postgresql.ARRAY):
     return functools.partial(
         fields.List,
-        converter._get_field_class_for_data_type(data_type.item_type),  # type: ignore[attr-defined]
+        converter._get_field_class_for_data_type(data_type.item_type),
     )
 
 
