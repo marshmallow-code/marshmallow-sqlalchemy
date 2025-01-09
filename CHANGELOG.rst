@@ -6,7 +6,7 @@ Changelog
 
 Features:
 
-* Typing: Improve type coverage (:pr:`631`).
+* Typing: Improve type coverage (:pr:`631`, :pr:`632`, :pr:`634`).
 
 Other changes:
 
