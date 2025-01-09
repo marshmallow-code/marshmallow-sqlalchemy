@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, cast
 
 import sqlalchemy as sa
 from marshmallow.fields import Field
@@ -33,18 +33,23 @@ class SQLAlchemyAutoField(Field):
         self.table = table
         self.field_kwargs = field_kwargs
 
-    def create_field(self, schema_opts, column_name, converter):
+    def create_field(
+        self,
+        schema_opts: SQLAlchemySchemaOpts,
+        column_name: str,
+        converter: ModelConverter,
+    ):
         model = self.model or schema_opts.model
         if model:
             return converter.field_for(model, column_name, **self.field_kwargs)
         else:
             table = self.table if self.table is not None else schema_opts.table
-            column = getattr(table.columns, column_name)
+            column = getattr(cast(sa.Table, table).columns, column_name)
             return converter.column2field(column, **self.field_kwargs)
 
     # This field should never be bound to a schema.
     # If this method is called, it's probably because the schema is not a SQLAlchemySchema.
-    def _bind_to_schema(self, field_name, schema):
+    def _bind_to_schema(self, field_name: str, schema: Schema | Field) -> None:
         raise IncorrectSchemaTypeError(
             f"Cannot bind SQLAlchemyAutoField. Make sure that {schema} is a SQLAlchemySchema or SQLAlchemyAutoSchema."
         )
@@ -64,10 +69,12 @@ class SQLAlchemySchemaOpts(LoadInstanceMixin.Opts, SchemaOpts):
     - ``model_converter``: `ModelConverter` class to use for converting the SQLAlchemy model to marshmallow fields.
     """
 
+    table: sa.Table | None
+    model_converter: type[ModelConverter]
+
     def __init__(self, meta, *args, **kwargs):
         super().__init__(meta, *args, **kwargs)
 
-        self.model = getattr(meta, "model", None)
         self.table = getattr(meta, "table", None)
         if self.model is not None and self.table is not None:
             raise ValueError("Cannot set both `model` and `table` options.")
@@ -81,6 +88,9 @@ class SQLAlchemyAutoSchemaOpts(SQLAlchemySchemaOpts):
     - ``include_fk``: Whether to include foreign fields; defaults to `False`.
     - ``include_relationships``: Whether to include relationships; defaults to `False`.
     """
+
+    include_fk: bool
+    include_relationships: bool
 
     def __init__(self, meta, *args, **kwargs):
         super().__init__(meta, *args, **kwargs)
@@ -222,6 +232,7 @@ def auto_field(
     *,
     model: DeclarativeMeta | None = None,
     table: sa.Table | None = None,
+    # TODO: add type annotations for **kwargs
     **kwargs,
 ) -> SQLAlchemyAutoField:
     """Mark a field to autogenerate from a model or table.

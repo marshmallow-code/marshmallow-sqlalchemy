@@ -6,37 +6,59 @@
     Users should not need to use this module directly.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
+
 import marshmallow as ma
+from sqlalchemy.ext.declarative import DeclarativeMeta
 from sqlalchemy.orm.exc import ObjectDeletedError
 
 from .fields import get_primary_keys
 
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
+
+_ModelType = TypeVar("_ModelType", bound=DeclarativeMeta)
+
 
 class LoadInstanceMixin:
     class Opts:
+        model: DeclarativeMeta | None
+        sqla_session: Session | None
+        load_instance: bool
+        transient: bool
+
         def __init__(self, meta, *args, **kwargs):
             super().__init__(meta, *args, **kwargs)
+            self.model = getattr(meta, "model", None)
             self.sqla_session = getattr(meta, "sqla_session", None)
             self.load_instance = getattr(meta, "load_instance", False)
             self.transient = getattr(meta, "transient", False)
 
-    class Schema:
+    class Schema(Generic[_ModelType]):
+        opts: LoadInstanceMixin.Opts
+        instance: _ModelType | None
+        _session: Session | None
+        _transient: bool | None
+        _load_instance: bool
+
         @property
-        def session(self):
+        def session(self) -> Session | None:
             return self._session or self.opts.sqla_session
 
         @session.setter
-        def session(self, session):
+        def session(self, session: Session) -> None:
             self._session = session
 
         @property
-        def transient(self):
+        def transient(self) -> bool:
             if self._transient is not None:
                 return self._transient
             return self.opts.transient
 
         @transient.setter
-        def transient(self, transient):
+        def transient(self, transient: bool) -> None:
             self._transient = transient
 
         def __init__(self, *args, **kwargs):
@@ -64,7 +86,7 @@ class LoadInstanceMixin:
             return None
 
         @ma.post_load
-        def make_instance(self, data, **kwargs):
+        def make_instance(self, data, **kwargs) -> _ModelType:
             """Deserialize data to an instance of the model if self.load_instance is True.
 
             Update an existing row if specified in `self.instance` or loaded by primary
@@ -80,12 +102,21 @@ class LoadInstanceMixin:
                     setattr(instance, key, value)
                 return instance
             kwargs, association_attrs = self._split_model_kwargs_association(data)
-            instance = self.opts.model(**kwargs)
+            ModelClass = cast(DeclarativeMeta, self.opts.model)
+            instance = ModelClass(**kwargs)
             for attr, value in association_attrs.items():
                 setattr(instance, attr, value)
             return instance
 
-        def load(self, data, *, session=None, instance=None, transient=False, **kwargs):
+        def load(
+            self,
+            data,
+            *,
+            session: Session | None = None,
+            instance: _ModelType | None = None,
+            transient: bool = False,
+            **kwargs,
+        ) -> Any:
             """Deserialize data to internal representation.
 
             :param session: Optional SQLAlchemy session.
@@ -98,15 +129,17 @@ class LoadInstanceMixin:
                 raise ValueError("Deserialization requires a session")
             self.instance = instance or self.instance
             try:
-                return super().load(data, **kwargs)
+                return cast(ma.Schema, super()).load(data, **kwargs)
             finally:
                 self.instance = None
 
-        def validate(self, data, *, session=None, **kwargs):
+        def validate(
+            self, data, *, session: Session | None = None, **kwargs
+        ) -> dict[str, list[str]]:
             self._session = session or self._session
             if not (self.transient or self.session):
                 raise ValueError("Validation requires a session")
-            return super().validate(data, **kwargs)
+            return cast(ma.Schema, super()).validate(data, **kwargs)
 
         def _split_model_kwargs_association(self, data):
             """Split serialized attrs to ensure association proxies are passed separately.

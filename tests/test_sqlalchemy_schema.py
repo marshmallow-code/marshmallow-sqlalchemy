@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import marshmallow
 import pytest
 import sqlalchemy as sa
@@ -43,7 +45,7 @@ class EntityMixin:
 
 
 @pytest.fixture
-def sqla_auto_model_schema(models, request):
+def sqla_auto_model_schema(models, request) -> SQLAlchemyAutoSchema:
     class TeacherSchema(SQLAlchemyAutoSchema):
         class Meta:
             model = models.Teacher
@@ -54,7 +56,7 @@ def sqla_auto_model_schema(models, request):
 
 
 @pytest.fixture
-def sqla_auto_table_schema(models, request):
+def sqla_auto_table_schema(models, request) -> SQLAlchemyAutoSchema:
     class TeacherSchema(SQLAlchemyAutoSchema):
         class Meta:
             table = models.Teacher.__table__
@@ -68,7 +70,7 @@ def sqla_auto_table_schema(models, request):
 
 
 @pytest.fixture
-def sqla_schema_with_relationships(models, request):
+def sqla_schema_with_relationships(models, request) -> SQLAlchemySchema:
     class TeacherSchema(EntityMixin, SQLAlchemySchema):
         class Meta:
             model = models.Teacher
@@ -81,7 +83,7 @@ def sqla_schema_with_relationships(models, request):
 
 
 @pytest.fixture
-def sqla_auto_model_schema_with_relationships(models, request):
+def sqla_auto_model_schema_with_relationships(models, request) -> SQLAlchemyAutoSchema:
     class TeacherSchema(SQLAlchemyAutoSchema):
         class Meta:
             model = models.Teacher
@@ -96,7 +98,7 @@ def sqla_auto_model_schema_with_relationships(models, request):
 
 
 @pytest.fixture
-def sqla_schema_with_fks(models, request):
+def sqla_schema_with_fks(models, request) -> SQLAlchemySchema:
     class TeacherSchema(EntityMixin, SQLAlchemySchema):
         class Meta:
             model = models.Teacher
@@ -108,7 +110,7 @@ def sqla_schema_with_fks(models, request):
 
 
 @pytest.fixture
-def sqla_auto_model_schema_with_fks(models, request):
+def sqla_auto_model_schema_with_fks(models, request) -> SQLAlchemyAutoSchema:
     class TeacherSchema(SQLAlchemyAutoSchema):
         class Meta:
             model = models.Teacher
