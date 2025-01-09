@@ -1,20 +1,28 @@
+from __future__ import annotations
+
 import datetime as dt
 from enum import Enum
 from types import SimpleNamespace
+from typing import Any
 
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import (
-    DeclarativeBase,
     Mapped,
     backref,
     column_property,
-    mapped_column,
+    declarative_base,
     relationship,
     sessionmaker,
     synonym,
 )
+
+mapped_column: Any
+try:
+    from sqlalchemy.orm import mapped_column
+except ImportError:  # compat with sqlalchemy<2
+    mapped_column = sa.Column
 
 
 class AnotherInteger(sa.Integer):
@@ -31,10 +39,7 @@ class AnotherText(sa.types.TypeDecorator):
 
 @pytest.fixture()
 def Base() -> type:
-    class _Base(DeclarativeBase):
-        pass
-
-    return _Base
+    return declarative_base()
 
 
 @pytest.fixture()
@@ -49,6 +54,9 @@ def session(Base, models, engine):
     return Session(future=True)
 
 
+CourseLevel = Enum("CourseLevel", "PRIMARY SECONDARY")
+
+
 @pytest.fixture()
 def models(Base: type):
     # models adapted from https://github.com/wtforms/wtforms-sqlalchemy/blob/master/tests/tests.py
@@ -58,8 +66,6 @@ def models(Base: type):
         sa.Column("student_id", sa.Integer, sa.ForeignKey("student.id")),
         sa.Column("course_id", sa.Integer, sa.ForeignKey("course.id")),
     )
-
-    CourseLevel = Enum("CourseLevel", "PRIMARY SECONDARY")
 
     class Course(Base):
         __tablename__ = "course"
