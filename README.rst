@@ -136,7 +136,7 @@ Documentation
 
 Documentation is available at https://marshmallow-sqlalchemy.readthedocs.io/ .
 
-Project Links
+Project links
 =============
 
 - Docs: https://marshmallow-sqlalchemy.readthedocs.io/

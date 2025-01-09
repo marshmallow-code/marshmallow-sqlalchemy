@@ -151,10 +151,9 @@ API
 .. toctree::
     :maxdepth: 2
 
-
     api_reference
 
-Project Info
+Project info
 ============
 
 .. toctree::
