@@ -19,7 +19,7 @@ class SQLAlchemyAutoField(Field):
         self,
         *,
         column_name: str | None = None,
-        model: DeclarativeMeta | None = None,
+        model: type[DeclarativeMeta] | None = None,
         table: sa.Table | None = None,
         field_kwargs: dict[str, Any],
     ):
@@ -230,7 +230,7 @@ class SQLAlchemyAutoSchema(SQLAlchemySchema, metaclass=SQLAlchemyAutoSchemaMeta)
 def auto_field(
     column_name: str | None = None,
     *,
-    model: DeclarativeMeta | None = None,
+    model: type[DeclarativeMeta] | None = None,
     table: sa.Table | None = None,
     # TODO: add type annotations for **kwargs
     **kwargs,

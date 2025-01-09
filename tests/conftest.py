@@ -6,9 +6,11 @@ import pytest
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import (
+    DeclarativeBase,
+    Mapped,
     backref,
     column_property,
-    declarative_base,
+    mapped_column,
     relationship,
     sessionmaker,
     synonym,
@@ -28,8 +30,11 @@ class AnotherText(sa.types.TypeDecorator):
 
 
 @pytest.fixture()
-def Base():
-    return declarative_base()
+def Base() -> type:
+    class _Base(DeclarativeBase):
+        pass
+
+    return _Base
 
 
 @pytest.fixture()
@@ -45,28 +50,30 @@ def session(Base, models, engine):
 
 
 @pytest.fixture()
-def models(Base):
+def models(Base: type):
     # models adapted from https://github.com/wtforms/wtforms-sqlalchemy/blob/master/tests/tests.py
     student_course = sa.Table(
         "student_course",
-        Base.metadata,
+        Base.metadata,  # type: ignore[attr-defined]
         sa.Column("student_id", sa.Integer, sa.ForeignKey("student.id")),
         sa.Column("course_id", sa.Integer, sa.ForeignKey("course.id")),
     )
 
+    CourseLevel = Enum("CourseLevel", "PRIMARY SECONDARY")
+
     class Course(Base):
         __tablename__ = "course"
-        id = sa.Column(sa.Integer, primary_key=True)
-        name = sa.Column(sa.String(255), nullable=False)
+        id: Mapped[int] = mapped_column(sa.Integer, primary_key=True)
+        name: Mapped[str] = mapped_column(sa.String(255), nullable=False)
         # These are for better model form testing
-        cost = sa.Column(sa.Numeric(5, 2), nullable=False)
-        description = sa.Column(sa.Text, nullable=True)
-        level = sa.Column(sa.Enum("Primary", "Secondary"))
-        level_with_enum_class = sa.Column(sa.Enum(Enum("Level", "PRIMARY SECONDARY")))
-        has_prereqs = sa.Column(sa.Boolean, nullable=False)
-        started = sa.Column(sa.DateTime, nullable=False)
-        grade = sa.Column(AnotherInteger, nullable=False)
-        transcription = sa.Column(AnotherText, nullable=False)
+        cost: Mapped[float] = mapped_column(sa.Numeric(5, 2), nullable=False)
+        description: Mapped[str] = mapped_column(sa.Text, nullable=True)
+        level: Mapped[CourseLevel] = mapped_column(sa.Enum("Primary", "Secondary"))
+        level_with_enum_class: Mapped[CourseLevel] = mapped_column(sa.Enum(CourseLevel))
+        has_prereqs: Mapped[bool] = mapped_column(sa.Boolean, nullable=False)
+        started: Mapped[dt.datetime] = mapped_column(sa.DateTime, nullable=False)
+        grade: Mapped[int] = mapped_column(AnotherInteger, nullable=False)
+        transcription: Mapped[str] = mapped_column(AnotherText, nullable=False)
 
         @property
         def url(self):
@@ -171,7 +178,7 @@ def models(Base):
 
     lecturekeywords_table = sa.Table(
         "lecturekeywords",
-        Base.metadata,
+        Base.metadata,  # type: ignore[attr-defined]
         sa.Column("keyword_id", sa.Integer, sa.ForeignKey("keyword.id")),
         sa.Column("lecture_id", sa.Integer, sa.ForeignKey("lecture.id")),
     )

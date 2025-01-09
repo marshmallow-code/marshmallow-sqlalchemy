@@ -24,7 +24,7 @@ _ModelType = TypeVar("_ModelType", bound=DeclarativeMeta)
 
 class LoadInstanceMixin:
     class Opts:
-        model: DeclarativeMeta | None
+        model: type[DeclarativeMeta] | None
         sqla_session: Session | None
         load_instance: bool
         transient: bool

@@ -192,9 +192,9 @@ class TestLoadInstancePerSchemaInstance:
         return TeacherSchema
 
     @pytest.fixture
-    def schema_with_load_instance(self, schema_no_load_instance):
+    def schema_with_load_instance(self, schema_no_load_instance: type):
         class TeacherSchema(schema_no_load_instance):
-            class Meta(schema_no_load_instance.Meta):
+            class Meta(schema_no_load_instance.Meta):  # type: ignore[name-defined]
                 load_instance = True
 
         return TeacherSchema
@@ -210,9 +210,9 @@ class TestLoadInstancePerSchemaInstance:
         return TeacherSchema
 
     @pytest.fixture
-    def auto_schema_with_load_instance(self, auto_schema_no_load_instance):
+    def auto_schema_with_load_instance(self, auto_schema_no_load_instance: type):
         class TeacherSchema(auto_schema_no_load_instance):
-            class Meta(auto_schema_no_load_instance.Meta):
+            class Meta(auto_schema_no_load_instance.Meta):  # type: ignore[name-defined]
                 load_instance = True
 
         return TeacherSchema

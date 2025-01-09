@@ -122,7 +122,7 @@ class ModelConverter:
     }
     DIRECTION_MAPPING = {"MANYTOONE": False, "MANYTOMANY": True, "ONETOMANY": True}
 
-    def __init__(self, schema_cls: ma.Schema | None = None):
+    def __init__(self, schema_cls: type[ma.Schema] | None = None):
         self.schema_cls = schema_cls
 
     @property
@@ -134,7 +134,7 @@ class ModelConverter:
 
     def fields_for_model(
         self,
-        model: DeclarativeMeta,
+        model: type[DeclarativeMeta],
         *,
         include_fk: bool = False,
         include_relationships: bool = False,
@@ -146,7 +146,7 @@ class ModelConverter:
         result = dict_cls()
         base_fields = base_fields or {}
 
-        for prop in sa.inspect(model).attrs:
+        for prop in sa.inspect(model).attrs:  # type: ignore[union-attr]
             key = self._get_field_name(prop)
             if self._should_exclude_field(prop, fields=fields, exclude=exclude):
                 # Allow marshmallow to validate and exclude the field key.
@@ -240,7 +240,7 @@ class ModelConverter:
         return field_class(**field_kwargs)
 
     def field_for(
-        self, model: DeclarativeMeta, property_name: str, **kwargs
+        self, model: type[DeclarativeMeta], property_name: str, **kwargs
     ) -> fields.Field | type[fields.Field]:
         target_model = model
         prop_name = property_name
@@ -250,7 +250,7 @@ class ModelConverter:
             target_model = attr.target_class
             prop_name = attr.value_attr
             remote_with_local_multiplicity = attr.local_attr.prop.uselist
-        prop = sa.inspect(target_model).attrs.get(prop_name)
+        prop = sa.inspect(target_model).attrs.get(prop_name)  # type: ignore[union-attr]
         converted_prop = self.property2field(prop, **kwargs)
         if remote_with_local_multiplicity:
             related_list_kwargs = _field_update_kwargs(

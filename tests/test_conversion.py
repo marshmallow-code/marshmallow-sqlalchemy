@@ -1,12 +1,14 @@
 import datetime as dt
 import decimal
 import uuid
+from typing import cast
 
 import pytest
 import sqlalchemy as sa
 from marshmallow import Schema, fields, validate
+from sqlalchemy import Integer, String
 from sqlalchemy.dialects import mysql, postgresql
-from sqlalchemy.orm import column_property
+from sqlalchemy.orm import Mapped, Session, column_property, mapped_column
 
 from marshmallow_sqlalchemy import (
     ModelConversionError,
@@ -116,7 +118,7 @@ class TestModelFieldConversion:
         assert "title" in fields
         assert "name" not in fields
 
-    def test_subquery_proxies(self, session, Base, models):
+    def test_subquery_proxies(self, session: Session, Base: type, models):
         # Model from a subquery, columns are proxied.
         # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/383
         first_graders = session.query(models.Student).filter(
@@ -322,20 +324,18 @@ class TestFieldFor:
             models.Student, "full_name", validate=[validate.Length(max=20)]
         )
         assert len(field.validators) == 1
-        assert field.validators[0].max == 20
+        validator = cast(validate.Length, field.validators[0])
+        assert validator.max == 20
 
         field = field_for(models.Student, "full_name", validate=[])
         assert field.validators == []
 
-    def tests_postgresql_array_with_args(self, Base):
+    def tests_postgresql_array_with_args(self, Base: type):
         # regression test for #392
-        from sqlalchemy import Column, Integer, String
-        from sqlalchemy.dialects.postgresql import ARRAY
-
         class ModelWithArray(Base):
             __tablename__ = "model_with_array"
-            id = Column(Integer, primary_key=True)
-            bar = Column(ARRAY(String))
+            id: Mapped[int] = mapped_column(Integer, primary_key=True)
+            bar: Mapped[list[str]] = mapped_column(postgresql.ARRAY(String))
 
         field = field_for(ModelWithArray, "bar", dump_only=True)
         assert type(field) is fields.List

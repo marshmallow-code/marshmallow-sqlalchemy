@@ -14,12 +14,22 @@ Declare your models
 .. code-block:: python
 
     import sqlalchemy as sa
-    from sqlalchemy.ext.declarative import declarative_base
-    from sqlalchemy.orm import scoped_session, sessionmaker, relationship, backref
+    from sqlalchemy.orm import (
+        DeclarativeBase,
+        backref,
+        relationship,
+        scoped_session,
+        sessionmaker,
+    )
+
+    from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 
     engine = sa.create_engine("sqlite:///:memory:")
     session = scoped_session(sessionmaker(bind=engine))
-    Base = declarative_base()
+
+
+    class Base(DeclarativeBase):
+        pass
 
 
     class Author(Base):
