@@ -304,14 +304,6 @@ class ModelConverter:
             field_cls = self._get_field_class_for_column(column)
         return field_cls
 
-    def _merge_validators(self, defaults, new):
-        new_classes = [validator.__class__ for validator in new]
-        return [
-            validator
-            for validator in defaults
-            if validator.__class__ not in new_classes
-        ] + new
-
     def _get_field_kwargs_for_property(self, prop: PropertyOrColumn) -> dict[str, Any]:
         kwargs = self.get_base_kwargs()
         if hasattr(prop, "columns"):

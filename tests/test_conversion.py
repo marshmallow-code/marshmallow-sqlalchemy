@@ -340,30 +340,3 @@ class TestFieldFor:
         field = field_for(ModelWithArray, "bar", dump_only=True)
         assert type(field) is fields.List
         assert field.dump_only is True
-
-
-def _repr_validator_list(validators):
-    return sorted(repr(validator) for validator in validators)
-
-
-@pytest.mark.parametrize(
-    "defaults,new,expected",
-    [
-        ([validate.Length()], [], [validate.Length()]),
-        (
-            [validate.Range(max=100), validate.Length(min=3)],
-            [validate.Range(max=1000)],
-            [validate.Range(max=1000), validate.Length(min=3)],
-        ),
-        (
-            [validate.Range(max=1000)],
-            [validate.Length(min=3)],
-            [validate.Range(max=1000), validate.Length(min=3)],
-        ),
-        ([], [validate.Length(min=3)], [validate.Length(min=3)]),
-    ],
-)
-def test_merge_validators(defaults, new, expected):
-    converter = ModelConverter()
-    validators = converter._merge_validators(defaults, new)
-    assert _repr_validator_list(validators) == _repr_validator_list(expected)
