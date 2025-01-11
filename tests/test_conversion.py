@@ -105,6 +105,11 @@ class TestModelFieldConversion:
         school_fields = fields_for_model(models.School, include_relationships=True)
         assert type(school_fields["students"]) is RelatedList
 
+        teacher_fields = fields_for_model(models.Teacher, include_relationships=True)
+        current_school_field = teacher_fields["current_school"]
+        assert type(current_school_field) is Related
+        assert current_school_field.required is False
+
     def test_many_to_many_uselist_false_relationship(self, models):
         teacher_fields = fields_for_model(models.Teacher, include_relationships=True)
         substitute_field = teacher_fields["substitute"]
