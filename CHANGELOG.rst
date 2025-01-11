@@ -19,7 +19,7 @@ Other changes:
   Thanks :user:`GabrielC101` for the suggestion.
 * Docs: Document methods of `SQLAlchemySchema <marshmallow_sqalalchemy.SQLAlchemySchema>`
   and `SQLAlchemyAutoSchema <marshmallow_sqalchemy.SQLAlchemyAutoSchema>` (:issue:`619`).
-* Docs: Various documentation improvements (:pr:`635`, :pr:`636`, :pr:`639`, :pr:`641`).
+* Docs: Various documentation improvements (:pr:`635`, :pr:`636`, :pr:`639`, :pr:`641`, :pr:`642`).
 
 1.2.0 (2025-01-09)
 ++++++++++++++++++
