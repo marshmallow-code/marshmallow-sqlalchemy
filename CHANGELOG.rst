@@ -8,6 +8,14 @@ Features:
 
 * Typing: Add type annotations to `fields <marshmallow_sqlalchemy.fields>`.
 
+Other changes:
+
+* Docs: Add more documentation for `marshmallow_sqlalchemy.fields.Related` (:issue:`162`).
+  Thanks :user:`GabrielC101` for the suggestion.
+* Docs: Document methods of `SQLAlchemySchema <marshmallow_sqalalchemy.SQLAlchemySchema>`
+  and `SQLAlchemyAutoSchema <marshmallow_sqalchemy.SQLAlchemyAutoSchema>` (:issue:`619`).
+* Docs: Various documentation improvements (:pr:`635`, :pr:`636`, :pr:`639`).
+
 1.2.0 (2025-01-09)
 ++++++++++++++++++
 
