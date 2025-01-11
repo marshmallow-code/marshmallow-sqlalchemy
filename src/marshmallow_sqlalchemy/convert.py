@@ -428,11 +428,10 @@ class ModelConverter:
         else:
             kwargs["dump_only"] = True
 
-        if hasattr(column.type, "enums") and not kwargs.get("dump_only"):
-            kwargs["validate"].append(validate.OneOf(choices=column.type.enums))
-
         if hasattr(column.type, "enum_class") and column.type.enum_class is not None:
             kwargs["enum"] = column.type.enum_class
+        elif hasattr(column.type, "enums") and not kwargs.get("dump_only"):
+            kwargs["validate"].append(validate.OneOf(choices=column.type.enums))
 
         # Add a length validator if a max length is set on the column
         # Skip UUID columns

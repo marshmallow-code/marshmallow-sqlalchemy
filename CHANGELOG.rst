@@ -8,6 +8,11 @@ Features:
 
 * Typing: Add type annotations to `fields <marshmallow_sqlalchemy.fields>`.
 
+Bug fixes:
+
+* Fix auto-generation of `marshmallow.fields.Enum` field from `sqlalchemy.Enum` columns (:issue:`615`).
+  Thanks :user:`joaquimvl` for reporting.
+
 Other changes:
 
 * Docs: Add more documentation for `marshmallow_sqlalchemy.fields.Related` (:issue:`162`).

@@ -20,7 +20,7 @@ from marshmallow_sqlalchemy import (
 )
 from marshmallow_sqlalchemy.fields import Related, RelatedList
 
-from .conftest import mapped_column
+from .conftest import CourseLevel, mapped_column
 
 
 def contains_validator(field, v_type):
@@ -71,17 +71,18 @@ class TestModelFieldConversion:
         fields_ = fields_for_model(models.Student)
         assert fields_["dob"].allow_none is True
 
-    def test_sets_enum_choices(self, models):
+    def test_enum_with_choices_converted_to_field_with_validator(self, models):
         fields_ = fields_for_model(models.Course)
         validator = contains_validator(fields_["level"], validate.OneOf)
         assert validator
         assert list(validator.choices) == ["Primary", "Secondary"]
 
-    def test_sets_enum_with_class_choices(self, models):
+    def test_enum_with_class_converted_to_enum_field(self, models):
         fields_ = fields_for_model(models.Course)
-        validator = contains_validator(fields_["level_with_enum_class"], validate.OneOf)
-        assert validator
-        assert list(validator.choices) == ["PRIMARY", "SECONDARY"]
+        field = fields_["level_with_enum_class"]
+        assert type(field) is fields.Enum
+        assert contains_validator(field, validate.OneOf) is False
+        assert field.enum is CourseLevel
 
     def test_many_to_many_relationship(self, models):
         student_fields = fields_for_model(models.Student, include_relationships=True)
