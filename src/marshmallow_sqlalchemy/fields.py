@@ -52,11 +52,7 @@ class Related(fields.Field):
             if columns is None:
                 columns = column
         super().__init__(**kwargs)
-        cols = columns or []
-        self.columns = cast(
-            list[str],
-            cols if is_iterable_but_not_string(cols) else [cast(str, cols)],
-        )
+        self.columns = cast(list[str], ensure_list(columns or []))
 
     @property
     def model(self) -> type[DeclarativeMeta] | None:
@@ -165,3 +161,7 @@ def get_primary_keys(model: type[DeclarativeMeta]) -> list[MapperProperty]:
     """
     mapper = model.__mapper__  # type: ignore[attr-defined]
     return [mapper.get_property_by_column(column) for column in mapper.primary_key]
+
+
+def ensure_list(value):
+    return value if is_iterable_but_not_string(value) else [value]
