@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+1.3.0 (unreleased)
+++++++++++++++++++
+
+Features:
+
+* Typing: Add type annotations to `fields <marshmallow_sqlalchemy.fields>`.
+
 1.2.0 (2025-01-09)
 ++++++++++++++++++
 

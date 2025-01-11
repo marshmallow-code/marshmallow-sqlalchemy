@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import warnings
+from typing import TYPE_CHECKING, cast
 
 from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
 from sqlalchemy import inspect
 from sqlalchemy.orm.exc import NoResultFound
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.declarative import DeclarativeMeta
+    from sqlalchemy.orm import MapperProperty
 
 
 class RelatedList(fields.List):
@@ -31,7 +36,12 @@ class Related(fields.Field):
         "expected a dictionary with keys {keys!r}"
     }
 
-    def __init__(self, columns=None, column=None, **kwargs):
+    def __init__(
+        self,
+        columns: list[str] | str | None = None,
+        column: str | None = None,
+        **kwargs,
+    ):
         if column is not None:
             warnings.warn(
                 "`column` parameter is deprecated and will be removed in future releases. "
@@ -42,14 +52,28 @@ class Related(fields.Field):
             if columns is None:
                 columns = column
         super().__init__(**kwargs)
-        self.columns = ensure_list(columns or [])
+        cols = columns or []
+        self.columns = cast(
+            list[str],
+            cols if is_iterable_but_not_string(cols) else [cast(str, cols)],
+        )
 
     @property
-    def model(self):
+    def model(self) -> type[DeclarativeMeta] | None:
+        if self.root is None:
+            raise RuntimeError("Cannot access model before field is bound to schema.")
         return self.root.opts.model
 
     @property
-    def related_model(self):
+    def related_model(self) -> type[DeclarativeMeta]:
+        if self.name is None:
+            raise RuntimeError(
+                "Cannot access related_model before field is bound to schema."
+            )
+        if self.model is None:
+            raise RuntimeError(
+                "Cannot access related_model if schema does not have a model."
+            )
         model_attr = getattr(self.model, self.attribute or self.name)
         if hasattr(model_attr, "remote_attr"):  # handle association proxies
             model_attr = model_attr.remote_attr
@@ -134,14 +158,10 @@ class Nested(fields.Nested):
         return super()._deserialize(*args, **kwargs)
 
 
-def get_primary_keys(model):
+def get_primary_keys(model: type[DeclarativeMeta]) -> list[MapperProperty]:
     """Get primary key properties for a SQLAlchemy model.
 
     :param model: SQLAlchemy model class
     """
-    mapper = model.__mapper__
+    mapper = model.__mapper__  # type: ignore[attr-defined]
     return [mapper.get_property_by_column(column) for column in mapper.primary_key]
-
-
-def ensure_list(value):
-    return value if is_iterable_but_not_string(value) else [value]
