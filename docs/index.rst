@@ -1,155 +1,43 @@
+.. meta::
+   :description:
+        SQLALchemy integration with the marshmallow (de)serialization library.
+
 **********************
 marshmallow-sqlalchemy
 **********************
 
-Release v\ |version| (:ref:`Changelog <changelog>`)
-
 `SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_ (de)serialization library.
 
-Declare your models
-===================
+Release v\ |version| (:ref:`Changelog <changelog>`)
 
-.. code-block:: python
+----
 
-    import sqlalchemy as sa
-    from sqlalchemy.orm import (
-        DeclarativeBase,
-        backref,
-        relationship,
-        scoped_session,
-        sessionmaker,
-    )
+.. include:: ../README.rst
+    :start-after: .. start elevator-pitch
+    :end-before: .. end elevator-pitch
 
-    from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
+.. toctree::
+    :maxdepth: 1
+    :hidden:
+    :titlesonly:
 
-    engine = sa.create_engine("sqlite:///:memory:")
-    session = scoped_session(sessionmaker(bind=engine))
-
-
-    class Base(DeclarativeBase):
-        pass
-
-
-    class Author(Base):
-        __tablename__ = "authors"
-        id = sa.Column(sa.Integer, primary_key=True)
-        name = sa.Column(sa.String, nullable=False)
-
-        def __repr__(self):
-            return "<Author(name={self.name!r})>".format(self=self)
-
-
-    class Book(Base):
-        __tablename__ = "books"
-        id = sa.Column(sa.Integer, primary_key=True)
-        title = sa.Column(sa.String)
-        author_id = sa.Column(sa.Integer, sa.ForeignKey("authors.id"))
-        author = relationship("Author", backref=backref("books"))
-
-
-    Base.metadata.create_all(engine)
-
-Generate marshmallow schemas
-============================
-
-.. code-block:: python
-
-    from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
-
-
-    class AuthorSchema(SQLAlchemySchema):
-        class Meta:
-            model = Author
-            load_instance = True  # Optional: deserialize to model instances
-
-        id = auto_field()
-        name = auto_field()
-        books = auto_field()
-
-
-    class BookSchema(SQLAlchemySchema):
-        class Meta:
-            model = Book
-            load_instance = True
-
-        id = auto_field()
-        title = auto_field()
-        author_id = auto_field()
-
-You can automatically generate fields for a model's columns using `SQLAlchemyAutoSchema <marshmallow_sqlalchemy.SQLAlchemyAutoSchema>`.
-The following schema classes are equivalent to the above.
-
-.. code-block:: python
-
-    from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-
-
-    class AuthorSchema(SQLAlchemyAutoSchema):
-        class Meta:
-            model = Author
-            include_relationships = True
-            load_instance = True
-
-
-    class BookSchema(SQLAlchemyAutoSchema):
-        class Meta:
-            model = Book
-            include_fk = True
-            load_instance = True
-
-
-Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalchemy.orm.configure_mappers() <https://docs.sqlalchemy.org/en/latest/orm/mapping_api.html>`_ will run too soon and fail.
-
-.. note::
-
-    Any `column_property` on the model that does not derive directly from `Column`
-    (such as a mapped expression), will be detected and marked as `dump_only`.
-
-    `hybrid_property` is not automatically handled at all, and would need to be
-    explicitly declared as a field.
-
-(De)serialize your data
-=======================
-
-.. code-block:: python
-
-    author = Author(name="Chuck Paluhniuk")
-    author_schema = AuthorSchema()
-    book = Book(title="Fight Club", author=author)
-    session.add(author)
-    session.add(book)
-    session.commit()
-
-    dump_data = author_schema.dump(author)
-    print(dump_data)
-    # {'id': 1, 'name': 'Chuck Paluhniuk', 'books': [1]}
-
-    load_data = author_schema.load(dump_data, session=session)
-    print(load_data)
-    # <Author(name='Chuck Paluhniuk')>
-
-
-Get it now
-==========
-::
-
-   pip install -U marshmallow-sqlalchemy
-
-Requires Python >= 3.9, marshmallow >= 3.18.0, and SQLAlchemy >= 1.4.40.
+    Home <self>
 
 Learn
 =====
 
 .. toctree::
+    :caption: Learn
     :maxdepth: 2
 
     recipes
 
-API
-===
+API reference
+=============
 
 .. toctree::
-    :maxdepth: 2
+    :caption: API reference
+    :maxdepth: 1
 
     api_reference
 
@@ -157,9 +45,18 @@ Project info
 ============
 
 .. toctree::
-   :maxdepth: 1
+    :caption: Project info
+    :maxdepth: 1
 
-   changelog
-   contributing
-   authors
-   license
+    changelog
+    contributing
+    authors
+    license
+
+.. toctree::
+    :hidden:
+    :caption: Useful links
+
+    marshmallow-sqlalchemy @ PyPI <https://pypi.org/project/marshmallow-sqlalchemy/>
+    marshmallow-sqlalchemy @ GitHub <https://github.com/marshmallow-code/marshmallow-sqlalchemy/>
+    Issue Tracker <https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues>

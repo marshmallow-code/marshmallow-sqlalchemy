@@ -1,13 +1,13 @@
 import importlib.metadata
-from collections import OrderedDict
-
-import alabaster
 
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autodoc.typehints",
     "sphinx.ext.intersphinx",
     "sphinx.ext.viewcode",
+    "sphinx_copybutton",
     "sphinx_issues",
+    "sphinxext.opengraph",
 ]
 
 primary_domain = "py"
@@ -23,6 +23,7 @@ issues_github_path = "marshmallow-code/marshmallow-sqlalchemy"
 
 source_suffix = ".rst"
 master_doc = "index"
+
 project = "marshmallow-sqlalchemy"
 copyright = "Steven Loria and contributors"
 
@@ -30,49 +31,29 @@ version = release = importlib.metadata.version("marshmallow-sqlalchemy")
 
 exclude_patterns = ["_build"]
 
-html_theme_path = [alabaster.get_path()]
-html_theme = "alabaster"
-html_static_path = ["_static"]
-templates_path = ["_templates"]
-html_show_sourcelink = False
+# THEME
 
+html_theme = "furo"
+html_logo = "_static/marshmallow-sqlalchemy-logo.png"
 html_theme_options = {
-    "logo": "marshmallow-sqlalchemy-logo.png",
-    "description": "SQLAlchemy integration with the marshmallow (de)serialization library",
-    "description_font_style": "italic",
-    "github_user": "marshmallow-code",
-    "github_repo": "marshmallow-sqlalchemy",
-    "github_banner": True,
-    "github_button": False,
-    "code_font_size": "0.85em",
-    "warn_bg": "#FFC",
-    "warn_border": "#EEE",
-    # Used to populate the useful-links.html template
-    "extra_nav_links": OrderedDict(
-        [
-            (
-                "marshmallow-sqlalchemy @ PyPI",
-                "http://pypi.python.org/pypi/marshmallow-sqlalchemy",
-            ),
-            (
-                "marshmallow-sqlalchemy @ GitHub",
-                "http://github.com/marshmallow-code/marshmallow-sqlalchemy",
-            ),
-            (
-                "Issue Tracker",
-                "http://github.com/marshmallow-code/marshmallow-sqlalchemy/issues",
-            ),
-        ]
-    ),
+    "source_repository": "https://github.com/marshmallow-code/marshmallow-sqlalchemy",
+    "source_branch": "dev",
+    "source_directory": "docs/",
+    "sidebar_hide_name": True,
+    "light_css_variables": {
+        # Serif system font stack: https://systemfontstack.com/
+        "font-stack": "Iowan Old Style, Apple Garamond, Baskerville, Times New Roman, Droid Serif, Times, Source Serif Pro, serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol;",
+    },
+    "top_of_page_buttons": ["view"],
 }
+html_static_path = ["_static"]
+html_css_files = ["custom.css"]
+html_show_sourcelink = False
+ogp_image = "_static/marshmallow-sqlalchemy-logo.png"
 
-html_sidebars = {
-    "index": ["about.html", "useful-links.html", "searchbox.html"],
-    "**": [
-        "about.html",
-        "useful-links.html",
-        "localtoc.html",
-        "relations.html",
-        "searchbox.html",
-    ],
-}
+# Strip the dollar prompt when copying code
+# https://sphinx-copybutton.readthedocs.io/en/latest/use.html#strip-and-configure-input-prompts-for-code-cells
+copybutton_prompt_text = "$ "
+
+autodoc_typehints = "both"
+autodoc_member_order = "bysource"

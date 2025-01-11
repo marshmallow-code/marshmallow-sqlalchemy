@@ -8,19 +8,6 @@ from sqlalchemy import inspect
 from sqlalchemy.orm.exc import NoResultFound
 
 
-def get_primary_keys(model):
-    """Get primary key properties for a SQLAlchemy model.
-
-    :param model: SQLAlchemy model class
-    """
-    mapper = model.__mapper__
-    return [mapper.get_property_by_column(column) for column in mapper.primary_key]
-
-
-def ensure_list(value):
-    return value if is_iterable_but_not_string(value) else [value]
-
-
 class RelatedList(fields.List):
     def get_value(self, obj, attr, accessor=None):
         # Do not call `fields.List`'s get_value as it calls the container's
@@ -33,9 +20,9 @@ class RelatedList(fields.List):
 class Related(fields.Field):
     """Related data represented by a SQLAlchemy `relationship`. Must be attached
     to a :class:`Schema` class whose options includes a SQLAlchemy `model`, such
-    as :class:`SQLAlchemySchema`.
+    as SQLAlchemySchema <marshmallow_sqlalchemy.SQLAlchemySchema>`.
 
-    :param list columns: Optional column names on related model. If not provided,
+    :param columns: Optional column names on related model. If not provided,
         the primary key(s) of the related model will be used.
     """
 
@@ -145,3 +132,16 @@ class Nested(fields.Nested):
             self.schema.session = self.root.session
             self.schema.transient = self.root.transient
         return super()._deserialize(*args, **kwargs)
+
+
+def get_primary_keys(model):
+    """Get primary key properties for a SQLAlchemy model.
+
+    :param model: SQLAlchemy model class
+    """
+    mapper = model.__mapper__
+    return [mapper.get_property_by_column(column) for column in mapper.primary_key]
+
+
+def ensure_list(value):
+    return value if is_iterable_but_not_string(value) else [value]

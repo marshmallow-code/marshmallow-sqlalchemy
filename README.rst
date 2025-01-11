@@ -8,6 +8,8 @@ Homepage: https://marshmallow-sqlalchemy.readthedocs.io/
 
 `SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_ (de)serialization library.
 
+.. start elevator-pitch
+
 Declare your models
 ===================
 
@@ -130,6 +132,8 @@ Get it now
 
 
 Requires Python >= 3.9, marshmallow >= 3.18.0, and SQLAlchemy >= 1.4.40.
+
+.. end elevator-pitch
 
 Documentation
 =============

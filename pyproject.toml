@@ -25,7 +25,13 @@ Issues = "https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues"
 Source = "https://github.com/marshmallow-code/marshmallow-sqlalchemy"
 
 [project.optional-dependencies]
-docs = ["sphinx==8.1.3", "alabaster==1.0.0", "sphinx-issues==5.0.0"]
+docs = [
+  "furo==2024.8.6",
+  "sphinx-copybutton==0.5.2",
+  "sphinx-issues==5.0.0",
+  "sphinx==8.1.3",
+  "sphinxext-opengraph==0.9.1",
+]
 tests = ["pytest<9", "pytest-lazy-fixtures"]
 dev = ["marshmallow-sqlalchemy[tests]", "tox", "pre-commit>=3.5,<5.0"]
 

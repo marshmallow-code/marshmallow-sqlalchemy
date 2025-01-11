@@ -90,7 +90,7 @@ def _field_update_kwargs(
 
 
 class ModelConverter:
-    """Class that converts a SQLAlchemy model into a dictionary of corresponding
+    """Converts a SQLAlchemy model into a dictionary of corresponding
     marshmallow `Fields <marshmallow.fields.Field>`.
     """
 
