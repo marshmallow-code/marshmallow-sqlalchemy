@@ -20,14 +20,13 @@ Declare your models
         DeclarativeBase,
         backref,
         relationship,
-        scoped_session,
         sessionmaker,
     )
 
     from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 
     engine = sa.create_engine("sqlite:///:memory:")
-    session = scoped_session(sessionmaker(bind=engine))
+    Session = sessionmaker(engine)
 
 
     class Base(DeclarativeBase):
@@ -112,17 +111,20 @@ Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalch
     author = Author(name="Chuck Paluhniuk")
     author_schema = AuthorSchema()
     book = Book(title="Fight Club", author=author)
-    session.add(author)
-    session.add(book)
-    session.commit()
+
+    with Session() as session:
+        session.add(author)
+        session.add(book)
+        session.commit()
 
     dump_data = author_schema.dump(author)
     print(dump_data)
     # {'id': 1, 'name': 'Chuck Paluhniuk', 'books': [1]}
 
-    load_data = author_schema.load(dump_data, session=session)
-    print(load_data)
-    # <Author(name='Chuck Paluhniuk')>
+    with Session() as session:
+        load_data = author_schema.load(dump_data, session=session)
+        print(load_data)
+        # <Author(name='Chuck Paluhniuk')>
 
 Get it now
 ==========

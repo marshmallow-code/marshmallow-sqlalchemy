@@ -139,24 +139,26 @@ Serialization will look like this:
 
     from pprint import pprint
 
-    from sqlalchemy.orm import scoped_session, sessionmaker
+    from sqlalchemy.orm import sessionmaker
 
     engine = sa.create_engine("sqlite:///:memory:")
-    session = scoped_session(sessionmaker(bind=engine))
+    Session = sessionmaker(engine)
 
     Base.metadata.create_all(engine)
 
-    user = User(full_name="Freddie Mercury")
-    post = BlogPost(title="Bohemian Rhapsody Revisited", author=user)
-    session.add_all([user, post])
-    session.commit()
+    with Session() as session:
+        user = User(full_name="Freddie Mercury")
+        post = BlogPost(title="Bohemian Rhapsody Revisited", author=user)
 
-    blog_post_schema = BlogPostSchema()
-    data = blog_post_schema.dump(post)
-    pprint(data, indent=2)
-    # { 'author': {'full_name': 'Freddie Mercury', 'id': 1},
-    #   'id': 1,
-    #   'title': 'Bohemian Rhapsody Revisited'}
+        session.add_all([user, post])
+        session.commit()
+
+        blog_post_schema = BlogPostSchema()
+        data = blog_post_schema.dump(post)
+        pprint(data, indent=2)
+        # { 'author': {'full_name': 'Freddie Mercury', 'id': 1},
+        #   'id': 1,
+        #   'title': 'Bohemian Rhapsody Revisited'}
 
 Introspecting generated fields
 ==============================
@@ -269,14 +271,14 @@ Usage:
 .. code-block:: python
 
     import sqlalchemy as sa
-    from sqlalchemy.orm import declarative_base, scoped_session, sessionmaker
+    from sqlalchemy.orm import declarative_base, sessionmaker
     from sqlalchemy import event
     from sqlalchemy.orm import mapper
 
     # Either import or declare setup_schema here
 
     engine = sa.create_engine("sqlite:///:memory:")
-    session = scoped_session(sessionmaker(bind=engine))
+    Session = sessionmaker(engine)
     Base = declarative_base()
 
 
@@ -295,15 +297,16 @@ Usage:
 
     Base.metadata.create_all(engine)
 
-    author = Author(name="Chuck Paluhniuk")
-    session.add(author)
-    session.commit()
+    with Session() as session:
+        author = Author(name="Chuck Paluhniuk")
+        session.add(author)
+        session.commit()
 
-    # Model.__marshmallow__ returns the Class not an instance of the schema
-    # so remember to instantiate it
-    author_schema = Author.__marshmallow__()
+        # Model.__marshmallow__ returns the Class not an instance of the schema
+        # so remember to instantiate it
+        author_schema = Author.__marshmallow__()
 
-    print(author_schema.dump(author))
+        print(author_schema.dump(author))
 
 This is inspired by functionality from `ColanderAlchemy <https://colanderalchemy.readthedocs.io/en/latest/>`_.
 
