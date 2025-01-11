@@ -310,7 +310,7 @@ class TestFieldFor:
             DeprecationWarning,
             match="column` parameter is deprecated and will be removed in future releases. Use `columns` instead.",
         ):
-            Related(column=[])
+            Related(column="TestCol")
 
     def test_related_initialization_with_columns(self, models, session):
         ret = Related(columns=["TestCol"])
