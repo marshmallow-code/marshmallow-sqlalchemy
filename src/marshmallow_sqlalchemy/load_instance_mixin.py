@@ -71,19 +71,20 @@ class LoadInstanceMixin:
             self._load_instance = kwargs.pop("load_instance", self.opts.load_instance)
             super().__init__(*args, **kwargs)
 
-        def get_instance(self, data):
+        def get_instance(self, data) -> _ModelType | None:
             """Retrieve an existing record by primary key(s). If the schema instance
-            is transient, return None.
+            is transient, return `None`.
 
             :param data: Serialized data to inform lookup.
             """
             if self.transient:
                 return None
-            props = get_primary_keys(self.opts.model)
+            model = cast(type[_ModelType], self.opts.model)
+            props = get_primary_keys(model)
             filters = {prop.key: data.get(prop.key) for prop in props}
             if None not in filters.values():
                 try:
-                    return self.session.get(self.opts.model, filters)
+                    return cast(Session, self.session).get(model, filters)
                 except ObjectDeletedError:
                     return None
             return None
@@ -120,12 +121,14 @@ class LoadInstanceMixin:
             transient: bool = False,
             **kwargs,
         ) -> Any:
-            """Deserialize data to internal representation.
+            """Deserialize data. If ``load_instance`` is set to `True`
+            in the schema meta options, load the data as model instance(s).
 
             :param data: The data to deserialize.
-            :param session: Optional SQLAlchemy session.
-            :param instance: Optional existing instance to modify.
-            :param transient: Optional switch to allow transient instantiation.
+            :param session: SQLAlchemy `session <sqlalchemy.orm.Session>`.
+            :param instance: Existing model instance to modify.
+            :param transient: If `True`, load transient model instance(s).
+            :param kwargs: Same keyword arguments as `marshmallow.Schema.load`.
             """
             self._session = session or self._session
             self._transient = transient or self._transient
