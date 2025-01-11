@@ -3,7 +3,7 @@
 Top-level API
 =============
 
-.. Explicitly list which methods to document :inherited-members: documents
+.. Explicitly list which methods to document because :inherited-members: documents
 .. all of Schema's methods, which we don't want
 .. autoclass:: marshmallow_sqlalchemy.SQLAlchemySchema
     :members: load,get_instance,make_instance,validate,session,transient
