@@ -113,7 +113,12 @@ class SQLAlchemySchemaMeta(SchemaMeta):
         Converter: type[ModelConverter] = opts.model_converter
         converter = Converter(schema_cls=klass)
         fields = super().get_declared_fields(
-            klass, cls_fields, inherited_fields, dict_cls
+            klass,
+            cls_fields,
+            # Filter out fields generated from foreign key columns
+            # if include_fk is set to False in the options
+            mcs._maybe_filter_foreign_keys(inherited_fields, opts=opts),
+            dict_cls,
         )
         fields.update(mcs.get_declared_sqla_fields(fields, converter, opts, dict_cls))
         fields.update(mcs.get_auto_fields(fields, converter, opts, dict_cls))
@@ -147,6 +152,23 @@ class SQLAlchemySchemaMeta(SchemaMeta):
                 and field_name not in opts.exclude
             }
         )
+
+    @staticmethod
+    def _maybe_filter_foreign_keys(
+        fields: list[tuple[str, Field]],
+        *,
+        opts: SQLAlchemySchemaOpts,
+    ) -> list[tuple[str, Field]]:
+        if opts.model is not None or opts.table is not None:
+            if not hasattr(opts, "include_fk") or opts.include_fk is True:
+                return fields
+            foreign_keys = {
+                column.key
+                for column in sa.inspect(opts.model or opts.table).columns  # type: ignore[union-attr]
+                if column.foreign_keys
+            }
+            return [(name, field) for name, field in fields if name not in foreign_keys]
+        return fields
 
 
 class SQLAlchemyAutoSchemaMeta(SQLAlchemySchemaMeta):
