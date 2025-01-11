@@ -3,7 +3,7 @@ from __future__ import annotations
 import marshmallow
 import pytest
 import sqlalchemy as sa
-from marshmallow import Schema, ValidationError, validate
+from marshmallow import Schema, ValidationError, fields, validate
 from pytest_lazy_fixtures import lf
 
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, SQLAlchemySchema, auto_field
@@ -558,3 +558,117 @@ def test_dump_and_load_with_assoc_proxy_multiplicity_load_only_only_kwargs(
         {"student_identifiers": list(school.student_ids)}, transient=True
     )
     assert list(new_school.student_ids) == list(school.student_ids)
+
+
+# https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/440
+def test_auto_schema_with_model_allows_subclasses_to_override_include_fk(models):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        inherited_field = fields.String()
+
+        class Meta:
+            model = models.Teacher
+            include_fk = True
+
+    schema = TeacherSchema()
+    assert "current_school_id" in schema.fields
+
+    class TeacherNoFkSchema(TeacherSchema):
+        class Meta(TeacherSchema.Meta):
+            include_fk = False
+
+    schema2 = TeacherNoFkSchema()
+    assert "id" in schema2.fields
+    assert "inherited_field" in schema2.fields
+    assert "current_school_id" not in schema2.fields
+
+
+def test_auto_schema_with_model_allows_subclasses_to_override_exclude(models):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        inherited_field = fields.String()
+
+        class Meta:
+            model = models.Teacher
+            include_fk = True
+
+    schema = TeacherSchema()
+    assert "current_school_id" in schema.fields
+
+    class TeacherNoFkSchema(TeacherSchema):
+        class Meta(TeacherSchema.Meta):
+            exclude = ("current_school_id",)
+
+    schema2 = TeacherNoFkSchema()
+    assert "id" in schema2.fields
+    assert "inherited_field" in schema2.fields
+    assert "current_school_id" not in schema2.fields
+
+
+def test_auto_schema_with_model_allows_subclasses_to_override_include_fk_with_explicit_field(
+    models,
+):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        inherited_field = fields.String()
+
+        class Meta:
+            model = models.Teacher
+            include_fk = True
+
+    schema = TeacherSchema()
+    assert "current_school_id" in schema.fields
+
+    class TeacherNoFkSchema(TeacherSchema):
+        current_school_id = fields.Integer()
+
+        class Meta(TeacherSchema.Meta):
+            include_fk = False
+
+    schema2 = TeacherNoFkSchema()
+    assert "id" in schema2.fields
+    assert "inherited_field" in schema2.fields
+    assert "current_school_id" in schema2.fields
+
+
+def test_auto_schema_with_table_allows_subclasses_to_override_include_fk(models):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        inherited_field = fields.Integer()
+
+        class Meta:
+            table = models.Teacher.__table__
+            include_fk = True
+
+    schema = TeacherSchema()
+    assert "current_school_id" in schema.fields
+
+    class TeacherNoFkSchema(TeacherSchema):
+        class Meta(TeacherSchema.Meta):
+            include_fk = False
+
+    schema2 = TeacherNoFkSchema()
+    assert "id" in schema2.fields
+    assert "inherited_field" in schema2.fields
+    assert "current_school_id" not in schema2.fields
+
+
+def test_auto_schema_with_table_allows_subclasses_to_override_include_fk_with_explicit_field(
+    models,
+):
+    class TeacherSchema(SQLAlchemyAutoSchema):
+        inherited_field = fields.Integer()
+
+        class Meta:
+            table = models.Teacher.__table__
+            include_fk = True
+
+    schema = TeacherSchema()
+    assert "current_school_id" in schema.fields
+
+    class TeacherNoFkModelSchema(TeacherSchema):
+        current_school_id = fields.Integer()
+
+        class Meta(TeacherSchema.Meta):
+            include_fk = False
+
+    schema2 = TeacherNoFkModelSchema()
+    assert "id" in schema2.fields
+    assert "inherited_field" in schema2.fields
+    assert "current_school_id" in schema2.fields
