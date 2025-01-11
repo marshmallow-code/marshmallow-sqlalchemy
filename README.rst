@@ -126,7 +126,8 @@ Make sure to declare `Models` before instantiating `Schemas`. Otherwise `sqlalch
 
 Get it now
 ==========
-::
+
+.. code-block:: shell-session
 
    pip install -U marshmallow-sqlalchemy
 
