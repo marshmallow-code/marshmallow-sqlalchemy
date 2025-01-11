@@ -55,5 +55,5 @@ ogp_image = "_static/marshmallow-sqlalchemy-logo.png"
 # https://sphinx-copybutton.readthedocs.io/en/latest/use.html#strip-and-configure-input-prompts-for-code-cells
 copybutton_prompt_text = "$ "
 
-autodoc_typehints = "both"
+autodoc_typehints = "description"
 autodoc_member_order = "bysource"

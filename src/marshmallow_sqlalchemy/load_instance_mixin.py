@@ -8,6 +8,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Iterable, Mapping
 from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 import marshmallow as ma
@@ -45,6 +46,7 @@ class LoadInstanceMixin:
 
         @property
         def session(self) -> Session | None:
+            """The SQLAlchemy session used to load models."""
             return self._session or self.opts.sqla_session
 
         @session.setter
@@ -53,6 +55,7 @@ class LoadInstanceMixin:
 
         @property
         def transient(self) -> bool:
+            """Whether model instances are loaded in a transient state."""
             if self._transient is not None:
                 return self._transient
             return self.opts.transient
@@ -110,7 +113,7 @@ class LoadInstanceMixin:
 
         def load(
             self,
-            data,
+            data: Mapping[str, Any] | Iterable[Mapping[str, Any]],
             *,
             session: Session | None = None,
             instance: _ModelType | None = None,
@@ -119,6 +122,7 @@ class LoadInstanceMixin:
         ) -> Any:
             """Deserialize data to internal representation.
 
+            :param data: The data to deserialize.
             :param session: Optional SQLAlchemy session.
             :param instance: Optional existing instance to modify.
             :param transient: Optional switch to allow transient instantiation.
@@ -134,8 +138,13 @@ class LoadInstanceMixin:
                 self.instance = None
 
         def validate(
-            self, data, *, session: Session | None = None, **kwargs
+            self,
+            data: Mapping[str, Any] | Iterable[Mapping[str, Any]],
+            *,
+            session: Session | None = None,
+            **kwargs,
         ) -> dict[str, list[str]]:
+            """Same as `marshmallow.Schema.validate` but allows passing a ``session``."""
             self._session = session or self._session
             if not (self.transient or self.session):
                 raise ValueError("Validation requires a session")
