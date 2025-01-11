@@ -144,6 +144,14 @@ class ModelConverter:
         base_fields: dict | None = None,
         dict_cls: type[dict] = dict,
     ) -> dict[str, fields.Field]:
+        """Generate a dict of field_name: `marshmallow.fields.Field` pairs for the given model.
+        Note: SynonymProperties are ignored. Use an explicit field if you want to include a synonym.
+
+        :param model: The SQLAlchemy model
+        :param bool include_fk: Whether to include foreign key fields in the output.
+        :param bool include_relationships: Whether to include relationships fields in the output.
+        :return: dict of field_name: Field instance pairs
+        """
         result = dict_cls()
         base_fields = base_fields or {}
 
@@ -226,6 +234,14 @@ class ModelConverter:
         field_class: type[fields.Field] | None = None,
         **kwargs,
     ) -> fields.Field | type[fields.Field]:
+        """Convert a SQLAlchemy `Property` to a field instance or class.
+
+        :param Property prop: SQLAlchemy Property.
+        :param bool instance: If `True`, return  `Field` instance, computing relevant kwargs
+            from the given property. If `False`, return the `Field` class.
+        :param kwargs: Additional keyword arguments to pass to the field constructor.
+        :return: A `marshmallow.fields.Field` class or instance.
+        """
         # handle synonyms
         # Attribute renamed "_proxied_object" in 1.4
         for attr in ("_proxied_property", "_proxied_object"):
@@ -262,6 +278,13 @@ class ModelConverter:
     def column2field(
         self, column, *, instance: bool = True, **kwargs
     ) -> fields.Field | type[fields.Field]:
+        """Convert a SQLAlchemy `Column <sqlalchemy.schema.Column>` to a field instance or class.
+
+        :param sqlalchemy.schema.Column column: SQLAlchemy Column.
+        :param bool instance: If `True`, return  `Field` instance, computing relevant kwargs
+            from the given property. If `False`, return the `Field` class.
+        :return: A `marshmallow.fields.Field` class or instance.
+        """
         field_class = self._get_field_class_for_column(column)
         if not instance:
             return field_class
@@ -301,6 +324,17 @@ class ModelConverter:
         field_class: type[fields.Field] | None = None,
         **kwargs,
     ) -> fields.Field | type[fields.Field]:
+        """Convert a property for a mapped SQLAlchemy class to a marshmallow `Field`.
+        Example: ::
+
+            date_created = field_for(Author, "date_created", dump_only=True)
+            author = field_for(Book, "author")
+
+        :param type model: A SQLAlchemy mapped class.
+        :param str property_name: The name of the property to convert.
+        :param kwargs: Extra keyword arguments to pass to `property2field`
+        :return: A `marshmallow.fields.Field` class or instance.
+        """
         target_model = model
         prop_name = property_name
         attr = getattr(model, property_name)
@@ -450,43 +484,6 @@ class ModelConverter:
 default_converter = ModelConverter()
 
 fields_for_model = default_converter.fields_for_model
-"""Generate a dict of field_name: `marshmallow.fields.Field` pairs for the given model.
-Note: SynonymProperties are ignored. Use an explicit field if you want to include a synonym.
-
-:param model: The SQLAlchemy model
-:param bool include_fk: Whether to include foreign key fields in the output.
-:param bool include_relationships: Whether to include relationships fields in the output.
-:return: dict of field_name: Field instance pairs
-"""
-
 property2field = default_converter.property2field
-"""Convert a SQLAlchemy `Property` to a field instance or class.
-
-:param Property prop: SQLAlchemy Property.
-:param bool instance: If `True`, return  `Field` instance, computing relevant kwargs
-    from the given property. If `False`, return the `Field` class.
-:param kwargs: Additional keyword arguments to pass to the field constructor.
-:return: A `marshmallow.fields.Field` class or instance.
-"""
-
 column2field = default_converter.column2field
-"""Convert a SQLAlchemy `Column <sqlalchemy.schema.Column>` to a field instance or class.
-
-:param sqlalchemy.schema.Column column: SQLAlchemy Column.
-:param bool instance: If `True`, return  `Field` instance, computing relevant kwargs
-    from the given property. If `False`, return the `Field` class.
-:return: A `marshmallow.fields.Field` class or instance.
-"""
-
 field_for = default_converter.field_for
-"""Convert a property for a mapped SQLAlchemy class to a marshmallow `Field`.
-Example: ::
-
-    date_created = field_for(Author, 'date_created', dump_only=True)
-    author = field_for(Book, 'author')
-
-:param type model: A SQLAlchemy mapped class.
-:param str property_name: The name of the property to convert.
-:param kwargs: Extra keyword arguments to pass to `property2field`
-:return: A `marshmallow.fields.Field` class or instance.
-"""

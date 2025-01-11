@@ -1,7 +1,7 @@
 .. _api:
 
-Core
-====
+Top-level API
+=============
 
 .. automodule:: marshmallow_sqlalchemy
     :members:
