@@ -15,6 +15,9 @@ Bug fixes:
 * Fix behavior of ``include_fk = False`` in options when parent
   schema sets ``include_fk = True`` (:issue:`440`).
   Thanks :user:`uhnomoli` for reporting.
+* Fields generated from non-nullable `sqlalchemy.orm.relationship`
+  correctly set ``required=True`` and ``allow_none=False`` (:issue:`336`).
+  Thanks :user:`AbdealiLoKo` for reporting.
 
 Other changes:
 

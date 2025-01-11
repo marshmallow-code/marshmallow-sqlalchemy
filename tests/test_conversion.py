@@ -86,17 +86,30 @@ class TestModelFieldConversion:
 
     def test_many_to_many_relationship(self, models):
         student_fields = fields_for_model(models.Student, include_relationships=True)
-        assert type(student_fields["courses"]) is RelatedList
+        courses_field = student_fields["courses"]
+        assert type(courses_field) is RelatedList
+        assert courses_field.required is False
 
         course_fields = fields_for_model(models.Course, include_relationships=True)
-        assert type(course_fields["students"]) is RelatedList
+        students_field = course_fields["students"]
+        assert type(students_field) is RelatedList
+        assert students_field.required is False
 
     def test_many_to_one_relationship(self, models):
         student_fields = fields_for_model(models.Student, include_relationships=True)
-        assert type(student_fields["current_school"]) is Related
+        current_school_field = student_fields["current_school"]
+        assert type(current_school_field) is Related
+        assert current_school_field.allow_none is False
+        assert current_school_field.required is True
 
         school_fields = fields_for_model(models.School, include_relationships=True)
         assert type(school_fields["students"]) is RelatedList
+
+    def test_many_to_many_uselist_false_relationship(self, models):
+        teacher_fields = fields_for_model(models.Teacher, include_relationships=True)
+        substitute_field = teacher_fields["substitute"]
+        assert type(substitute_field) is Related
+        assert substitute_field.required is False
 
     def test_include_fk(self, models):
         student_fields = fields_for_model(models.Student, include_fk=False)
