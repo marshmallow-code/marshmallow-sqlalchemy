@@ -89,6 +89,75 @@ This allows you to define class Meta options without having to subclass ``BaseSc
         class Meta:
             model = User
 
+Using `Related <marshmallow_sqlalchemy.fields.Related>` to serialize relationships
+==================================================================================
+
+The `Related <marshmallow_sqlalchemy.fields.Related>` field can be used to serialize a
+SQLAlchemy `relationship <sqlalchemy.orm.relationship>` as a nested dictionary.
+
+.. code-block:: python
+    :emphasize-lines: 34
+
+    import sqlalchemy as sa
+    from sqlalchemy.orm import DeclarativeBase, relationship
+
+    from marshmallow_sqlalchemy import SQLAlchemyAutoSchema, auto_field
+    from marshmallow_sqlalchemy.fields import Related
+
+
+    class Base(DeclarativeBase):
+        pass
+
+
+    class User(Base):
+        __tablename__ = "user"
+        id = sa.Column(sa.Integer, primary_key=True)
+        full_name = sa.Column(sa.String(255))
+
+
+    class BlogPost(Base):
+        __tablename__ = "blog_post"
+        id = sa.Column(sa.Integer, primary_key=True)
+        title = sa.Column(sa.String(255), nullable=False)
+
+        author_id = sa.Column(sa.Integer, sa.ForeignKey(User.id), nullable=False)
+        author = relationship(User)
+
+
+    class BlogPostSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = BlogPost
+
+        id = auto_field()
+        # Blog's author will be serialized as a dictionary with
+        # `id` and `name` pulled from the related User.
+        author = Related(["id", "full_name"])
+
+Serialization will look like this:
+
+.. code-block:: python
+
+    from pprint import pprint
+
+    from sqlalchemy.orm import scoped_session, sessionmaker
+
+    engine = sa.create_engine("sqlite:///:memory:")
+    session = scoped_session(sessionmaker(bind=engine))
+
+    Base.metadata.create_all(engine)
+
+    user = User(full_name="Freddie Mercury")
+    post = BlogPost(title="Bohemian Rhapsody Revisited", author=user)
+    session.add_all([user, post])
+    session.commit()
+
+    blog_post_schema = BlogPostSchema()
+    data = blog_post_schema.dump(post)
+    pprint(data, indent=2)
+    # { 'author': {'full_name': 'Freddie Mercury', 'id': 1},
+    #   'id': 1,
+    #   'title': 'Bohemian Rhapsody Revisited'}
+
 Introspecting generated fields
 ==============================
 
