@@ -12,6 +12,9 @@ Bug fixes:
 
 * Fix auto-generation of `marshmallow.fields.Enum` field from `sqlalchemy.Enum` columns (:issue:`615`).
   Thanks :user:`joaquimvl` for reporting.
+* Fix behavior of ``include_fk = False`` in options when parent
+  schema sets ``include_fk = True`` (:issue:`440`).
+  Thanks :user:`uhnomoli` for reporting.
 
 Other changes:
 
