@@ -7,7 +7,7 @@ Changelog
 Other changes:
 
 * Passing arbitrary keyword arguments to `auto_field <marshmallow_sqlalchemy.auto_field>`
-  is no longer supported. Use the ``metadata`` argument to pass metadata
+  is no longer supported (:pr:`647`). Use the ``metadata`` argument to pass metadata
   to the generated field instead.
 
 .. code-block:: python
