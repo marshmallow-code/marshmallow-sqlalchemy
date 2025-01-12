@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from importlib.metadata import version
+
 import marshmallow
 import pytest
 import sqlalchemy as sa
@@ -672,3 +674,27 @@ def test_auto_schema_with_table_allows_subclasses_to_override_include_fk_with_ex
     assert "id" in schema2.fields
     assert "inherited_field" in schema2.fields
     assert "current_school_id" in schema2.fields
+
+
+def test_auto_field_does_not_accept_arbitrary_kwargs(models):
+    if int(version("marshmallow")[0]) < 4:
+        from marshmallow.warnings import RemovedInMarshmallow4Warning
+
+        with pytest.warns(
+            RemovedInMarshmallow4Warning,
+            match="Passing field metadata as keyword arguments is deprecated",
+        ):
+
+            class CourseSchema(SQLAlchemyAutoSchema):
+                class Meta:
+                    model = models.Course
+
+                name = auto_field(description="A course name")
+    else:
+        with pytest.raises(TypeError, match="unexpected keyword argument"):
+
+            class CourseSchema(SQLAlchemyAutoSchema):  # type: ignore[no-redef]
+                class Meta:
+                    model = models.Course
+
+                name = auto_field(description="A course name")

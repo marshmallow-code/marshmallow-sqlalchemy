@@ -62,33 +62,6 @@ def _enum_field_factory(
     return fields.Enum if data_type.enum_class else fields.Raw
 
 
-def _field_update_kwargs(
-    field_class: type[fields.Field] | functools.partial,
-    field_kwargs: dict[str, Any],
-    kwargs: dict[str, Any],
-) -> dict[str, Any]:
-    if not kwargs:
-        return field_kwargs
-
-    if isinstance(field_class, functools.partial):
-        # Unwrap partials, assuming that they bind a Field to arguments
-        field_class = cast(functools.partial, field_class.func)
-
-    possible_field_keywords = {
-        key
-        for cls in inspect.getmro(cast(type[fields.Field], field_class))
-        for key, param in inspect.signature(cls.__init__).parameters.items()  # type: ignore[misc]
-        if param.kind is inspect.Parameter.POSITIONAL_OR_KEYWORD
-        or param.kind is inspect.Parameter.KEYWORD_ONLY
-    }
-    for k, v in kwargs.items():
-        if k in possible_field_keywords:
-            field_kwargs[k] = v
-        else:
-            field_kwargs["metadata"][k] = v
-    return field_kwargs
-
-
 class ModelConverter:
     """Converts a SQLAlchemy model into a dictionary of corresponding
     marshmallow `Fields <marshmallow.fields.Field>`.
@@ -252,17 +225,14 @@ class ModelConverter:
         if not instance:
             return field_class
         field_kwargs = self._get_field_kwargs_for_property(prop)
-        _field_update_kwargs(field_class, field_kwargs, kwargs)
+        field_kwargs.update(kwargs)
         ret = field_class(**field_kwargs)
         if (
             hasattr(prop, "direction")
             and self.DIRECTION_MAPPING[prop.direction.name]
             and prop.uselist is True
         ):
-            related_list_kwargs = _field_update_kwargs(
-                RelatedList, self.get_base_kwargs(), kwargs
-            )
-            ret = RelatedList(ret, **related_list_kwargs)
+            ret = RelatedList(ret, **{**self.get_base_kwargs(), **kwargs})
         return ret
 
     @overload
@@ -290,8 +260,7 @@ class ModelConverter:
             return field_class
         field_kwargs = self.get_base_kwargs()
         self._add_column_kwargs(field_kwargs, column)
-        _field_update_kwargs(field_class, field_kwargs, kwargs)
-        return field_class(**field_kwargs)
+        return field_class(**{**field_kwargs, **kwargs})
 
     @overload
     def field_for(
@@ -352,10 +321,7 @@ class ModelConverter:
             **kwargs,
         )
         if remote_with_local_multiplicity:
-            related_list_kwargs = _field_update_kwargs(
-                RelatedList, self.get_base_kwargs(), kwargs
-            )
-            return RelatedList(converted_prop, **related_list_kwargs)
+            return RelatedList(converted_prop, **{**self.get_base_kwargs(), **kwargs})
         else:
             return converted_prop
 

@@ -1,6 +1,25 @@
 Changelog
 ---------
 
+1.4.0 (unreleased)
+++++++++++++++++++
+
+Other changes:
+
+* Passing arbitrary keyword arguments to `auto_field <marshmallow_sqlalchemy.auto_field>`
+  is no longer supported. Use the ``metadata`` argument to pass metadata
+  to the generated field instead.
+
+.. code-block:: python
+
+    # Before
+    auto_field(description="The name of the artist")
+    # On marshmallow 3, this raises a warning: "RemovedInMarshmallow4Warning: Passing field metadata as keyword arguments is deprecated."
+    # On marshmallow 4, this raises an error: "TypeError: Field.__init__() got an unexpected keyword argument 'description'"
+
+    # After
+    auto_field(metadata=dict(description="The name of the artist"))
+
 1.3.0 (2025-01-11)
 ++++++++++++++++++
 
