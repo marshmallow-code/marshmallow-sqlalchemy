@@ -279,7 +279,9 @@ class TestPropToFieldClass:
 
     def test_can_pass_extra_kwargs(self):
         prop = make_property(sa.String())
-        field = property2field(prop, instance=True, description="just a string")
+        field = property2field(
+            prop, instance=True, metadata=dict(description="just a string")
+        )
         assert field.metadata["description"] == "just a string"
 
 
@@ -295,7 +297,9 @@ class TestColumnToFieldClass:
 
     def test_can_pass_extra_kwargs(self):
         column = sa.Column(sa.String(255))
-        field = column2field(column, instance=True, description="just a string")
+        field = column2field(
+            column, instance=True, metadata=dict(description="just a string")
+        )
         assert field.metadata["description"] == "just a string"
 
     def test_uuid_column2field(self):
@@ -314,11 +318,11 @@ class TestColumnToFieldClass:
 
 
 class TestFieldFor:
-    def test_field_for(self, models, session):
+    def test_field_for(self, models):
         field = field_for(models.Student, "full_name")
         assert type(field) is fields.Str
 
-        field = field_for(models.Student, "current_school", session=session)
+        field = field_for(models.Student, "current_school")
         assert type(field) is Related
 
         field = field_for(models.Student, "full_name", field_class=fields.Date)

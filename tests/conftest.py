@@ -44,14 +44,17 @@ def Base() -> type:
 
 @pytest.fixture()
 def engine():
-    return sa.create_engine("sqlite:///:memory:", echo=False, future=True)
+    engine = sa.create_engine("sqlite:///:memory:", echo=False, future=True)
+    yield engine
+    engine.dispose()
 
 
 @pytest.fixture()
 def session(Base, models, engine):
     Session = sessionmaker(bind=engine)
     Base.metadata.create_all(bind=engine)
-    return Session(future=True)
+    with Session() as session:
+        yield session
 
 
 CourseLevel = Enum("CourseLevel", "PRIMARY SECONDARY")
