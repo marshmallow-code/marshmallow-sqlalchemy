@@ -151,6 +151,8 @@ def models(Base: type):
 
         substitute = relationship("SubstituteTeacher", uselist=False, backref="teacher")
 
+        data = sa.Column(sa.PickleType)
+
         @property
         def fname(self):
             return self.full_name

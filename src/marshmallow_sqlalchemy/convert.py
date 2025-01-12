@@ -72,6 +72,7 @@ class ModelConverter:
     ] = {
         sa.Enum: _enum_field_factory,
         sa.JSON: fields.Raw,
+        sa.PickleType: fields.Raw,
         postgresql.BIT: fields.Integer,
         postgresql.OID: fields.Integer,
         postgresql.UUID: fields.UUID,

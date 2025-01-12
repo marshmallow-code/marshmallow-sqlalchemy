@@ -4,6 +4,11 @@ Changelog
 1.4.0 (unreleased)
 ++++++++++++++++++
 
+Bug fixes:
+
+* Fix handling of `sqlalchemy.PickleType` columns (:issue:`394`)
+  Thanks :user:`Eyon42` for reporting.
+
 Other changes:
 
 * Passing arbitrary keyword arguments to `auto_field <marshmallow_sqlalchemy.auto_field>`

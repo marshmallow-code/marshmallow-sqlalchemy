@@ -80,6 +80,7 @@ def sqla_schema_with_relationships(models, request) -> SQLAlchemySchema:
         full_name = auto_field(validate=validate.Length(max=20))
         current_school = auto_field()
         substitute = auto_field()
+        data = auto_field()
 
     return TeacherSchema()
 
@@ -107,6 +108,7 @@ def sqla_schema_with_fks(models, request) -> SQLAlchemySchema:
 
         full_name = auto_field(validate=validate.Length(max=20))
         current_school_id = auto_field()
+        data = auto_field()
 
     return TeacherSchema()
 
@@ -140,6 +142,7 @@ def test_dump_with_relationships(teacher, schema):
         "full_name": teacher.full_name,
         "current_school": 42,
         "substitute": None,
+        "data": None,
     }
 
 
@@ -155,6 +158,7 @@ def test_dump_with_foreign_keys(teacher, schema):
         "id": teacher.id,
         "full_name": teacher.full_name,
         "current_school_id": 42,
+        "data": None,
     }
 
 
@@ -162,6 +166,7 @@ def test_table_schema_dump(teacher, sqla_auto_table_schema):
     assert sqla_auto_table_schema.dump(teacher) == {
         "id": teacher.id,
         "full_name": teacher.full_name,
+        "data": None,
     }
 
 
@@ -698,3 +703,19 @@ def test_auto_field_does_not_accept_arbitrary_kwargs(models):
                     model = models.Course
 
                 name = auto_field(description="A course name")
+
+
+# https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/394
+def test_dumping_pickle_field(models, teacher):
+    class TeacherSchema(SQLAlchemySchema):
+        class Meta:
+            model = models.Teacher
+
+        data = auto_field()
+
+    teacher.data = {"foo": "bar"}
+
+    schema = TeacherSchema()
+    assert schema.dump(teacher) == {
+        "data": {"foo": "bar"},
+    }
