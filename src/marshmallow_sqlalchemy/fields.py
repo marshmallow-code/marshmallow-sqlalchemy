@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import warnings
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from marshmallow import fields
 from marshmallow.utils import is_iterable_but_not_string
@@ -52,7 +52,7 @@ class Related(fields.Field):
             if columns is None:
                 columns = column
         super().__init__(**kwargs)
-        self.columns = cast(list[str], ensure_list(columns or []))
+        self.columns: list[str] = ensure_list(columns or [])
 
     @property
     def model(self) -> type[DeclarativeMeta] | None:
@@ -159,5 +159,5 @@ def get_primary_keys(model: type[DeclarativeMeta]) -> list[MapperProperty]:
     return [mapper.get_property_by_column(column) for column in mapper.primary_key]
 
 
-def ensure_list(value):
+def ensure_list(value: Any) -> list:
     return value if is_iterable_but_not_string(value) else [value]
