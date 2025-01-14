@@ -49,9 +49,9 @@ class SQLAlchemyAutoField(Field):
 
     # This field should never be bound to a schema.
     # If this method is called, it's probably because the schema is not a SQLAlchemySchema.
-    def _bind_to_schema(self, field_name: str, schema: Schema | Field) -> None:
+    def _bind_to_schema(self, field_name: str, parent: Schema | Field) -> None:
         raise IncorrectSchemaTypeError(
-            f"Cannot bind SQLAlchemyAutoField. Make sure that {schema} is a SQLAlchemySchema or SQLAlchemyAutoSchema."
+            f"Cannot bind SQLAlchemyAutoField. Make sure that {parent} is a SQLAlchemySchema or SQLAlchemyAutoSchema."
         )
 
 
