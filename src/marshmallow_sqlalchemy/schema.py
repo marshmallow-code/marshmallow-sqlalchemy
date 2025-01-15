@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from .convert import ModelConverter
 from .exceptions import IncorrectSchemaTypeError
-from .load_instance_mixin import LoadInstanceMixin
+from .load_instance_mixin import LoadInstanceMixin, _ModelType
 
 
 # This isn't really a field; it's a placeholder for the metaclass.
@@ -202,7 +202,7 @@ class SQLAlchemyAutoSchemaMeta(SQLAlchemySchemaMeta):
 
 
 class SQLAlchemySchema(
-    LoadInstanceMixin.Schema, Schema, metaclass=SQLAlchemySchemaMeta
+    LoadInstanceMixin.Schema[_ModelType], Schema, metaclass=SQLAlchemySchemaMeta
 ):
     """Schema for a SQLAlchemy model or table.
     Use together with `auto_field` to generate fields from columns.
@@ -226,7 +226,9 @@ class SQLAlchemySchema(
     OPTIONS_CLASS = SQLAlchemySchemaOpts
 
 
-class SQLAlchemyAutoSchema(SQLAlchemySchema, metaclass=SQLAlchemyAutoSchemaMeta):
+class SQLAlchemyAutoSchema(
+    SQLAlchemySchema[_ModelType], metaclass=SQLAlchemyAutoSchemaMeta
+):
     """Schema that automatically generates fields from the columns of
      a SQLAlchemy model or table.
 

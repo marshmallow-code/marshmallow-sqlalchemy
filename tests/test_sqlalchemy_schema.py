@@ -48,7 +48,7 @@ class EntityMixin:
 
 @pytest.fixture
 def sqla_auto_model_schema(models, request) -> SQLAlchemyAutoSchema:
-    class TeacherSchema(SQLAlchemyAutoSchema):
+    class TeacherSchema(SQLAlchemyAutoSchema[models.Teacher]):
         class Meta:
             model = models.Teacher
 
@@ -73,7 +73,7 @@ def sqla_auto_table_schema(models, request) -> SQLAlchemyAutoSchema:
 
 @pytest.fixture
 def sqla_schema_with_relationships(models, request) -> SQLAlchemySchema:
-    class TeacherSchema(EntityMixin, SQLAlchemySchema):
+    class TeacherSchema(EntityMixin, SQLAlchemySchema[models.Teacher]):
         class Meta:
             model = models.Teacher
 
@@ -87,7 +87,7 @@ def sqla_schema_with_relationships(models, request) -> SQLAlchemySchema:
 
 @pytest.fixture
 def sqla_auto_model_schema_with_relationships(models, request) -> SQLAlchemyAutoSchema:
-    class TeacherSchema(SQLAlchemyAutoSchema):
+    class TeacherSchema(SQLAlchemyAutoSchema[models.Teacher]):
         class Meta:
             model = models.Teacher
             include_relationships = True
@@ -102,7 +102,7 @@ def sqla_auto_model_schema_with_relationships(models, request) -> SQLAlchemyAuto
 
 @pytest.fixture
 def sqla_schema_with_fks(models, request) -> SQLAlchemySchema:
-    class TeacherSchema(EntityMixin, SQLAlchemySchema):
+    class TeacherSchema(EntityMixin, SQLAlchemySchema[models.Teacher]):
         class Meta:
             model = models.Teacher
 
@@ -115,7 +115,7 @@ def sqla_schema_with_fks(models, request) -> SQLAlchemySchema:
 
 @pytest.fixture
 def sqla_auto_model_schema_with_fks(models, request) -> SQLAlchemyAutoSchema:
-    class TeacherSchema(SQLAlchemyAutoSchema):
+    class TeacherSchema(SQLAlchemyAutoSchema[models.Teacher]):
         class Meta:
             model = models.Teacher
             include_fk = True
@@ -186,7 +186,7 @@ def test_load(schema):
 class TestLoadInstancePerSchemaInstance:
     @pytest.fixture
     def schema_no_load_instance(self, models, session):
-        class TeacherSchema(SQLAlchemySchema):
+        class TeacherSchema(SQLAlchemySchema[models.Teacher]):  # type: ignore[name-defined]
             class Meta:
                 model = models.Teacher
                 sqla_session = session
@@ -208,7 +208,7 @@ class TestLoadInstancePerSchemaInstance:
 
     @pytest.fixture
     def auto_schema_no_load_instance(self, models, session):
-        class TeacherSchema(SQLAlchemyAutoSchema):
+        class TeacherSchema(SQLAlchemyAutoSchema[models.Teacher]):  # type: ignore[name-defined]
             class Meta:
                 model = models.Teacher
                 sqla_session = session
@@ -302,7 +302,7 @@ def test_passing_table_to_auto_field(models, teacher):
 
 # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/190
 def test_auto_schema_skips_synonyms(models):
-    class TeacherSchema(SQLAlchemyAutoSchema):
+    class TeacherSchema(SQLAlchemyAutoSchema[models.Teacher]):  # type: ignore[name-defined]
         class Meta:
             model = models.Teacher
             include_fk = True
@@ -327,7 +327,7 @@ def test_auto_field_works_with_synonym(models):
 
 # Regresion test https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/306
 def test_auto_field_works_with_ordered_flag(models):
-    class StudentSchema(SQLAlchemyAutoSchema):
+    class StudentSchema(SQLAlchemyAutoSchema[models.Student]):  # type: ignore[name-defined]
         class Meta:
             model = models.Student
             ordered = True

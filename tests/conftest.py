@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import datetime as dt
+from dataclasses import dataclass
 from enum import Enum
-from types import SimpleNamespace
 from typing import Any
 
 import pytest
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.orm import (
+    DeclarativeMeta,
     Mapped,
     backref,
     column_property,
@@ -60,8 +61,22 @@ def session(Base, models, engine):
 CourseLevel = Enum("CourseLevel", "PRIMARY SECONDARY")
 
 
+@dataclass
+class Models:
+    Course: type[DeclarativeMeta]
+    School: type[DeclarativeMeta]
+    Student: type[DeclarativeMeta]
+    Teacher: type[DeclarativeMeta]
+    SubstituteTeacher: type[DeclarativeMeta]
+    Paper: type[DeclarativeMeta]
+    GradedPaper: type[DeclarativeMeta]
+    Seminar: type[DeclarativeMeta]
+    Lecture: type[DeclarativeMeta]
+    Keyword: type[DeclarativeMeta]
+
+
 @pytest.fixture()
-def models(Base: type):
+def models(Base: type) -> Models:
     # models adapted from https://github.com/wtforms/wtforms-sqlalchemy/blob/master/tests/tests.py
     student_course = sa.Table(
         "student_course",
@@ -221,7 +236,7 @@ def models(Base: type):
             "kw", "keyword", creator=lambda kw: Keyword(keyword=kw)
         )
 
-    return SimpleNamespace(
+    return Models(
         Course=Course,
         School=School,
         Student=Student,
