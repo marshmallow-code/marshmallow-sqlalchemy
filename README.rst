@@ -8,7 +8,6 @@ Homepage: https://marshmallow-sqlalchemy.readthedocs.io/
 
 `SQLAlchemy <http://www.sqlalchemy.org/>`_ integration with the  `marshmallow <https://marshmallow.readthedocs.io/en/latest/>`_ (de)serialization library.
 
-.. start elevator-pitch
 
 Declare your models
 ===================
@@ -51,6 +50,8 @@ Declare your models
 
 
     Base.metadata.create_all(engine)
+
+.. start elevator-pitch
 
 Generate marshmallow schemas
 ============================

@@ -80,8 +80,8 @@ Other changes:
 
 Features:
 
-*  ``sqlalchemy.Enum`` fields generate a corresponding ``marshmallow.fields.Enum`` field
-  (:issue:`485`, :issue:`112`). Thanks :user:`panda-byte` for the PR.
+* ``sqlalchemy.Enum`` fields generate a corresponding ``marshmallow.fields.Enum`` field (:issue:`485`, :issue:`112`). 
+  Thanks :user:`panda-byte` for the PR.
 
 Support:
 
@@ -149,7 +149,7 @@ Other changes:
 Bug fixes:
 
 * Address ``DeprecationWarning`` re: usage of ``distutils`` (:pr:`435`).
- Thanks :user:`Tenzer` for the PR.
+  Thanks :user:`Tenzer` for the PR.
 
 0.28.0 (2022-03-09)
 +++++++++++++++++++
@@ -182,7 +182,7 @@ Other changes:
 Bug fixes:
 
 * Fix generating fields for ``postgreql.ARRAY`` columns (:issue:`392`).
- Thanks :user:`mjpieters` for the catch and patch.
+  Thanks :user:`mjpieters` for the catch and patch.
 
 0.26.0 (2021-05-26)
 +++++++++++++++++++
