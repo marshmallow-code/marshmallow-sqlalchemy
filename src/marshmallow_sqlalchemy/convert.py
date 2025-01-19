@@ -4,7 +4,7 @@ import functools
 import inspect
 import uuid
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, Literal, TypeAlias, cast, overload
+from typing import TYPE_CHECKING, Any, Callable, Literal, Union, cast, overload
 
 import marshmallow as ma
 import sqlalchemy as sa
@@ -22,9 +22,9 @@ if TYPE_CHECKING:
 
     PropertyOrColumn = MapperProperty | sa.Column
 
-_FieldPartial: TypeAlias = Callable[[], fields.Field]
-_FieldClassFactory: TypeAlias = Callable[
-    ["ModelConverter", Any], type[fields.Field] | _FieldPartial
+_FieldPartial = Callable[[], fields.Field]
+_FieldClassFactory = Callable[
+    ["ModelConverter", Any], Union[type[fields.Field], _FieldPartial]
 ]
 
 
