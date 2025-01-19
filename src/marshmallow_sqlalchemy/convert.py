@@ -4,13 +4,28 @@ import functools
 import inspect
 import uuid
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, Literal, Union, cast, overload
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Literal,
+    Union,
+    cast,
+    overload,
+)
+
+# Remove when dropping Python 3.9
+try:
+    from typing import TypeAlias, TypeGuard
+except ImportError:
+    from typing_extensions import TypeAlias, TypeGuard
 
 import marshmallow as ma
 import sqlalchemy as sa
 from marshmallow import fields, validate
 from sqlalchemy.dialects import mssql, mysql, postgresql
 from sqlalchemy.orm import SynonymProperty
+from sqlalchemy.types import TypeEngine
 
 from .exceptions import ModelConversionError
 from .fields import Related, RelatedList
@@ -18,17 +33,17 @@ from .fields import Related, RelatedList
 if TYPE_CHECKING:
     from sqlalchemy.ext.declarative import DeclarativeMeta
     from sqlalchemy.orm import MapperProperty
-    from sqlalchemy.types import TypeEngine
 
     PropertyOrColumn = MapperProperty | sa.Column
 
-_FieldPartial = Callable[[], fields.Field]
-_FieldClassFactory = Callable[
+_FieldPartial: TypeAlias = Callable[[], fields.Field]
+# TODO: Use more specific type for second argument
+_FieldClassFactory: TypeAlias = Callable[
     ["ModelConverter", Any], Union[type[fields.Field], _FieldPartial]
 ]
 
 
-def _is_field(value) -> bool:
+def _is_field(value: Any) -> TypeGuard[type[fields.Field]]:
     return isinstance(value, type) and issubclass(value, fields.Field)
 
 
@@ -351,14 +366,18 @@ class ModelConverter:
     def _get_field_class_for_data_type(
         self, data_type: TypeEngine
     ) -> type[fields.Field]:
-        field_cls = None
+        field_cls: type[fields.Field] | _FieldPartial | None = None
         types = inspect.getmro(type(data_type))
         # First search for a field class from self.SQLA_TYPE_MAPPING
         for col_type in types:
             if col_type in self.SQLA_TYPE_MAPPING:
-                field_cls = self.SQLA_TYPE_MAPPING[col_type]
-                if callable(field_cls) and not _is_field(field_cls):
-                    field_cls = cast(_FieldClassFactory, field_cls)(self, data_type)
+                field_or_factory = self.SQLA_TYPE_MAPPING[col_type]
+                if _is_field(field_or_factory):
+                    field_cls = field_or_factory
+                else:
+                    field_cls = cast(_FieldClassFactory, field_or_factory)(
+                        self, data_type
+                    )
                 break
         else:
             # Try to find a field class based on the column's python_type
