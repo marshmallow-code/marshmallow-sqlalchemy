@@ -226,6 +226,26 @@ class TestPropertyFieldConversion:
         inner_field = getattr(field, "inner", getattr(field, "container", None))
         assert type(inner_field) is fields.Int
 
+    def test_convert_ARRAY_Enum(self, converter):
+        prop = make_property(postgresql.ARRAY(sa.Enum(CourseLevel)))
+        field = converter.property2field(prop)
+        assert type(field) is fields.List
+        inner_field = field.inner
+        assert type(inner_field) is fields.Enum
+
+    def test_convert_multidimensional_ARRAY(self, converter):
+        prop = make_property(postgresql.ARRAY(sa.Float, dimensions=2))
+        field = converter.property2field(prop)
+        assert type(field) is fields.List
+        assert type(field.inner) is fields.List
+        assert type(field.inner.inner) is fields.Float
+
+    def test_convert_one_dimensional_ARRAY(self, converter):
+        prop = make_property(postgresql.ARRAY(sa.Float, dimensions=1))
+        field = converter.property2field(prop)
+        assert type(field) is fields.List
+        assert type(field.inner) is fields.Float
+
     def test_convert_TSVECTOR(self, converter):
         prop = make_property(postgresql.TSVECTOR)
         with pytest.raises(ModelConversionError):

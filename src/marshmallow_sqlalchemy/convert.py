@@ -4,7 +4,7 @@ import functools
 import inspect
 import uuid
 from collections.abc import Iterable
-from typing import TYPE_CHECKING, Any, Callable, Literal, cast, overload
+from typing import TYPE_CHECKING, Any, Callable, Literal, TypeAlias, cast, overload
 
 import marshmallow as ma
 import sqlalchemy as sa
@@ -22,7 +22,10 @@ if TYPE_CHECKING:
 
     PropertyOrColumn = MapperProperty | sa.Column
 
-_FieldClassFactory = Callable[[Any, Any], type[fields.Field]]
+_FieldPartial: TypeAlias = Callable[[], fields.Field]
+_FieldClassFactory: TypeAlias = Callable[
+    ["ModelConverter", Any], type[fields.Field] | _FieldPartial
+]
 
 
 def _is_field(value) -> bool:
@@ -49,17 +52,30 @@ def _is_auto_increment(column) -> bool:
     return column.table is not None and column is column.table._autoincrement_column
 
 
-def _postgres_array_factory(converter: ModelConverter, data_type: postgresql.ARRAY):
-    return functools.partial(
-        fields.List,
-        converter._get_field_class_for_data_type(data_type.item_type),
-    )
+def _postgres_array_factory(
+    converter: ModelConverter, data_type: postgresql.ARRAY
+) -> Callable[[], fields.List]:
+    FieldClass = converter._get_field_class_for_data_type(data_type.item_type)
+    inner = FieldClass()
+    if not data_type.dimensions or data_type.dimensions == 1:
+        return functools.partial(fields.List, inner)
+
+    # For multi-dimensional arrays, nest the Lists
+    dimensions = data_type.dimensions
+    for _ in range(dimensions - 1):
+        inner = fields.List(inner)
+
+    return functools.partial(fields.List, inner)
 
 
 def _enum_field_factory(
     converter: ModelConverter, data_type: sa.Enum
-) -> type[fields.Field]:
-    return fields.Enum if data_type.enum_class else fields.Raw
+) -> Callable[[], fields.Field]:
+    return (
+        functools.partial(fields.Enum, enum=data_type.enum_class)
+        if data_type.enum_class
+        else fields.Raw
+    )
 
 
 class ModelConverter:
