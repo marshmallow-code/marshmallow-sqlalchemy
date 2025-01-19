@@ -63,24 +63,26 @@ ignore = [
   "A005",    # "module {name} shadows a Python standard-library module"
   "ANN",     # let mypy handle annotation checks
   "ARG",     # unused arguments are common w/ interfaces
-  "COM",     # let formatter take care commas
   "C901",    # don't enforce complexity level
+  "COM",     # let formatter take care commas
   "D",       # don't require docstrings
   "DTZ007",  # ignore false positives due to https://github.com/astral-sh/ruff/issues/1306
   "E501",    # leave line-length enforcement to formatter
   "EM",      # allow string messages in exceptions
   "FIX",     # allow "FIX" comments in code
   "INP001",  # allow Python files outside of packages
+  "N804",    # metaclass methods aren't properly handled by this rule
   "N806",    # allow uppercase variable names for variables that are classes
   "PERF203", # allow try-except within loops
-  "PLR0913", # "Too many arguments"
   "PLR0912", # "Too many branches"
+  "PLR0913", # "Too many arguments"
   "PLR2004", # "Magic value used in comparison"
   "PTH",     # don't require using pathlib instead of os
   "RUF012",  # allow mutable class variables
   "SIM102",  # Sometimes nested ifs are more readable than if...and...
   "SIM105",  # "Use `contextlib.suppress(...)` instead of `try`-`except`-`pass`"
   "SIM108",  # sometimes if-else is more readable than a ternary
+  "SLF001",  # allow private member access
   "TD",      # allow TODO comments to be whatever we want
   "TRY003",  # allow long messages passed to exceptions
   "TRY004",  # allow ValueError for invalid argument types
@@ -92,6 +94,7 @@ ignore = [
   "C408",    # allow dict() instead of dict literal
   "DTZ",     # allow naive datetimes
   "FBT003",  # allow boolean positional argument
+  "N802",    # allow uppercasing in test names, e.g. test_convert_TSVECTOR
   "N803",    # fixture names might be uppercase
   "PLR0915", # allow lots of statements
   "PT007",   # ignore false positives due to https://github.com/astral-sh/ruff/issues/14743

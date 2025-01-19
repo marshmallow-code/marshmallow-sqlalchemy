@@ -88,7 +88,7 @@ class Related(fields.Field):
 
     def _serialize(self, value, attr, obj):
         ret = {prop.key: getattr(value, prop.key, None) for prop in self.related_keys}
-        return ret if len(ret) > 1 else list(ret.values())[0]
+        return ret if len(ret) > 1 else next(iter(ret.values()))
 
     def _deserialize(self, value, *args, **kwargs):
         """Deserialize a serialized value to a model instance.

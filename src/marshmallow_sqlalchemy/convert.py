@@ -3,7 +3,6 @@ from __future__ import annotations
 import functools
 import inspect
 import uuid
-from collections.abc import Iterable
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -25,14 +24,16 @@ import sqlalchemy as sa
 from marshmallow import fields, validate
 from sqlalchemy.dialects import mssql, mysql, postgresql
 from sqlalchemy.orm import SynonymProperty
-from sqlalchemy.types import TypeEngine
 
 from .exceptions import ModelConversionError
 from .fields import Related, RelatedList
 
 if TYPE_CHECKING:
+    from collections.abc import Iterable
+
     from sqlalchemy.ext.declarative import DeclarativeMeta
     from sqlalchemy.orm import MapperProperty
+    from sqlalchemy.types import TypeEngine
 
     PropertyOrColumn = MapperProperty | sa.Column
 
@@ -136,8 +137,7 @@ class ModelConverter:
     def type_mapping(self) -> dict[type, type[fields.Field]]:
         if self.schema_cls:
             return self.schema_cls.TYPE_MAPPING
-        else:
-            return ma.Schema.TYPE_MAPPING
+        return ma.Schema.TYPE_MAPPING
 
     def fields_for_model(
         self,
@@ -349,14 +349,13 @@ class ModelConverter:
         converted_prop = self.property2field(
             prop,
             # To satisfy type checking, need to pass a literal bool
-            instance=True if instance else False,
+            instance=True if instance else False,  # noqa: SIM210
             field_class=field_class,
             **kwargs,
         )
         if remote_with_local_multiplicity:
             return RelatedList(converted_prop, **{**self.get_base_kwargs(), **kwargs})
-        else:
-            return converted_prop
+        return converted_prop
 
     def _get_field_name(self, prop_or_column: PropertyOrColumn) -> str:
         return prop_or_column.key
@@ -478,9 +477,7 @@ class ModelConverter:
         key = self._get_field_name(column)
         if fields and key not in fields:
             return True
-        if exclude and key in exclude:
-            return True
-        return False
+        return bool(exclude and key in exclude)
 
     def get_base_kwargs(self):
         return {"validate": [], "metadata": {}}

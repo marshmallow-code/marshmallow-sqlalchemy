@@ -15,15 +15,15 @@ from .schema import (
 )
 
 __all__ = [
-    "SQLAlchemySchema",
-    "SQLAlchemyAutoSchema",
-    "SQLAlchemySchemaOpts",
-    "SQLAlchemyAutoSchemaOpts",
-    "auto_field",
+    "ModelConversionError",
     "ModelConverter",
+    "SQLAlchemyAutoSchema",
+    "SQLAlchemyAutoSchemaOpts",
+    "SQLAlchemySchema",
+    "SQLAlchemySchemaOpts",
+    "auto_field",
+    "column2field",
+    "field_for",
     "fields_for_model",
     "property2field",
-    "column2field",
-    "ModelConversionError",
-    "field_for",
 ]

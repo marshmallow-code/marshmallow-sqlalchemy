@@ -1,15 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 import sqlalchemy as sa
 from marshmallow.fields import Field
 from marshmallow.schema import Schema, SchemaMeta, SchemaOpts
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
 from .convert import ModelConverter
 from .exceptions import IncorrectSchemaTypeError
 from .load_instance_mixin import LoadInstanceMixin, _ModelType
+
+if TYPE_CHECKING:
+    from sqlalchemy.ext.declarative import DeclarativeMeta
 
 
 # This isn't really a field; it's a placeholder for the metaclass.
@@ -42,10 +44,9 @@ class SQLAlchemyAutoField(Field):
         model = self.model or schema_opts.model
         if model:
             return converter.field_for(model, column_name, **self.field_kwargs)
-        else:
-            table = self.table if self.table is not None else schema_opts.table
-            column = getattr(cast(sa.Table, table).columns, column_name)
-            return converter.column2field(column, **self.field_kwargs)
+        table = self.table if self.table is not None else schema_opts.table
+        column = getattr(cast(sa.Table, table).columns, column_name)
+        return converter.column2field(column, **self.field_kwargs)
 
     # This field should never be bound to a schema.
     # If this method is called, it's probably because the schema is not a SQLAlchemySchema.

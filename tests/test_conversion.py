@@ -158,7 +158,7 @@ def make_property(*column_args, **column_kwargs):
 
 
 class TestPropertyFieldConversion:
-    @pytest.fixture()
+    @pytest.fixture
     def converter(self):
         return ModelConverter()
 
@@ -184,7 +184,6 @@ class TestPropertyFieldConversion:
             (sa.Text, fields.Str),
             (sa.Date, fields.Date),
             (sa.DateTime, fields.DateTime),
-            (sa.Boolean, fields.Bool),
             (sa.Boolean, fields.Bool),
             (sa.Float, fields.Float),
             (sa.SmallInteger, fields.Int),

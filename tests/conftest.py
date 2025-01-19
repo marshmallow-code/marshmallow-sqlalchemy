@@ -29,8 +29,6 @@ except ImportError:  # compat with sqlalchemy<2
 class AnotherInteger(sa.Integer):
     """Use me to test if MRO works like we want"""
 
-    pass
-
 
 class AnotherText(sa.types.TypeDecorator):
     """Use me to test if MRO and `impl` virtual type works like we want"""
@@ -38,19 +36,19 @@ class AnotherText(sa.types.TypeDecorator):
     impl = sa.UnicodeText
 
 
-@pytest.fixture()
+@pytest.fixture
 def Base() -> type:
     return declarative_base()
 
 
-@pytest.fixture()
+@pytest.fixture
 def engine():
     engine = sa.create_engine("sqlite:///:memory:", echo=False, future=True)
     yield engine
     engine.dispose()
 
 
-@pytest.fixture()
+@pytest.fixture
 def session(Base, models, engine):
     Session = sessionmaker(bind=engine)
     Base.metadata.create_all(bind=engine)
@@ -75,7 +73,7 @@ class Models:
     Keyword: type[DeclarativeMeta]
 
 
-@pytest.fixture()
+@pytest.fixture
 def models(Base: type) -> Models:
     # models adapted from https://github.com/wtforms/wtforms-sqlalchemy/blob/master/tests/tests.py
     student_course = sa.Table(

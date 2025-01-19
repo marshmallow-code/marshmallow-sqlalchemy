@@ -8,8 +8,7 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
-from typing import Any, Generic, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 import marshmallow as ma
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -17,6 +16,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import ObjectDeletedError
 
 from .fields import get_primary_keys
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable, Mapping
 
 _ModelType = TypeVar("_ModelType", bound=DeclarativeMeta)
 
