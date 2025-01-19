@@ -6,7 +6,7 @@ Changelog
 
 Bug fixes:
 
-* Fix handling of postgres arrays of enums and multidimensional arrays (:issue:`653`).
+* Fix handling of arrays of enums and multidimensional arrays (:issue:`653`).
   Thanks :user:`carterjc` for reporting and investigating the fix.
 * Fix handling of `sqlalchemy.PickleType` columns (:issue:`394`)
   Thanks :user:`Eyon42` for reporting.

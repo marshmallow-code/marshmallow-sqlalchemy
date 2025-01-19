@@ -67,7 +67,7 @@ def _is_auto_increment(column) -> bool:
     return column.table is not None and column is column.table._autoincrement_column
 
 
-def _postgres_array_factory(
+def _list_field_factory(
     converter: ModelConverter, data_type: postgresql.ARRAY
 ) -> Callable[[], fields.List]:
     FieldClass = converter._get_field_class_for_data_type(data_type.item_type)
@@ -103,6 +103,7 @@ class ModelConverter:
     ] = {
         sa.Enum: _enum_field_factory,
         sa.JSON: fields.Raw,
+        sa.ARRAY: _list_field_factory,
         sa.PickleType: fields.Raw,
         postgresql.BIT: fields.Integer,
         postgresql.OID: fields.Integer,
@@ -113,7 +114,7 @@ class ModelConverter:
         postgresql.JSON: fields.Raw,
         postgresql.JSONB: fields.Raw,
         postgresql.HSTORE: fields.Raw,
-        postgresql.ARRAY: _postgres_array_factory,
+        postgresql.ARRAY: _list_field_factory,
         postgresql.MONEY: fields.Decimal,
         postgresql.DATE: fields.Date,
         postgresql.TIME: fields.Time,
