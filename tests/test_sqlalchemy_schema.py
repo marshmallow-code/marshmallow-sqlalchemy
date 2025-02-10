@@ -681,29 +681,31 @@ def test_auto_schema_with_table_allows_subclasses_to_override_include_fk_with_ex
     assert "current_school_id" in schema2.fields
 
 
-def test_auto_schema_with_model_allows_schema_extensions_to_override_include_fk_with_explicit_inherited_field(
+def test_auto_schema_with_model_can_inherit_declared_field_for_foreign_key_column_when_include_fk_is_false(
     models,
 ):
-    class OverrideSchema(Schema):
+    class BaseTeacherSchema(Schema):
         current_school_id = fields.Integer()
 
-    class TeacherSchema(SQLAlchemyAutoSchema, OverrideSchema):
+    class TeacherSchema(BaseTeacherSchema, SQLAlchemyAutoSchema):
         class Meta:
             model = models.Teacher
+            include_fk = False
 
     schema = TeacherSchema()
     assert "current_school_id" in schema.fields
 
 
-def test_auto_schema_with_table_allows_schema_extensions_to_override_include_fk_with_explicit_inherited_field(
+def test_auto_schema_with_table_can_inherit_declared_field_for_foreign_key_column_when_include_fk_is_false(
     models,
 ):
-    class OverrideSchema(Schema):
+    class BaseTeacherSchema(Schema):
         current_school_id = fields.Integer()
 
-    class TeacherSchema(SQLAlchemyAutoSchema, OverrideSchema):
+    class TeacherSchema(BaseTeacherSchema, SQLAlchemyAutoSchema):
         class Meta:
             table = models.Teacher.__table__
+            include_fk = False
 
     schema = TeacherSchema()
     assert "current_school_id" in schema.fields

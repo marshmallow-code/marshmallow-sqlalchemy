@@ -171,14 +171,14 @@ class SQLAlchemySchemaMeta(SchemaMeta):
                 if column.foreign_keys
             }
 
-            schema_overrides = [
+            non_auto_schema_bases = [
                 base
                 for base in inspect.getmro(klass)
                 if issubclass(base, Schema)
                 and not issubclass(base, SQLAlchemyAutoSchema)
             ]
 
-            def is_overridden(field: str) -> bool:
+            def is_declared_field(field: str) -> bool:
                 return any(
                     field
                     in [
@@ -187,20 +187,22 @@ class SQLAlchemySchemaMeta(SchemaMeta):
                             getattr(base, "_declared_fields", base.__dict__)
                         )
                     ]
-                    for base in schema_overrides
+                    for base in non_auto_schema_bases
                 )
 
             return [
                 (name, field)
                 for name, field in fields
-                if name not in foreign_keys or is_overridden(name)
+                if name not in foreign_keys or is_declared_field(name)
             ]
         return fields
 
 
 class SQLAlchemyAutoSchemaMeta(SQLAlchemySchemaMeta):
     @classmethod
-    def get_declared_sqla_fields(cls, base_fields, converter, opts, dict_cls):
+    def get_declared_sqla_fields(
+        cls, base_fields, converter: ModelConverter, opts, dict_cls
+    ):
         fields = dict_cls()
         if opts.table is not None:
             fields.update(
