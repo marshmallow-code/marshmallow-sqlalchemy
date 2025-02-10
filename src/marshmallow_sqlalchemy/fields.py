@@ -160,4 +160,4 @@ def get_primary_keys(model: type[DeclarativeMeta]) -> list[MapperProperty]:
 
 
 def ensure_list(value: Any) -> list:
-    return value if is_iterable_but_not_string(value) else [value]
+    return list(value) if is_iterable_but_not_string(value) else [value]
