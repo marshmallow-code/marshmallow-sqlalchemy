@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import inspect
 from typing import TYPE_CHECKING, Any, cast
 
 import sqlalchemy as sa
 from marshmallow.fields import Field
-from marshmallow.schema import Schema, SchemaMeta, SchemaOpts
+from marshmallow.schema import Schema, SchemaMeta, SchemaOpts, _get_fields
 
 from .convert import ModelConverter
 from .exceptions import IncorrectSchemaTypeError
@@ -118,7 +119,7 @@ class SQLAlchemySchemaMeta(SchemaMeta):
             cls_fields,
             # Filter out fields generated from foreign key columns
             # if include_fk is set to False in the options
-            mcs._maybe_filter_foreign_keys(inherited_fields, opts=opts),
+            mcs._maybe_filter_foreign_keys(inherited_fields, opts=opts, klass=klass),
             dict_cls,
         )
         fields.update(mcs.get_declared_sqla_fields(fields, converter, opts, dict_cls))
@@ -159,6 +160,7 @@ class SQLAlchemySchemaMeta(SchemaMeta):
         fields: list[tuple[str, Field]],
         *,
         opts: SQLAlchemySchemaOpts,
+        klass: SchemaMeta,
     ) -> list[tuple[str, Field]]:
         if opts.model is not None or opts.table is not None:
             if not hasattr(opts, "include_fk") or opts.include_fk is True:
@@ -168,13 +170,39 @@ class SQLAlchemySchemaMeta(SchemaMeta):
                 for column in sa.inspect(opts.model or opts.table).columns  # type: ignore[union-attr]
                 if column.foreign_keys
             }
-            return [(name, field) for name, field in fields if name not in foreign_keys]
+
+            non_auto_schema_bases = [
+                base
+                for base in inspect.getmro(klass)
+                if issubclass(base, Schema)
+                and not issubclass(base, SQLAlchemyAutoSchema)
+            ]
+
+            def is_declared_field(field: str) -> bool:
+                return any(
+                    field
+                    in [
+                        name
+                        for name, _ in _get_fields(
+                            getattr(base, "_declared_fields", base.__dict__)
+                        )
+                    ]
+                    for base in non_auto_schema_bases
+                )
+
+            return [
+                (name, field)
+                for name, field in fields
+                if name not in foreign_keys or is_declared_field(name)
+            ]
         return fields
 
 
 class SQLAlchemyAutoSchemaMeta(SQLAlchemySchemaMeta):
     @classmethod
-    def get_declared_sqla_fields(cls, base_fields, converter, opts, dict_cls):
+    def get_declared_sqla_fields(
+        cls, base_fields, converter: ModelConverter, opts, dict_cls
+    ):
         fields = dict_cls()
         if opts.table is not None:
             fields.update(

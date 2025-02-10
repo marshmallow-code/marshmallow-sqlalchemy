@@ -681,6 +681,36 @@ def test_auto_schema_with_table_allows_subclasses_to_override_include_fk_with_ex
     assert "current_school_id" in schema2.fields
 
 
+def test_auto_schema_with_model_can_inherit_declared_field_for_foreign_key_column_when_include_fk_is_false(
+    models,
+):
+    class BaseTeacherSchema(Schema):
+        current_school_id = fields.Integer()
+
+    class TeacherSchema(BaseTeacherSchema, SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Teacher
+            include_fk = False
+
+    schema = TeacherSchema()
+    assert "current_school_id" in schema.fields
+
+
+def test_auto_schema_with_table_can_inherit_declared_field_for_foreign_key_column_when_include_fk_is_false(
+    models,
+):
+    class BaseTeacherSchema(Schema):
+        current_school_id = fields.Integer()
+
+    class TeacherSchema(BaseTeacherSchema, SQLAlchemyAutoSchema):
+        class Meta:
+            table = models.Teacher.__table__
+            include_fk = False
+
+    schema = TeacherSchema()
+    assert "current_school_id" in schema.fields
+
+
 def test_auto_field_does_not_accept_arbitrary_kwargs(models):
     if int(version("marshmallow")[0]) < 4:
         from marshmallow.warnings import RemovedInMarshmallow4Warning
@@ -695,6 +725,7 @@ def test_auto_field_does_not_accept_arbitrary_kwargs(models):
                     model = models.Course
 
                 name = auto_field(description="A course name")
+
     else:
         with pytest.raises(TypeError, match="unexpected keyword argument"):
 

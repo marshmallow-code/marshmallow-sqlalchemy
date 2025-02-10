@@ -1,6 +1,15 @@
 Changelog
 ---------
 
+(unreleased)
+++++++++++++
+
+Bug fixes:
+
+* Fix inheritance of declared fields that match then name of a foreign key column
+  when the ``include_fk`` option is set to ``False`` (:pr:`657`).
+  Thanks :user:`carterjc` for the PR.
+
 1.4.0 (2025-01-19)
 ++++++++++++++++++
 
