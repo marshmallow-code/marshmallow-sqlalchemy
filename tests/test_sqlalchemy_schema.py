@@ -438,6 +438,19 @@ class TestModelInstanceDeserialization:
 
         assert isinstance(load_data, models.Teacher)
 
+    @pytest.mark.parametrize(
+        "SchemaClass",
+        (
+            lf("sqla_schema_class"),
+            lf("sqla_auto_schema_class"),
+        ),
+    )
+    def test_load_with_missing_relationship(self, SchemaClass):
+        schema = SchemaClass()
+        # current_school is not passed
+        instance = schema.load({"full_name": "Teachy T"})
+        assert instance.full_name == "Teachy T"
+
     def test_load_transient(self, models, teacher):
         class TeacherSchema(SQLAlchemyAutoSchema):
             class Meta:
