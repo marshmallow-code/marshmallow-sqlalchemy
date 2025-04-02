@@ -178,22 +178,16 @@ class SQLAlchemySchemaMeta(SchemaMeta):
                 and not issubclass(base, SQLAlchemyAutoSchema)
             ]
 
-            def is_declared_field(field: str) -> bool:
-                return any(
-                    field
-                    in [
-                        name
-                        for name, _ in _get_fields(
-                            getattr(base, "_declared_fields", base.__dict__)
-                        )
-                    ]
-                    for base in non_auto_schema_bases
-                )
+            # Pre-compute declared fields only once
+            declared_fields = set()
+            for base in non_auto_schema_bases:
+                base_fields = getattr(base, "_declared_fields", base.__dict__)
+                declared_fields.update(name for name, _ in _get_fields(base_fields))
 
             return [
                 (name, field)
                 for name, field in fields
-                if name not in foreign_keys or is_declared_field(name)
+                if name not in foreign_keys or name in declared_fields
             ]
         return fields
 
