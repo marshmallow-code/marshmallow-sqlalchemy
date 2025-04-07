@@ -66,7 +66,7 @@ class Related(fields.Field):
             raise RuntimeError(
                 "Cannot access related_model if schema does not have a model."
             )
-        model_attr = getattr(self.model, cast(str, self.attribute or self.name))
+        model_attr = getattr(self.model, cast("str", self.attribute or self.name))
         if hasattr(model_attr, "remote_attr"):  # handle association proxies
             model_attr = model_attr.remote_attr
         return model_attr.property.mapper.class_

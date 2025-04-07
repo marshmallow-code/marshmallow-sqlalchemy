@@ -46,7 +46,7 @@ class SQLAlchemyAutoField(Field):
         if model:
             return converter.field_for(model, column_name, **self.field_kwargs)
         table = self.table if self.table is not None else schema_opts.table
-        column = getattr(cast(sa.Table, table).columns, column_name)
+        column = getattr(cast("sa.Table", table).columns, column_name)
         return converter.column2field(column, **self.field_kwargs)
 
     # This field should never be bound to a schema.

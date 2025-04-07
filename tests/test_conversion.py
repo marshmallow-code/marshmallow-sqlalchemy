@@ -388,7 +388,7 @@ class TestFieldFor:
             models.Student, "full_name", validate=[validate.Length(max=20)]
         )
         assert len(field.validators) == 1
-        validator = cast(validate.Length, field.validators[0])
+        validator = cast("validate.Length", field.validators[0])
         assert validator.max == 20
 
         field = field_for(models.Student, "full_name", validate=[])
