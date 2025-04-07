@@ -179,7 +179,7 @@ class SQLAlchemySchemaMeta(SchemaMeta):
             ]
 
             # Pre-compute declared fields only once
-            declared_fields = set()
+            declared_fields: set[Any] = set()
             for base in non_auto_schema_bases:
                 base_fields = getattr(base, "_declared_fields", base.__dict__)
                 declared_fields.update(name for name, _ in _get_fields(base_fields))
