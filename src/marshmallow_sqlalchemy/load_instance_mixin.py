@@ -10,14 +10,16 @@ from __future__ import annotations
 
 import importlib.metadata
 from collections.abc import Iterable, Mapping, Sequence
-from typing import Any, Generic, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union, cast
 
 import marshmallow as ma
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import ObjectDeletedError
 
 from .fields import get_primary_keys
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 _LoadDataV3 = Union[Mapping[str, Any], Iterable[Mapping[str, Any]]]
 _LoadDataV4 = Union[Mapping[str, Any], Sequence[Mapping[str, Any]]]
