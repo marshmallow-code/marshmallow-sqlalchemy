@@ -1,6 +1,14 @@
 Changelog
 ---------
 
+(unreleased)
+++++++++++++
+
+Bug fixes:
+
+* Fix memory usage regression in 1.4.1 (:issue:`665`).
+  Thanks :user:`mistercrunch` for reporting and sending a PR.
+
 1.4.1 (2025-02-10)
 ++++++++++++++++++
 
