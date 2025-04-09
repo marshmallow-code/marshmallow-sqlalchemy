@@ -10,14 +10,16 @@ from __future__ import annotations
 
 import importlib.metadata
 from collections.abc import Iterable, Mapping, Sequence
-from typing import Any, Generic, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union, cast
 
 import marshmallow as ma
 from sqlalchemy.ext.declarative import DeclarativeMeta
-from sqlalchemy.orm import Session
 from sqlalchemy.orm.exc import ObjectDeletedError
 
 from .fields import get_primary_keys
+
+if TYPE_CHECKING:
+    from sqlalchemy.orm import Session
 
 _LoadDataV3 = Union[Mapping[str, Any], Iterable[Mapping[str, Any]]]
 _LoadDataV4 = Union[Mapping[str, Any], Sequence[Mapping[str, Any]]]
@@ -27,8 +29,8 @@ _ModelType = TypeVar("_ModelType", bound=DeclarativeMeta)
 
 def _cast_data(data):
     if int(importlib.metadata.version("marshmallow")[0]) >= 4:
-        return cast(_LoadDataV4, data)
-    return cast(_LoadDataV3, data)
+        return cast("_LoadDataV4", data)
+    return cast("_LoadDataV3", data)
 
 
 class LoadInstanceMixin:
@@ -87,12 +89,12 @@ class LoadInstanceMixin:
             """
             if self.transient:
                 return None
-            model = cast(type[_ModelType], self.opts.model)
+            model = cast("type[_ModelType]", self.opts.model)
             props = get_primary_keys(model)
             filters = {prop.key: data.get(prop.key) for prop in props}
             if None not in filters.values():
                 try:
-                    return cast(Session, self.session).get(model, filters)
+                    return cast("Session", self.session).get(model, filters)
                 except ObjectDeletedError:
                     return None
             return None
@@ -114,7 +116,7 @@ class LoadInstanceMixin:
                     setattr(instance, key, value)
                 return instance
             kwargs, association_attrs = self._split_model_kwargs_association(data)
-            ModelClass = cast(DeclarativeMeta, self.opts.model)
+            ModelClass = cast("DeclarativeMeta", self.opts.model)
             instance = ModelClass(**kwargs)
             for attr, value in association_attrs.items():
                 setattr(instance, attr, value)
@@ -144,7 +146,7 @@ class LoadInstanceMixin:
                 raise ValueError("Deserialization requires a session")
             self.instance = instance or self.instance
             try:
-                return cast(ma.Schema, super()).load(_cast_data(data), **kwargs)
+                return cast("ma.Schema", super()).load(_cast_data(data), **kwargs)
             finally:
                 self.instance = None
 
@@ -159,7 +161,7 @@ class LoadInstanceMixin:
             self._session = session or self._session
             if not (self.transient or self.session):
                 raise ValueError("Validation requires a session")
-            return cast(ma.Schema, super()).validate(_cast_data(data), **kwargs)
+            return cast("ma.Schema", super()).validate(_cast_data(data), **kwargs)
 
         def _split_model_kwargs_association(self, data):
             """Split serialized attrs to ensure association proxies are passed separately.

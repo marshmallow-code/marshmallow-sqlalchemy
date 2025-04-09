@@ -375,7 +375,7 @@ class ModelConverter:
                 if _is_field(field_or_factory):
                     field_cls = field_or_factory
                 else:
-                    field_cls = cast(_FieldClassFactory, field_or_factory)(
+                    field_cls = cast("_FieldClassFactory", field_or_factory)(
                         self, data_type
                     )
                 break
@@ -394,7 +394,7 @@ class ModelConverter:
                 raise ModelConversionError(
                     f"Could not find field column of type {types[0]}."
                 )
-        return cast(type[fields.Field], field_cls)
+        return cast("type[fields.Field]", field_cls)
 
     def _get_field_class_for_property(self, prop) -> type[fields.Field]:
         field_cls: type[fields.Field]
