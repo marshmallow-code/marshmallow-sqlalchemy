@@ -713,7 +713,7 @@ def test_auto_schema_with_table_can_inherit_declared_field_for_foreign_key_colum
 
 def test_auto_field_does_not_accept_arbitrary_kwargs(models):
     if int(version("marshmallow")[0]) < 4:
-        from marshmallow.warnings import RemovedInMarshmallow4Warning
+        from marshmallow.warnings import RemovedInMarshmallow4Warning  # noqa: PLC0415
 
         with pytest.warns(
             RemovedInMarshmallow4Warning,
