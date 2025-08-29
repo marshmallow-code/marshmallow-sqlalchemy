@@ -35,7 +35,7 @@ docs = [
   "sphinx-design==0.6.1",
   "sphinx-issues==5.0.1",
   "sphinx==8.2.3; python_version >= '3.11'",
-  "sphinxext-opengraph==0.12.0",
+  "sphinxext-opengraph==0.13.0",
 ]
 tests = ["pytest<9", "pytest-lazy-fixtures"]
 dev = ["marshmallow-sqlalchemy[tests]", "tox", "pre-commit>=3.5,<5.0"]
