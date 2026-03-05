@@ -140,7 +140,7 @@ def models(Base: type) -> Models:
         # Test complex column property
         course_count = column_property(
             sa.select(sa.func.count(student_course.c.course_id))
-            .where(student_course.c.student_id == id)
+            .where(student_course.c.student_id == id)  # noqa: A003
             .scalar_subquery()
         )
 
