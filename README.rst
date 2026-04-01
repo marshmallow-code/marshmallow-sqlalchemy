@@ -135,8 +135,6 @@ Get it now
    $ pip install -U marshmallow-sqlalchemy
 
 
-Requires Python >= 3.9, marshmallow >= 3.18.0, and SQLAlchemy >= 1.4.40.
-
 .. end elevator-pitch
 
 Documentation
