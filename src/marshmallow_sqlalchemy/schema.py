@@ -170,13 +170,13 @@ class SQLAlchemySchemaMeta(SchemaMeta):
                 if column.foreign_keys
             }
 
-            # Collect fields explicitly declared in non-AutoSchema bases
+            # Collect fields explicitly declared in non-AutoSchema bases.
+            # XXX: Avoid issubclass(base, Schema) because it causes quadratic
+            # ABCMeta cache growth with many schema classes (#665).
             declared_fields: set[str] = set()
             for base in klass.__mro__:
-                # XXX: Avoid issubclass(Schema) because it causes
-                # quadratic ABCMeta cache growth with many schema classes.
-                # Instead, check the type of the options class.
-                # See https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/665
+                if base is object:
+                    break
                 opts_cls = getattr(base, "OPTIONS_CLASS", None)
                 if opts_cls is not None and issubclass(
                     opts_cls, SQLAlchemyAutoSchemaOpts
