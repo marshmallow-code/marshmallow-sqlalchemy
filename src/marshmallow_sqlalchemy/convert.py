@@ -3,12 +3,11 @@ from __future__ import annotations
 import functools
 import inspect
 import uuid
+from collections.abc import Callable
 from typing import (
     TYPE_CHECKING,
     Any,
-    Callable,
     Literal,
-    Union,
     cast,
     overload,
 )
@@ -17,7 +16,7 @@ from typing import (
 try:
     from typing import TypeAlias, TypeGuard
 except ImportError:
-    from typing_extensions import TypeAlias, TypeGuard
+    from typing import TypeAlias, TypeGuard
 
 import marshmallow as ma
 import sqlalchemy as sa
@@ -40,7 +39,7 @@ if TYPE_CHECKING:
 _FieldPartial: TypeAlias = Callable[[], fields.Field]
 # TODO: Use more specific type for second argument
 _FieldClassFactory: TypeAlias = Callable[
-    ["ModelConverter", Any], Union[type[fields.Field], _FieldPartial]
+    ["ModelConverter", Any], type[fields.Field] | _FieldPartial
 ]
 
 

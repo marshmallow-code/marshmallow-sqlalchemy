@@ -1,6 +1,13 @@
 Changelog
 ---------
 
+unreleased
+++++++++++
+
+Other changes:
+
+* Drop support for Python 3.9, which is EOL. Support Python 3.10-3.14.
+
 1.4.2 (2025-04-09)
 ++++++++++++++++++
 

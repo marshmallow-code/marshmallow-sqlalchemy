@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import importlib.metadata
 from collections.abc import Iterable, Mapping, Sequence
-from typing import TYPE_CHECKING, Any, Generic, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, Generic, TypeVar, cast
 
 import marshmallow as ma
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -21,8 +21,8 @@ from .fields import get_primary_keys
 if TYPE_CHECKING:
     from sqlalchemy.orm import Session
 
-_LoadDataV3 = Union[Mapping[str, Any], Iterable[Mapping[str, Any]]]
-_LoadDataV4 = Union[Mapping[str, Any], Sequence[Mapping[str, Any]]]
+_LoadDataV3 = Mapping[str, Any] | Iterable[Mapping[str, Any]]
+_LoadDataV4 = Mapping[str, Any] | Sequence[Mapping[str, Any]]
 _LoadDataT = TypeVar("_LoadDataT", _LoadDataV3, _LoadDataV4)
 _ModelType = TypeVar("_ModelType", bound=DeclarativeMeta)
 

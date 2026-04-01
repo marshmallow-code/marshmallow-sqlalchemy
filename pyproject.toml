@@ -9,17 +9,16 @@ classifiers = [
   "Intended Audience :: Developers",
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
 ]
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
   "marshmallow>=3.18.0",
   "SQLAlchemy>=1.4.40,<3.0",
-  "typing-extensions; python_version < '3.10'",
 ]
 
 [project.urls]
@@ -28,17 +27,25 @@ Funding = "https://opencollective.com/marshmallow"
 Issues = "https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues"
 Source = "https://github.com/marshmallow-code/marshmallow-sqlalchemy"
 
-[project.optional-dependencies]
+[dependency-groups]
 docs = [
-  "furo==2025.12.19",
-  "sphinx-copybutton==0.5.2",
-  "sphinx-design==0.6.1",
-  "sphinx-issues==5.0.1",
-  "sphinx==8.2.3; python_version >= '3.11'",
-  "sphinxext-opengraph==0.13.0",
+  "furo",
+  "sphinx-copybutton",
+  "sphinx-design",
+  "sphinx-issues",
+  "sphinx>=8.1",
+  "sphinxext-opengraph",
 ]
-tests = ["pytest<10", "pytest-lazy-fixtures"]
-dev = ["marshmallow-sqlalchemy[tests]", "tox", "pre-commit>=3.5,<5.0"]
+tests = ["pytest", "pytest-lazy-fixtures"]
+dev = [
+  { include-group = "tests" },
+  "tox",
+  "tox-uv",
+  "pre-commit>=3.5,<5.0",
+]
+
+[tool.uv]
+default-groups = ["dev"]
 
 [build-system]
 requires = ["flit_core<4"]
