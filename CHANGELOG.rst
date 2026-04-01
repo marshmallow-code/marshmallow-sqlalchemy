@@ -1,8 +1,12 @@
 Changelog
 ---------
 
-unreleased
-++++++++++
+1.5.0 (unreleased)
+++++++++++++++++++
+
+Bug fixes:
+
+* Fix memory usage regression from 1.4.1 (1.4.2 didn't address the root cause) (:issue:`665`).
 
 Other changes:
 

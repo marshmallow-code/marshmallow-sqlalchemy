@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-import inspect
 from typing import TYPE_CHECKING, Any, cast
 
 import sqlalchemy as sa
 from marshmallow.fields import Field
-from marshmallow.schema import Schema, SchemaMeta, SchemaOpts, _get_fields
+from marshmallow.schema import Schema, SchemaMeta, SchemaOpts
 
 from .convert import ModelConverter
 from .exceptions import IncorrectSchemaTypeError
@@ -171,18 +170,21 @@ class SQLAlchemySchemaMeta(SchemaMeta):
                 if column.foreign_keys
             }
 
-            non_auto_schema_bases = [
-                base
-                for base in inspect.getmro(klass)
-                if issubclass(base, Schema)
-                and not issubclass(base, SQLAlchemyAutoSchema)
-            ]
-
-            # Pre-compute declared fields only once
-            declared_fields: set[Any] = set()
-            for base in non_auto_schema_bases:
-                base_fields = getattr(base, "_declared_fields", base.__dict__)
-                declared_fields.update(name for name, _ in _get_fields(base_fields))
+            # Collect fields explicitly declared in non-AutoSchema bases.
+            # XXX: Avoid issubclass(base, Schema) because it causes quadratic
+            # ABCMeta cache growth with many schema classes (#665).
+            declared_fields: set[str] = set()
+            for base in klass.__mro__:
+                if base is object:
+                    break
+                opts_cls = getattr(base, "OPTIONS_CLASS", None)
+                if opts_cls is not None and issubclass(
+                    opts_cls, SQLAlchemyAutoSchemaOpts
+                ):
+                    continue
+                base_declared = base.__dict__.get("_declared_fields")
+                if base_declared:
+                    declared_fields.update(base_declared.keys())
 
             return [
                 (name, field)
