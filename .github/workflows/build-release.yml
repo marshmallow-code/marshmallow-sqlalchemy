@@ -14,11 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { name: "3.10", tox: py310-marshmallow3 }
-          - { name: "3.14", tox: py314-marshmallow3 }
+          - { name: "3.10", tox: py310 }
+          - { name: "3.14", tox: py314 }
           - { name: "lowest", tox: py310-lowest }
           - { name: "dev", tox: py314-marshmallowdev }
-          - { name: "mypy-ma3", tox: mypy-marshmallow3 }
           - { name: "mypy-madev", tox: mypy-marshmallowdev }
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
