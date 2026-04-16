@@ -3,11 +3,10 @@ name = "marshmallow-sqlalchemy"
 version = "1.5.0"
 description = "SQLAlchemy integration with the marshmallow (de)serialization library"
 readme = "README.rst"
-license = { file = "LICENSE" }
-maintainers = [{ name = "Steven Loria", email = "sloria1@gmail.com" }]
+license = "MIT"
+maintainers = [{ name = "Steven Loria", email = "oss@stevenloria.com" }]
 classifiers = [
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: MIT License",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
@@ -16,10 +15,7 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 requires-python = ">=3.10"
-dependencies = [
-  "marshmallow>=3.18.0",
-  "SQLAlchemy>=1.4.40,<3.0",
-]
+dependencies = ["marshmallow>=4.0.0", "SQLAlchemy>=1.4.40,<3.0"]
 
 [project.urls]
 Changelog = "https://marshmallow-sqlalchemy.readthedocs.io/en/latest/changelog.html"
@@ -37,12 +33,7 @@ docs = [
   "sphinxext-opengraph",
 ]
 tests = ["pytest", "pytest-lazy-fixtures"]
-dev = [
-  { include-group = "tests" },
-  "tox",
-  "tox-uv",
-  "pre-commit>=3.5,<5.0",
-]
+dev = [{ include-group = "tests" }, "tox", "tox-uv", "pre-commit>=3.5,<5.0"]
 
 [tool.uv]
 default-groups = ["dev"]

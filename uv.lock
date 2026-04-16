@@ -533,7 +533,7 @@ tests = [
 
 [package.metadata]
 requires-dist = [
-    { name = "marshmallow", specifier = ">=3.18.0" },
+    { name = "marshmallow", specifier = ">=4.0.0" },
     { name = "sqlalchemy", specifier = ">=1.4.40,<3.0" },
 ]
 
