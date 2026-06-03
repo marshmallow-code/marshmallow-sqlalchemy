@@ -147,7 +147,7 @@ Project links
 
 - Docs: https://marshmallow-sqlalchemy.readthedocs.io/
 - Changelog: https://marshmallow-sqlalchemy.readthedocs.io/en/latest/changelog.html
-- Contributing Guidelines: https://marshmallow-sqlalchemy.readthedocs.io/en/latest/contributing.html
+- Contributing Guidelines: https://github.com/marshmallow-code/.github/blob/main/CONTRIBUTING.md
 - PyPI: https://pypi.python.org/pypi/marshmallow-sqlalchemy
 - Issues: https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues
 
