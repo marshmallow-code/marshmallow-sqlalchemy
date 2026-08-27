@@ -4,6 +4,12 @@ Changelog
 unreleased
 ++++++++++
 
+Bug fixes:
+
+* Don't attach a length validator to Python ``Enum`` columns. Validators run
+  after deserialization, so ``len()`` was called on the enum member
+  (:issue:`673`).
+
 Other changes:
 
 * Drop support for marshmallow 3, which is EOL.
