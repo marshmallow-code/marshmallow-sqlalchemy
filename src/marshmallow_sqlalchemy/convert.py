@@ -445,7 +445,11 @@ class ModelConverter:
                 except (AttributeError, NotImplementedError):
                     python_type = None
                 if not python_type or not issubclass(python_type, uuid.UUID):
-                    kwargs["validate"].append(validate.Length(max=column_length))
+                    # Enum members have no len(); the DB length is redundant
+                    # once the value is deserialized to the enum class.
+                    # https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/673
+                    if getattr(column.type, "enum_class", None) is None:
+                        kwargs["validate"].append(validate.Length(max=column_length))
 
         if getattr(column.type, "asdecimal", False):
             kwargs["places"] = getattr(column.type, "scale", None)
