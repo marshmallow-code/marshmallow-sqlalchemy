@@ -82,6 +82,7 @@ class TestModelFieldConversion:
         field = fields_["level_with_enum_class"]
         assert type(field) is fields.Enum
         assert contains_validator(field, validate.OneOf) is False
+        assert contains_validator(field, validate.Length) is False
         assert field.enum is CourseLevel
 
     def test_many_to_many_relationship(self, models):
