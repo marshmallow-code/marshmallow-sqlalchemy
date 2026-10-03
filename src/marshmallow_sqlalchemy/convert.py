@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import enum
 import functools
 import inspect
 import uuid
@@ -435,8 +436,9 @@ class ModelConverter:
             kwargs["validate"].append(validate.OneOf(choices=column.type.enums))
 
         # Add a length validator if a max length is set on the column
-        # Skip UUID columns
-        # (see https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/54)
+        # Skip UUID and Enum columns
+        # - https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/54
+        # - https://github.com/marshmallow-code/marshmallow-sqlalchemy/issues/673
         if hasattr(column.type, "length") and not kwargs.get("dump_only"):
             column_length = column.type.length
             if column_length is not None:
@@ -444,7 +446,9 @@ class ModelConverter:
                     python_type = column.type.python_type
                 except (AttributeError, NotImplementedError):
                     python_type = None
-                if not python_type or not issubclass(python_type, uuid.UUID):
+                if not python_type or not issubclass(
+                    python_type, uuid.UUID | enum.Enum
+                ):
                     kwargs["validate"].append(validate.Length(max=column_length))
 
         if getattr(column.type, "asdecimal", False):
