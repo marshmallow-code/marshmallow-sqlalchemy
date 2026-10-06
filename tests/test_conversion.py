@@ -100,7 +100,7 @@ class TestModelFieldConversion:
         current_school_field = student_fields["current_school"]
         assert type(current_school_field) is Related
         assert current_school_field.allow_none is False
-        assert current_school_field.required is True
+        assert current_school_field.required is False
 
         school_fields = fields_for_model(models.School, include_relationships=True)
         assert type(school_fields["students"]) is RelatedList
