@@ -465,7 +465,7 @@ class ModelConverter:
                 ):
                     nullable = False
                 break
-        kwargs.update({"allow_none": nullable, "required": not nullable})
+        kwargs.update({"allow_none": nullable, "required": False})
 
     def _should_exclude_field(
         self,

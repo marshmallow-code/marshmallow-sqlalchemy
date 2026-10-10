@@ -4,6 +4,12 @@ Changelog
 unreleased
 ++++++++++
 
+Bug fixes:
+
+* Ensure relationship fields default to ``required=False`` while maintaining ``allow_none=False`` for non-nullable relationships, allowing deserialization via foreign keys or nested instances (:issue:`664`).
+  Thanks :user:`Curiouspaul1` and :user:`n8harmon` for reporting.
+* Avoid ``SAWarning`` when querying related instances with all-None lookup values (:issue:`664`).
+
 Other changes:
 
 * Drop support for marshmallow 3, which is EOL.
