@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import datetime as dt
 import functools
 import inspect
 import uuid
@@ -93,6 +94,16 @@ def _enum_field_factory(
     )
 
 
+def _datetime_field_factory(
+    converter: ModelConverter, data_type: sa.DateTime
+) -> type[fields.Field]:
+    if getattr(data_type, "timezone", False) or isinstance(
+        data_type, mssql.DATETIMEOFFSET
+    ):
+        return fields.AwareDateTime
+    return converter.type_mapping.get(dt.datetime, fields.DateTime)
+
+
 class ModelConverter:
     """Converts a SQLAlchemy model into a dictionary of corresponding
     marshmallow `Fields <marshmallow.fields.Field>`.
@@ -105,6 +116,7 @@ class ModelConverter:
         sa.JSON: fields.Raw,
         sa.ARRAY: _list_field_factory,
         sa.PickleType: fields.Raw,
+        sa.DateTime: _datetime_field_factory,
         postgresql.BIT: fields.Integer,
         postgresql.OID: fields.Integer,
         postgresql.UUID: fields.UUID,
@@ -123,7 +135,7 @@ class ModelConverter:
         mysql.SET: fields.List,
         mysql.ENUM: fields.Field,
         mysql.INTEGER: fields.Integer,
-        mysql.DATETIME: fields.DateTime,
+        mysql.DATETIME: _datetime_field_factory,
         mssql.BIT: fields.Integer,
         mssql.UNIQUEIDENTIFIER: fields.UUID,
     }

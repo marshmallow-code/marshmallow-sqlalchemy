@@ -7,7 +7,7 @@ import pytest
 import sqlalchemy as sa
 from marshmallow import Schema, fields, validate
 from sqlalchemy import Integer, String
-from sqlalchemy.dialects import mysql, postgresql
+from sqlalchemy.dialects import mssql, mysql, postgresql
 from sqlalchemy.orm import Mapped, Session, column_property
 
 from marshmallow_sqlalchemy import (
@@ -202,6 +202,26 @@ class TestPropertyFieldConversion:
     )
     def test_convert_types(self, converter, sa_type, field_type):
         prop = make_property(sa_type())
+        field = converter.property2field(prop)
+        assert type(field) is field_type
+
+    @pytest.mark.parametrize(
+        ("sa_type_instance", "field_type"),
+        (
+            (sa.DateTime(timezone=True), fields.AwareDateTime),
+            (sa.DateTime(timezone=False), fields.DateTime),
+            (sa.DateTime(), fields.DateTime),
+            (postgresql.TIMESTAMP(timezone=True), fields.AwareDateTime),
+            (postgresql.TIMESTAMP(timezone=False), fields.DateTime),
+            (mysql.DATETIME(timezone=True), fields.AwareDateTime),
+            (mysql.DATETIME(timezone=False), fields.DateTime),
+            (mssql.DATETIMEOFFSET(), fields.AwareDateTime),
+            (sa.TIMESTAMP(timezone=True), fields.AwareDateTime),
+            (sa.TIMESTAMP(timezone=False), fields.DateTime),
+        ),
+    )
+    def test_convert_datetime_types(self, converter, sa_type_instance, field_type):
+        prop = make_property(sa_type_instance)
         field = converter.property2field(prop)
         assert type(field) is field_type
 

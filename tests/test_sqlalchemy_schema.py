@@ -750,3 +750,20 @@ def test_dumping_pickle_field(models, teacher):
     assert schema.dump(teacher) == {
         "data": {"foo": "bar"},
     }
+
+
+def test_auto_field_aware_datetime(Base):
+    class Item(Base):
+        __tablename__ = "item_aware_datetime"
+        id = sa.Column(sa.Integer, primary_key=True)
+        created_at = sa.Column(sa.DateTime(timezone=True), nullable=False)
+        updated_at = sa.Column(sa.DateTime(timezone=False), nullable=True)
+
+    class ItemSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = Item
+
+    schema = ItemSchema()
+    assert isinstance(schema.fields["created_at"], fields.AwareDateTime)
+    assert isinstance(schema.fields["updated_at"], fields.DateTime)
+    assert not isinstance(schema.fields["updated_at"], fields.AwareDateTime)
