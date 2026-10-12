@@ -404,3 +404,28 @@ class TestFieldFor:
         field = field_for(ModelWithArray, "bar", dump_only=True)
         assert type(field) is fields.List
         assert field.dump_only is True
+
+    def test_dump_only_field_not_required(self, models):
+        # regression test for #672: dump_only fields should not be marked as required
+        field = field_for(models.Student, "full_name", dump_only=True)
+        assert field.dump_only is True
+        assert field.required is False
+
+        # relationship field
+        rel_field = field_for(models.Student, "current_school", dump_only=True)
+        assert rel_field.dump_only is True
+        assert rel_field.required is False
+
+        # column2field
+        col_field = column2field(
+            models.Student.__table__.columns.full_name, dump_only=True
+        )
+        assert col_field.dump_only is True
+        assert col_field.required is False
+
+        # explicit required=True is preserved
+        explicit_req = field_for(
+            models.Student, "full_name", dump_only=True, required=True
+        )
+        assert explicit_req.dump_only is True
+        assert explicit_req.required is True

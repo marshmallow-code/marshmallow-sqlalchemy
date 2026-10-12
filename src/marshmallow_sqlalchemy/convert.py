@@ -258,6 +258,8 @@ class ModelConverter:
             return field_class
         field_kwargs = self._get_field_kwargs_for_property(prop)
         field_kwargs.update(kwargs)
+        if field_kwargs.get("dump_only") and "required" not in kwargs:
+            field_kwargs["required"] = False
         ret = field_class(**field_kwargs)
         if (
             hasattr(prop, "direction")
@@ -292,7 +294,10 @@ class ModelConverter:
             return field_class
         field_kwargs = self.get_base_kwargs()
         self._add_column_kwargs(field_kwargs, column)
-        return field_class(**{**field_kwargs, **kwargs})
+        field_kwargs.update(kwargs)
+        if field_kwargs.get("dump_only") and "required" not in kwargs:
+            field_kwargs["required"] = False
+        return field_class(**field_kwargs)
 
     @overload
     def field_for(
@@ -423,7 +428,11 @@ class ModelConverter:
         if hasattr(column, "nullable"):
             if column.nullable:
                 kwargs["allow_none"] = True
-            kwargs["required"] = not column.nullable and not _has_default(column)
+            kwargs["required"] = (
+                not column.nullable
+                and not _has_default(column)
+                and not kwargs.get("dump_only")
+            )
         # If there is no nullable attribute, we are dealing with a property
         # that does not derive from the Column class. Mark as dump_only.
         else:
@@ -465,7 +474,12 @@ class ModelConverter:
                 ):
                     nullable = False
                 break
-        kwargs.update({"allow_none": nullable, "required": not nullable})
+        kwargs.update(
+            {
+                "allow_none": nullable,
+                "required": not nullable and not kwargs.get("dump_only"),
+            }
+        )
 
     def _should_exclude_field(
         self,
