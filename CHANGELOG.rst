@@ -1,12 +1,16 @@
 Changelog
 ---------
 
-unreleased
-++++++++++
+1.6.0 (2026-10-19)
+++++++++++++++++++
+
+Bug fixes:
+
+* Fix length validation error on `Enum` fields (:pr:`742`).
 
 Other changes:
 
-* Drop support for marshmallow 3, which is EOL.
+* Drop support for marshmallow 3, which is EOL (:pr:`712`).
 
 1.5.0 (2026-04-01)
 ++++++++++++++++++
