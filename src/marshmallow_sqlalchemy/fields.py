@@ -130,6 +130,8 @@ class Related(fields.Field):
         else:
             # Use a faster path if the related key is the primary key.
             lookup_values = [value.get(prop.key) for prop in self.related_keys]
+            if all(v is None for v in lookup_values):
+                raise NoResultFound
             try:
                 result = self.session.get(related_model, lookup_values)
             except TypeError as error:

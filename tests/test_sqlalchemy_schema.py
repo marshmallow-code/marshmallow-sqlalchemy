@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import warnings
 from importlib.metadata import version
 
 import marshmallow
@@ -437,6 +438,61 @@ class TestModelInstanceDeserialization:
         load_data = schema.load(dump_data)
 
         assert isinstance(load_data, models.Teacher)
+
+    def test_load_student_with_non_nullable_relationship(self, models, session, school):
+        class StudentSchema(SQLAlchemyAutoSchema):
+            class Meta:
+                model = models.Student
+                include_relationships = True
+                include_fk = True
+                load_instance = True
+                sqla_session = session
+
+        schema = StudentSchema()
+        student = schema.load(
+            {"full_name": "Harry Potter", "current_school_id": school.id}
+        )
+        assert student.full_name == "Harry Potter"
+        assert student.current_school_id == school.id
+
+    def test_load_student_with_non_nullable_relationship_disallows_none(
+        self, models, session
+    ):
+        class StudentSchema(SQLAlchemyAutoSchema):
+            class Meta:
+                model = models.Student
+                include_relationships = True
+                include_fk = True
+                load_instance = True
+                sqla_session = session
+
+        schema = StudentSchema()
+        with pytest.raises(marshmallow.ValidationError) as excinfo:
+            schema.load({"full_name": "Harry Potter", "current_school": None})
+        assert "current_school" in excinfo.value.messages
+        assert "Field may not be null." in excinfo.value.messages["current_school"]
+
+    def test_related_field_all_none_lookup_values_no_warning(self, models, session):
+        class StudentSchema(SQLAlchemyAutoSchema):
+            class Meta:
+                model = models.Student
+                include_relationships = True
+                include_fk = False
+                load_instance = True
+                sqla_session = session
+
+        schema = StudentSchema()
+        with warnings.catch_warnings():
+            warnings.simplefilter("error", sa.exc.SAWarning)
+            # Providing related dict without primary key should not raise SAWarning
+            student = schema.load(
+                {
+                    "full_name": "Ron Weasley",
+                    "current_school": {"name": "Hogwarts School"},
+                }
+            )
+            assert student.full_name == "Ron Weasley"
+            assert student.current_school.name == "Hogwarts School"
 
     def test_load_transient(self, models, teacher):
         class TeacherSchema(SQLAlchemyAutoSchema):
