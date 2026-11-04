@@ -121,7 +121,7 @@ def models(Base: type) -> Models:
         dob = sa.Column(sa.Date(), nullable=True)
         date_created = sa.Column(
             sa.DateTime,
-            default=lambda: dt.datetime.now(dt.timezone.utc),
+            default=lambda: dt.datetime.now(dt.UTC),
             doc="date the student was created",
         )
 
