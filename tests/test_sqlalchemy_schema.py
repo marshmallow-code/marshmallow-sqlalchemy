@@ -750,3 +750,26 @@ def test_dumping_pickle_field(models, teacher):
     assert schema.dump(teacher) == {
         "data": {"foo": "bar"},
     }
+
+
+def test_dump_only_field_not_required(models):
+    class StudentSchema(SQLAlchemySchema):
+        class Meta:
+            model = models.Student
+
+        full_name = auto_field(dump_only=True)
+
+    schema = StudentSchema()
+    assert schema.fields["full_name"].dump_only is True
+    assert schema.fields["full_name"].required is False
+
+
+def test_auto_schema_meta_dump_only_not_required(models):
+    class StudentAutoSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Student
+            dump_only = ("full_name",)
+
+    schema = StudentAutoSchema()
+    assert schema.fields["full_name"].dump_only is True
+    assert schema.fields["full_name"].required is False
