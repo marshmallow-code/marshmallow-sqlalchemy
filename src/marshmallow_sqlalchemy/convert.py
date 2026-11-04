@@ -9,15 +9,11 @@ from typing import (
     TYPE_CHECKING,
     Any,
     Literal,
+    TypeAlias,
+    TypeGuard,
     cast,
     overload,
 )
-
-# Remove when dropping Python 3.9
-try:
-    from typing import TypeAlias, TypeGuard
-except ImportError:
-    from typing import TypeAlias, TypeGuard
 
 import marshmallow as ma
 import sqlalchemy as sa
