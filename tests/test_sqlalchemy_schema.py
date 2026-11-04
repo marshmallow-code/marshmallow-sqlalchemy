@@ -750,3 +750,34 @@ def test_dumping_pickle_field(models, teacher):
     assert schema.dump(teacher) == {
         "data": {"foo": "bar"},
     }
+
+
+def test_dump_only_not_required_in_schema(models):
+    # regression test for #672: dump_only fields in schemas are not required
+    class StudentAutoSchema(SQLAlchemyAutoSchema):
+        class Meta:
+            model = models.Student
+            dump_only = ("full_name", "current_school")
+            include_relationships = True
+
+    schema = StudentAutoSchema()
+    assert schema.fields["full_name"].dump_only is True
+    assert schema.fields["full_name"].required is False
+    assert schema.fields["current_school"].dump_only is True
+    assert schema.fields["current_school"].required is False
+
+    class StudentCustomSchema(SQLAlchemySchema):
+        class Meta:
+            model = models.Student
+
+        full_name = auto_field(dump_only=True)
+        current_school = auto_field(dump_only=True)
+        id = auto_field(dump_only=True, required=True)
+
+    custom_schema = StudentCustomSchema()
+    assert custom_schema.fields["full_name"].dump_only is True
+    assert custom_schema.fields["full_name"].required is False
+    assert custom_schema.fields["current_school"].dump_only is True
+    assert custom_schema.fields["current_school"].required is False
+    assert custom_schema.fields["id"].dump_only is True
+    assert custom_schema.fields["id"].required is True

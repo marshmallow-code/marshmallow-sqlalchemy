@@ -41,12 +41,19 @@ class SQLAlchemyAutoField(Field):
         column_name: str,
         converter: ModelConverter,
     ):
+        field_kwargs = dict(self.field_kwargs)
+        if column_name in schema_opts.dump_only and "dump_only" not in field_kwargs:
+            field_kwargs["dump_only"] = True
         model = self.model or schema_opts.model
         if model:
-            return converter.field_for(model, column_name, **self.field_kwargs)
-        table = self.table if self.table is not None else schema_opts.table
-        column = getattr(cast("sa.Table", table).columns, column_name)
-        return converter.column2field(column, **self.field_kwargs)
+            field = converter.field_for(model, column_name, **field_kwargs)
+        else:
+            table = self.table if self.table is not None else schema_opts.table
+            column = getattr(cast("sa.Table", table).columns, column_name)
+            field = converter.column2field(column, **field_kwargs)
+        if "required" in self.field_kwargs:
+            field._explicit_required = True
+        return field
 
     # This field should never be bound to a schema.
     # If this method is called, it's probably because the schema is not a SQLAlchemySchema.
@@ -123,6 +130,15 @@ class SQLAlchemySchemaMeta(SchemaMeta):
         )
         fields.update(mcs.get_declared_sqla_fields(fields, converter, opts, dict_cls))
         fields.update(mcs.get_auto_fields(fields, converter, opts, dict_cls))
+        if opts.dump_only:
+            for field_name, field in fields.items():
+                if (
+                    field
+                    and field_name in opts.dump_only
+                    and not getattr(field, "_explicit_required", False)
+                ):
+                    field.required = False
+                    field.dump_only = True
         return fields
 
     @classmethod
